@@ -95,3 +95,7 @@ Così facendo eseguo il file `s1.sh` e accedo al suo codice, altrimenti $a='' di
 # ALTRO INTERPRETE
 which python mi dice il percorso di python
 `./s4.sh` esegue del python perchè gli ho detto sopra qual è l'interprete da interpellare
+
+# ARRAY
+
+
