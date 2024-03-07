@@ -93,9 +93,25 @@ Così facendo eseguo il file `s1.sh` e accedo al suo codice, altrimenti $a='' di
 `export`  mi elenca le variabili globali 
 
 # ALTRO INTERPRETE
-which python mi dice il percorso di python
+`which python` mi dice il percorso di python
 `./s4.sh` esegue del python perchè gli ho detto sopra qual è l'interprete da interpellare
 
 # ARRAY
+- array classici (indicizzati da numeri) - POSSO NON dichiararli
+- array associativi (indicizzati da stringhe) - DEVO dichiararli
 
+# CONDIZIONI
+La condizione in 3 modi: `[condizione]` - `[[condizione]]` - `test condizione`
+```bash
+if condizione
+then
+    cmd1
+    cmd2
+fi
+```
 
+```
+ln -s s.sh link1
+ln -s cartella link2
+ls -l
+```
