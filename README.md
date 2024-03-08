@@ -1,107 +1,106 @@
 https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 
 # Esempi
+```bash
+ps # elenco processi
+nano .bashrc
+alias x="echo ciao;ls;ls;echo hello" # N comandi inline x eseguirli in sequenza
+(ps;ps) # per vedere che ci son 2 PID annidati
+{ ps;ps; } # così c'è un solo PID, un'unica sequenza di processi
+```
+- Con le {} bisogna mettere uno spazio all'inizio e uno alla fine, e bisogna terminare con ;
 
-`ps` elenco processi
+```bash
+history
+CTRL+R # attiva reverse-search, x cercare i comandi
+```
 
-`nano .bashrc`
+In AND continuo l'esecuzione finchè un comando non riesce, in OR mi fermo alla prima esecuzione riuscita
+```bash
+cmd1 && cmd2
+cmd1 || cmd2
 
-`alias x="echo ciao;ls;ls;echo hello" `=> N comandi inline x eseguirli in sequenza
+ls && echo ciao && ls
+ls && echi ciao && ls # si và avanti stampando gli errori di ogni comando
+lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 
-`(ps;ps)` per vedere che ci son 2 PID annidati
+which ls # dice dove si trova il comando ls, in quale folder
+echo $? # stampa l'exit status dell'ultimo processo eseguito
 
-`{ ps;ps; }` così c'è un solo PID, un'unica sequenza di processi
-- Con le {} bisogna mettere uno spazio all'inizio, uno alla fine che termina con ;
+{ ls || echo ciao; } && echo finito
+{ lss || echo ciao; } && echo finito
 
-`history`
+CMD n< file # LETTURA - aprire il file in lettura; default n=0 
 
-`CTRL+R` attiva reverse-search, x cercare i comandi
+tr "1234" "abcd" # provo a digitare 1261681185
+tr "1234" "abcd" < t.txt
 
-    cmd1 && cmd2
-    cmd1 || cmd2
+ls > tt.txt  # SCRITTURA - creo il file contenente l'output del comando ls. Se il file esiste lo sovrascrive
+ls >> tt.txt # SCRITTURA - stessa cosa ma opera in APPEND
 
-`ls && echo ciao && ls`
-
-`ls && echi ciao && ls`  si và avanti stampando gli errori di ogni comando
-
-`lss || echo ciao || ls`  si và avanti finchè un comando non ha successo
-
-
-`which ls` dice dove si trova il comando ls, in quale folder
-
-`echo $?`  stampa l'exit status dell'ultimo processo eseguito
-
-    { ls || echo ciao; } && echo finito
-    { lss || echo ciao; } && echo finito
-
-`CMD n< file` => LETTURA - aprire il file in lettura; default n=0 
-
-`tr "1234" "abcd"`
-`17451235`
-`tr "1234" "abcd" < t.txt`
-
-`ls > tt.txt` => SCRITTURA - creo il file contenente l'output del comando ls. Se il file esiste lo sovrascrive completamente
-
-`ls >> tt.txt` => SCRITTURA - stessa cosa ma opera in APPEND
-
-    $ cd /dev/fd
-    $ ls -l
+cd /dev/fd
+ls -l
+```
 
 # REDIREZIONI
-`exec > ~/t.txt`  serve per la redirezione permanente
-
-`exec > /dev/pts/0`  serve per la redirezione permanente
-
-`exec 5>~/t.txt`  creo il file descriptor 5: chi può accedere allo stdOUT (default=1) scriverà in quel file
-
-`exec 5<>~/t.txt`  così lo creo sia per LETTURA che SCRITTURA
-
-`exec 5>&-`  chiudo il file descriptor "custom" 5 in SCRITTURA
+```bash
+exec > ~/t.txt #  serve per la redirezione permanente
+exec > /dev/pts/0 #  serve per la redirezione permanente
+exec 5>~/t.txtv  creo il file descriptor 5: chi può accedere allo stdOUT (default=1) scriverà in quel file
+exec 5<>~/t.txt #  così lo creo sia per LETTURA che SCRITTURA
+exec 5>&- #  chiudo il file descriptor "custom" 5 in SCRITTURA
+```
 
 # PIPELINE
-`ls | tr "AEIOU" "12345"`  pipeline di comandi ls(output) è diventato tr(input)
-
-`ls |& tr "AEIOU" "12345"`   ls(output+error) collegato con tr(input)
-
-`lss | tr "AEIOU" "12345"`  dà errore
-
-`lss |& tr "AEIOU" "12345"`   traduce l'errore
+```bash
+ls | tr "AEIOU" "12345" #  pipeline di comandi ls(output) diventa tr(input)
+ls |& tr "AEIOU" "12345" #   ls(output+error) collegato con tr(input)
+lss | tr "AEIOU" "12345" #  dà errore
+lss |& tr "AEIOU" "12345" #   traduce l'errore
+```
 
 # SCRIPTING
 Così facendo eseguo il file `s1.sh` e accedo al suo codice, altrimenti $a='' di default
+```bash
+. s1.sh
+echo $a
 
-    . s1.sh
-    echo $a
-
-./s1.sh => col percorso assoluto ho bisogno dei permessi di esecuzione (es: `chmod 744 s1.sh`)
-
-`. s1.sh` oppure `source s1.sh` si esegue dalla shell bash corrente
+./s1.sh      # Delegato a una sottoshell. Ho bisogno dei permessi di esecuzione (es: `chmod 744 s1.sh`). 
+. s1.sh      # si esegue dalla shell bash corrente
+source s1.sh # si esegue dalla shell bash corrente
+bash s1.sh   # Delegato a una sottoshell
+```
  
 # VARIABILI
-`variabile="valore"` senza nessuno spazio
-`declare -i numero=13` se non è stringa lo devo dichiarare: integer
-`declare -r costante="ciao"` costante: se le asegno un altro valore ho un errore
-`declare -x variabileglobale="globale"` costante: se le asegno un altro valore ho un errore
-`export -n variabileglobale` la setta NON PIU' GLOBALE
-`declare -a array=[]`
-`declare -A arrayassociativo=[]`
+```bash
+variabile="valore" # senza nessuno spazio
+declare -i numero=13 # se non è stringa lo devo dichiarare: integer
+declare -r costante="ciao" # costante: se le assegno un altro valore ho un errore
+declare -x variabileglobale="globale" # costante: se le asegno un altro valore ho un errore
+export -n variabileglobale # la setta NON PIU' GLOBALE
+declare -a array=[] # array numerico
+declare -A arrayassociativo=[] # array associativo
 
-`$nomevar`  prendo il valore della variabile
-`${nomevar}`  stessa cosa ma è più leggibile in caso di concatenazioni strane
-`unset` per settare a NULL una variabile
+$nomevar   #  prendo il valore della variabile
+${nomevar} #  stessa cosa ma è più leggibile in caso di concatenazioni strane
+unset      # per settare a NULL una variabile. Dà errore se applicato a una costante
+export     #  mi elenca le variabili globali 
 
-`export`  mi elenca le variabili globali 
+./s3.sh par1 par2 par3 # lo eseguo dandogli anche dei parametri
+```
 
 # ALTRO INTERPRETE
-`which python` mi dice il percorso di python
-`./s4.sh` esegue del python perchè gli ho detto sopra qual è l'interprete da interpellare
+```bash
+which python # mi dice il percorso di python
+./s4.sh      # esegue del python perchè gli ho detto sopra qual è l'interprete da interpellare
+```
 
 # ARRAY
 - array classici (indicizzati da numeri) - POSSO NON dichiararli
 - array associativi (indicizzati da stringhe) - DEVO dichiararli
 
 # CONDIZIONI
-La condizione in 3 modi: `[condizione]` - `[[condizione]]` - `test condizione`
+- La condizione in 3 modi: `[condizione]` - `[[condizione]]` - `test condizione`
 ```bash
 if condizione
 then
@@ -110,8 +109,117 @@ then
 fi
 ```
 
-```
+```bash
 ln -s s.sh link1
 ln -s cartella link2
 ls -l
 ```
+
+```bash
+variabile="stringa"
+case $variabile in
+  pattern1)
+    cmd1
+    cmd2
+    ;;
+  pattern2)
+    cmd3
+    cmd4
+    ;;
+esac
+```
+
+# CICLI
+- La condizione sempre in: `[condizione]` - `[[condizione]]` - `test condizione`
+- `IFS` ha 3 valori: \n, spazio, tab => `"\n   "` => identifica i separatori fra parole
+```bash
+while condizione
+do
+    cmd1
+    cmd2
+done
+```
+
+```bash
+until condizione
+do
+    cmd1
+    cmd2
+done
+```
+
+```bash
+for var in listaElementi
+do
+    cmd1
+    cmd2
+done
+```
+
+```bash
+for (( i=0;i<=10;i++ ))
+do
+    echo "valore di i: "$i
+done
+```
+
+# INPUT E READ
+```bash
+read var1 var2 var3
+```
+
+```bash
+# here documents
+# cmd << EOF "end of file"
+tr "aeiou" "56789" << FINE
+> ciao questa è una frase lunga
+> divisa in più righe
+> e finisco qua
+> FINE
+```
+
+```bash
+# here strings
+python <<< 'print("Hello Word in python")'
+```
+
+
+Quando eseguo un cmdN, la shell bash per prima cosa applica eventuali redirezioni date, di seguito 
+applica in ordine le varie espansioni della shell bach che vi sono in gioco.
+**A me non funziona niente di niente**
+
+Le single quotes inibiscono sempre
+
+**ORDINE**:
+1) Brace expansion (double quotes inibiscono)
+- echo {1..10} # numeri da 1 a 10
+- echo {1..10..2} # numeri da 1 a 10 saltando di 2
+- echo '{1..-10}'
+- echo {a..z}
+- echo {a, b, c}{1..3}  # prodotto cartesiano: a1 a2 a3 b1...
+
+2) Tilde expansion (double quotes inibiscono)
+- cd ~ # va alla home folder dell'utente attuale
+- cd ~ALTROUTENTE # cambia utente
+
+3) Parameter & variable expansion (double quotes NON inibiscono)
+- a="ciao" & echo $a
+- a="ciao" & echo ${a:-stringaAlternativa}
+- a="" & echo ${a:=nuovoValore}
+- a="stringa" & echo ${a:3} # è un OFFSET: mi stampa "inga"
+
+4) Arithmetic expansion (double quotes NON inibiscono)
+- a=13 b=19 echo $(( $a+$b ))
+
+5) Command expansion (o substitution) (double quotes NON inibiscono)
+
+6) Word splitting (double quotes inibiscono)
+
+7) Filename expansion (globbing)  (double quotes inibiscono)
+
+8) Process substitution (double quotes inibiscono)
+
+9) Quote removal
+
+
+

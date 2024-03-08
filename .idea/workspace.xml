@@ -5,10 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c2ec8f97-31aa-44d7-8dfc-eb471881e2e7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/condizioni.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/condizioni/condizioni2.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/read/read1.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/read/read2.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/array.sh" beforeDir="false" afterPath="$PROJECT_DIR$/array.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/array.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/condizioni.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/link1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/s4.sh" beforeDir="false" afterPath="$PROJECT_DIR$/altro_interprete.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/somma.sh" beforeDir="false" afterPath="$PROJECT_DIR$/variabili.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,16 +38,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/laragon/www/PROVE/bashbash"
-  }
-}]]></component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/read" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\laragon\www\bashbash\read" />
+      <recent name="C:\laragon\www\bashbash\condizioni" />
       <recent name="C:\laragon\www\PROVE\bashbash" />
       <recent name="C:\laragon\www\bashbash" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\laragon\www\bashbash\cicli" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -53,6 +64,9 @@
       <option name="presentableId" value="Default" />
       <updated>1709678553004</updated>
       <workItem from="1709678554330" duration="2408000" />
+      <workItem from="1709833495804" duration="4594000" />
+      <workItem from="1709904598059" duration="8035000" />
+      <workItem from="1709926140969" duration="2266000" />
     </task>
     <servers />
   </component>
@@ -69,5 +83,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

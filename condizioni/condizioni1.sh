@@ -99,39 +99,3 @@
 #else
 #    echo "falso"
 #fi
-
-# VERIFICA NUMERI UGUALI
-#declare -i a=10
-#declare -i b=20
-#if test $a -eq $b
-#then
-#    echo "successo"
-#else
-#    echo "falso"
-#fi
-
-# VERIFICA NUMERI NON UGUALI
-#declare -i a=10
-#declare -i b=20
-#if test $a -ne $b
-#then
-#    echo "successo"
-#else
-#    echo "falso"
-#fi
-
-# VERIFICA NUMERI
-# -gt GREATER THAN
-# -lt LESS THAN
-# -ge GREATER EQUAL >=
-# -le LESS EQUAL <=
-declare -i a=10
-declare -i b=20
-if test $a -gt $b
-then
-    echo "successo"
-else
-    echo "falso"
-fi
-
-
