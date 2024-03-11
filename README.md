@@ -3,6 +3,15 @@ https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 # Esempi
 ```bash
 ps # elenco processi
+pwd # stampa la directory corrente
+date # stampa la data di oggi
+sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo
+history # storico di tutti i comandi lanciati
+history 5 # gli ultimi 5 comandi lanciati
+!! # esegue l'ultimo comando della history
+!?at? # esegue l'ultimo comando della history contenente 'at'. Es: date
+!101 # esegue il 101-esimo comando della history
+fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco, li esegue tutti
 nano .bashrc
 alias x="echo ciao;ls;ls;echo hello" # N comandi inline x eseguirli in sequenza
 (ps;ps) # per vedere che ci son 2 PID annidati
@@ -11,9 +20,10 @@ alias x="echo ciao;ls;ls;echo hello" # N comandi inline x eseguirli in sequenza
 - Con le {} bisogna mettere uno spazio all'inizio e uno alla fine, e bisogna terminare con ;
 
 ```bash
-history
 CTRL+R # attiva reverse-search, x cercare i comandi
+CTRL+S # search, non so esattamente cosa faccia
 ```
+CTRL+U e CTRL+K nella riga di comando tagliano la parte sinistra e la parte destra di ciò che digito
 
 In AND continuo l'esecuzione finchè un comando non riesce, in OR mi fermo alla prima esecuzione riuscita
 ```bash
@@ -54,6 +64,8 @@ exec 5>&- #  chiudo il file descriptor "custom" 5 in SCRITTURA
 # PIPELINE
 ```bash
 ls | tr "AEIOU" "12345" #  pipeline di comandi ls(output) diventa tr(input)
+cat README.md | grep ciao # apre "README.md" e gerppa solo le righe contenenti "ciao"
+grep ciao README.md | grep ls # greppa le righe contenenti "ciao" e greppa le righe contenenti "ls"
 ls |& tr "AEIOU" "12345" #   ls(output+error) collegato con tr(input)
 lss | tr "AEIOU" "12345" #  dà errore
 lss |& tr "AEIOU" "12345" #   traduce l'errore
@@ -192,24 +204,24 @@ Le single quotes inibiscono sempre
 
 **ORDINE**:
 1) Brace expansion (double quotes inibiscono)
-- echo {1..10} # numeri da 1 a 10
-- echo {1..10..2} # numeri da 1 a 10 saltando di 2
-- echo '{1..-10}'
-- echo {a..z}
-- echo {a, b, c}{1..3}  # prodotto cartesiano: a1 a2 a3 b1...
+- `echo {1..10}` # numeri da 1 a 10
+- `echo {1..10..2}` # numeri da 1 a 10 saltando di 2
+- `echo '{1..-10}'`
+- `echo {a..z}`
+- `echo {a,b,c}{1..3}`  # prodotto cartesiano: a1 a2 a3 b1...
 
 2) Tilde expansion (double quotes inibiscono)
-- cd ~ # va alla home folder dell'utente attuale
-- cd ~ALTROUTENTE # cambia utente
+- `cd ~` # va alla home folder dell'utente attuale
+- `cd ~ALTROUTENTE` # cambia utente
 
 3) Parameter & variable expansion (double quotes NON inibiscono)
-- a="ciao" & echo $a
-- a="ciao" & echo ${a:-stringaAlternativa}
-- a="" & echo ${a:=nuovoValore}
-- a="stringa" & echo ${a:3} # è un OFFSET: mi stampa "inga"
+- `a="ciao" & echo $a`
+- `a="ciao" & echo ${a:-stringaAlternativa}`
+- `a="" & echo ${a:=nuovoValore}`
+- `a="stringa" & echo ${a:3}` # è un OFFSET: mi stampa "inga"
 
 4) Arithmetic expansion (double quotes NON inibiscono)
-- a=13 b=19 echo $(( $a+$b ))
+- `a=13 b=19 echo $(( $a+$b ))`
 
 5) Command expansion (o substitution) (double quotes NON inibiscono)
 

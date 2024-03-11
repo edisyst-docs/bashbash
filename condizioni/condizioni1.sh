@@ -1,12 +1,12 @@
 # Esistono 3 sintassi per descrivere la condizione
 
 # VERIFICA SE E' UNA DIRECTORY ESISTENTE
-#if test -d cartellau
-#then
-#    echo "successo"
-#else
-#    echo "falso"
-#fi
+if test -d cartellau
+then
+    echo "successo"
+else
+    echo "falso"
+fi
 
 # VERIFICA SE UN PATH (file, cartella) ESISTE
 #if [[ -e "./s.sh" ]]

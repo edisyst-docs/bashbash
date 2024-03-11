@@ -1,5 +1,5 @@
 echo ciao
 ls
 lss
-echo ciao 2
-ls
+echo ciao sono il file s.sh
+ls -a
