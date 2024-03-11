@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c2ec8f97-31aa-44d7-8dfc-eb471881e2e7" name="Changes" comment="gitignore">
+      <change beforePath="$PROJECT_DIR$/.bashrc" beforeDir="false" afterPath="$PROJECT_DIR$/.bashrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/s.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/s1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s1.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/s2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s2.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/s3.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s3.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/t.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/eseguibili/t.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/eseguibili/tt.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

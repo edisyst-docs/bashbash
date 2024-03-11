@@ -2,6 +2,8 @@ https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 
 # Esempi
 ```bash
+ls -R cartella # mostra ricorsivamente tutti i file di tutte le sottocartelle
+ls [a,e]* # mostra i fileche cominciano per "a" o per "e"
 ps # elenco processi
 pwd # stampa la directory corrente
 date # stampa la data di oggi
@@ -16,7 +18,10 @@ echo ciao ho $[2024-1981] anni # il $ esegue l'operazione tra le quadre
 echo ciao ci sono $(ls | wc) righe, parole e lettere nei files qui dentro # wc = words count
 echo ciao ci sono $(ls | wc -w) parole nei files qui dentro # wc = words count
 nano .bashrc
-alias x="echo ciao;ls;ls;echo hello" # N comandi inline x eseguirli in sequenza
+env # mostra le variabili d'ambiente
+alias # mostra gli alias temporanei creati da me. Se faccio exit, scompaiono
+alias x="echo ciao;ls;ls;echo hello" # creo un alias con N comandi inline da eseguire in sequenza
+unalias x # rimuove quell'alias
 (ps;ps) # per vedere che ci son 2 PID annidati
 { ps;ps; } # così c'è un solo PID, un'unica sequenza di processi
 ```
