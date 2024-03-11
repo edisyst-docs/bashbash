@@ -12,6 +12,9 @@ history 5 # gli ultimi 5 comandi lanciati
 !?at? # esegue l'ultimo comando della history contenente 'at'. Es: date
 !101 # esegue il 101-esimo comando della history
 fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco, li esegue tutti
+echo ciao ho $[2024-1981] anni # il $ esegue l'operazione tra le quadre
+echo ciao ci sono $(ls | wc) righe, parole e lettere nei files qui dentro # wc = words count
+echo ciao ci sono $(ls | wc -w) parole nei files qui dentro # wc = words count
 nano .bashrc
 alias x="echo ciao;ls;ls;echo hello" # N comandi inline x eseguirli in sequenza
 (ps;ps) # per vedere che ci son 2 PID annidati
@@ -63,12 +66,14 @@ exec 5>&- #  chiudo il file descriptor "custom" 5 in SCRITTURA
 
 # PIPELINE
 ```bash
-ls | tr "AEIOU" "12345" #  pipeline di comandi ls(output) diventa tr(input)
+cd cartella ; ls # due distinti comandi: prima và nella cartella poi esegue ls
+ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
 cat README.md | grep ciao # apre "README.md" e gerppa solo le righe contenenti "ciao"
 grep ciao README.md | grep ls # greppa le righe contenenti "ciao" e greppa le righe contenenti "ls"
 ls |& tr "AEIOU" "12345" #   ls(output+error) collegato con tr(input)
 lss | tr "AEIOU" "12345" #  dà errore
 lss |& tr "AEIOU" "12345" #   traduce l'errore
+cd .. ; ls bashbash/cartella | sort -f | less # esempio di sequenza + pipeline
 ```
 
 # SCRIPTING

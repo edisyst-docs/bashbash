@@ -4,12 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c2ec8f97-31aa-44d7-8dfc-eb471881e2e7" name="Changes" comment="">
+    <list default="true" id="c2ec8f97-31aa-44d7-8dfc-eb471881e2e7" name="Changes" comment="gitignore">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/condizioni/condizioni1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/condizioni/condizioni1.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/s.sh" beforeDir="false" afterPath="$PROJECT_DIR$/s.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/s1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/s1.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/s.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/s1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s1.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/s2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/s3.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/s3.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/t.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/eseguibili/t.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cartella/eseguibili/tt.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +50,8 @@
       <recent name="C:\laragon\www\bashbash" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\laragon\www\PROVE\bashbash\cartella\eseguibili" />
+      <recent name="C:\laragon\www\PROVE\bashbash\cartella" />
       <recent name="C:\laragon\www\bashbash\cicli" />
     </key>
   </component>
@@ -66,6 +71,15 @@
       <workItem from="1710094027788" duration="2780000" />
       <workItem from="1710138082191" duration="655000" />
     </task>
+    <task id="LOCAL-00001" summary="gitignore">
+      <option name="closed" value="true" />
+      <created>1710164795588</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1710164795588</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -81,6 +95,9 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="gitignore" />
   </component>
 </project>
