@@ -3,7 +3,8 @@ https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 # Esempi
 ```bash
 ls -R cartella # mostra ricorsivamente tutti i file di tutte le sottocartelle
-ls [a,e]* # mostra i fileche cominciano per "a" o per "e"
+ls [a,e]* # mostra i file che cominciano per "a" o per "e"
+touch pippo{1,2,3} # crea pippo1 pippo2 pippo3  
 ps # elenco processi
 pwd # stampa la directory corrente
 date # stampa la data di oggi
@@ -55,6 +56,7 @@ tr "1234" "abcd" < t.txt
 
 ls > tt.txt  # SCRITTURA - creo il file contenente l'output del comando ls. Se il file esiste lo sovrascrive
 ls >> tt.txt # SCRITTURA - stessa cosa ma opera in APPEND
+echo "prima riga" >> file.txt # scrivo "prima riga" dentro file.txt (creandolo se non esiste)
 
 cd /dev/fd
 ls -l
