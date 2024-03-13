@@ -1,4 +1,8 @@
-https://www.youtube.com/watch?v=aghQ6P3Qu3Y
+# Esempi
+- http://didawiki.cli.di.unipi.it/doku.php/informatica/sol/laboratorio15/esercitazionia/bashscriptexamples
+- https://www.html.it/pag/53628/redirezione-dellio/
+- https://www.aquilante.net/bash/cap6_esempi.shtml
+- https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 
 # Comandi base
 ```bash
