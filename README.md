@@ -12,12 +12,18 @@ pwd # stampa la directory corrente
 ps # elenco processi
 (ps;ps) # per vedere che ci son 2 PID annidati
 { ps;ps; } # così c'è un solo PID, un'unica sequenza di processi
+```
 
+```bash
 date # stampa la data di oggi
+tar -cf compresso.tar file1 file2 # crea un file compresso.tar contenente file1, file2
+tar -xf compresso.tar # estrae i file contenuti in compresso.tar
 ping 8.8.8.8 # verifica semplice di connessione
 sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo
 touch pippo{1,2,3} # crea pippo1 pippo2 pippo3 
+```
 
+```bash
 nano .bashrc
 whoami # restituisce il mio username
 which ls # dice dove si trova il comando ls, in quale folder
@@ -98,7 +104,9 @@ CMD n< file # LETTURA - aprire il file in lettura; default n=0
 
 tr "1234" "abcd" # provo a digitare 1261681185
 tr "1234" "abcd" < t.txt
+```
 
+```bash
 ls > tt.txt  # SCRITTURA - creo il file contenente l'output del comando ls. Se il file esiste lo sovrascrive
 ls >> tt.txt # SCRITTURA - stessa cosa ma opera in APPEND
 echo "prima riga" >> file.txt # scrivo "prima riga" dentro file.txt (creandolo se non esiste)
@@ -116,7 +124,9 @@ ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
 cat README.md | grep ciao # apre "README.md" e filtra le righe contenenti "ciao"
 cat README.md | grep -v ciao # apre "README.md" e filtra le righe NON contenenti "ciao"
 grep ciao README.md | grep ls # filtra le righe contenenti "ciao" e filtra le righe contenenti "ls"
+```
 
+```bash
 ls |& tr "AEIOU" "12345" #   ls(output+error) collegato con tr(input)
 lss | tr "AEIOU" "12345" #  dà errore
 lss |& tr "AEIOU" "12345" #   traduce l'errore
@@ -148,7 +158,9 @@ export -n variabileglobale # setta la variabile come NON PIU' GLOBALE
 
 declare -a array=[] # array numerico
 declare -A arrayassociativo=[] # array associativo
+```
 
+```bash
 $nomevar   #  prendo il valore della variabile
 ${nomevar} #  stessa cosa ma è più leggibile in caso di concatenazioni strane
 unset      # per settare a NULL una variabile. Dà errore se applicato a una costante
