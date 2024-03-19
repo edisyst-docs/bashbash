@@ -30,7 +30,7 @@ which ls # dice dove si trova il comando ls, in quale folder
 ```
 
 ## History
-```bash 
+```bash
 history # storico di tutti i comandi lanciati
 history 5 # gli ultimi 5 comandi lanciati
 !! # esegue l'ultimo comando della history
@@ -121,6 +121,13 @@ cd /dev/fd
 ls -l
 ```
 
+## Differenze tra file
+```bash
+diff read/simile1.sh read/simile2.sh # mostra le differenze tra i file
+diff -y read/simile1.sh read/simile2.sh # mostra riga per riga evidenziando le differenze
+
+comm read/simile1.sh read/simile2.sh # 3 colonne: nella terza ci son le righe in comune tra i due file
+```
 
 # PIPELINE
 ```bash
