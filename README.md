@@ -98,15 +98,21 @@ exec 5<>~/t.txt #  così lo creo sia per LETTURA che SCRITTURA
 exec 5>&- #  chiudo il file descriptor "custom" 5 in SCRITTURA
 ```
 
-## Lettura e scrittura su file
+## Lettura su file
 ```bash
 CMD n< file # LETTURA - aprire il file in lettura; default n=0
 
-tr "1234" "abcd" # provo a digitare 1261681185
-tr "1234" "abcd" < t.txt
+head -n 10 divina_commedia.txt # mostra le prime 10 righe (default=10)
+tail -n 10 divina_commedia.txt # mostra le ultime 10 righe
+nl divina_commedia.txt | tail -n 15 # mostra e numera le ultime 15 righe
+nl divina_commedia.txt | head -n 15 # mostra e numera le prime 15 righe
 ```
 
+## Scrittura su file
 ```bash
+tr "1234" "abcd" # provo a digitare 1261681185
+tr "1234" "abcd" < t.txt
+
 ls > tt.txt  # SCRITTURA - creo il file contenente l'output del comando ls. Se il file esiste lo sovrascrive
 ls >> tt.txt # SCRITTURA - stessa cosa ma opera in APPEND
 echo "prima riga" >> file.txt # scrivo "prima riga" dentro file.txt (creandolo se non esiste)
