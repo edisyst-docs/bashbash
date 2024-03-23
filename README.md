@@ -16,11 +16,14 @@ ps # elenco processi
 
 ```bash
 date # stampa la data di oggi
+cal # mostra il calendario
 tar -cf compresso.tar file1 file2 # crea un file compresso.tar contenente file1, file2
 tar -xf compresso.tar # estrae i file contenuti in compresso.tar
 ping 8.8.8.8 # verifica semplice di connessione
 sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo
-touch pippo{1,2,3} # crea pippo1 pippo2 pippo3 
+touch pippo_{1,2,3} # crea pippo_1, pippo_2, pippo_3 
+touch pippo_{01..12} # crea pippo_01, pippo_02, ..., pippo_12
+shred pippo_01 # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
 ```
 
 ```bash
@@ -133,6 +136,7 @@ comm read/simile1.sh read/simile2.sh # 3 colonne: nella terza ci son le righe in
 ```bash
 cd cartella ; ls # due distinti comandi: prima và nella cartella poi esegue ls
 ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
+echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
 cat README.md | grep ciao # apre "README.md" e filtra le righe contenenti "ciao"
 cat README.md | grep -v ciao # apre "README.md" e filtra le righe NON contenenti "ciao"
