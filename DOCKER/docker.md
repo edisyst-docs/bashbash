@@ -182,6 +182,7 @@ Per collegare anche un server mySQL creo il `Dockerfile` con le istruzioni per l
 ```bash
 docker build -t my-php-apache-mysqli .
 ```
-Ma per farlo interagire con `mysqli` devo creare un container `mysqli` e per farli cooperare uso `DOCKER-COMPOSE`
+- https://www.youtube.com/watch?v=97OFAcndG-4&t=600s
+- Ma per farlo interagire con `mysqli` devo creare un container `mysqli` e per farli cooperare uso `DOCKER-COMPOSE`
 
 
