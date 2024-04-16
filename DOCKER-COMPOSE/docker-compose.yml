@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+
+  php-apache:
+    container_name: php-with-apache
+    image: my-php-apache-mysqli
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+    volumes:
+      - C:\laragon\www\PROVE\bashbash\DOCKER\docker-compose:/var/www/html
+    ports:
+      - 8100:80
+    depends_on:
+      - database
+
+  database:
+    container_name: mysql-server
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+    ports:
+      - "9100:3306"
+#volumes:
+#  mysql_data:
