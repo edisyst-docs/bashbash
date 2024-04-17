@@ -33,11 +33,11 @@ docker history alpine # storico operazioni svolte sull'immagine alpine
 ```
 
 ## Crea immagine: docker build
-- Metto i file per creare l'immagine nella cartella `docker-immagine`
+- Metto i file per creare l'immagine nella cartella `mio-python`
 - Cerco nel docker hub una versione di python compatibile con quella installata su Powershell
 - vedo che ha alpine 3.11 e parto da quella versione di python, poi aggiungo il file e lo eseguo
 ```bash
-docker build -t python-ciao .\docker-immagine\
+docker build -t python-ciao .\mio-python\
 ```
 Da adesso posso creare container partendo dall'immagine python-ciao da me creata
 
