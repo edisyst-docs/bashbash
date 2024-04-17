@@ -33,7 +33,9 @@ docker history alpine # storico operazioni svolte sull'immagine alpine
 ```
 
 ## Crea immagine: docker build
+https://linuxhub.it/articles/howto-creare-un-Dockerfile/#:~:text=Per%20eseguire%20un%20Dockerfile%20dobbiamo,nostro%20repository%20locale%20di%20Docker.
 - Metto i file per creare l'immagine nella cartella `mio-python`
+- Dentro creo anche il `Dockerfile`
 - Cerco nel docker hub una versione di python compatibile con quella installata su Powershell
 - vedo che ha alpine 3.11 e parto da quella versione di python, poi aggiungo il file e lo eseguo
 ```bash
