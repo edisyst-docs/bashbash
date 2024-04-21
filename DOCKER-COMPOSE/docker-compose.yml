@@ -8,7 +8,7 @@ services:
 #      context: .
 #      dockerfile: Dockerfile
     volumes:
-      - C:\laragon\www\PROVE\bashbash\DOCKER\docker-compose:/var/www/html
+      - C:\laragon\www\bashbash\DOCKER-COMPOSE\:/var/www/html/
     ports:
       - 8100:80
     depends_on:

@@ -142,6 +142,22 @@ docker run -d -it --name=nostop --restart on-failure:3   ubuntu bin/bash # 3 ten
 ```
 
 
+# Esercizio - Getting started
+```bash
+docker pull docker/getting-started
+docker run -d -p 80:80 docker/getting-started # fa il mapping delle porte (host:container)
+docker ps
+```
+
+
+# Esercizio - PHP Apache
+```bash
+docker pull php:8.0-apache
+docker run -d -p 80:80 php:8.0-apache --name mio-apache-custom -v C:\laragon\www\mio-apache:/var/www/html/
+docker ps
+```
+
+
 # Esercizio - Web server
 ```bash
 docker run -d -p 8080:80 nginx # fa il mapping delle porte (host:container)
@@ -167,8 +183,9 @@ docker ps --format 'table {{.Names}} \t {{.Image}}' # li mostra in tabella
 ```
 
 
-# Esercizio - PHP Apache
-- https://www.youtube.com/watch?v=bw6Iq-hIcqo
+
+# Esercizio - PHP Apache BIS
+- https://www.youtube.com/watch?v=bw6Iq-hIcqo (MIN 34:31)
 - https://tecadmin.net/deploying-php-apache-and-mysql-with-docker-compose/
 
 Creo l'immagine con PHP e Apache per creare un container che apre una mia `folder-php`
@@ -176,7 +193,7 @@ Creo l'immagine con PHP e Apache per creare un container che apre una mia `folde
 docker pull php:8.0-apache
 docker run -d --name=server1 php:8.0-apache 
 docker logs server1
-docker run -d --name=server2 -p 8100:80 -v C:\laragon\www\PROVE\bashbash\DOCKER\folder-php:/var/www/html php:8.0-apache
+docker run -d --name=server2 -p 8100:80 -v C:\laragon\www\bashbash\DOCKER\folder-php:/var/www/html/ php:8.0-apache
 ```
 `server1` non funge perchè vanno mappati la porta e il volume, al contrario di `server2`
 
@@ -184,7 +201,45 @@ Per collegare anche un server mySQL creo il `Dockerfile` con le istruzioni per l
 ```bash
 docker build -t my-php-apache-mysqli .
 ```
+Per farlo interagire con `mysqli` devo creare un container `mysqli` e per farli cooperare uso `DOCKER-COMPOSE`.
+
+Creo direttamente il `docker-compose.yml` senza scaricare l'immagine mysql
+
+
+
+
 - https://www.youtube.com/watch?v=97OFAcndG-4&t=600s
-- Ma per farlo interagire con `mysqli` devo creare un container `mysqli` e per farli cooperare uso `DOCKER-COMPOSE`
+
+
+# Esercizio - Jenkins - Docker Swarm
+https://www.youtube.com/watch?v=SPVJuNS2Bi4&t=19s
+```bash
+docker pull jenkins/jenkins:lts
+docker run -d --name mio-jenk -p 8081:8080 -p 50001:50000 jenkins/jenkins
+docker ps
+
+docker swarm
+docker swarm init
+docker swarm init --advertise-addre 192.168.0.16 # inserisco il mio IP
+```
+
+```bash
+docker swarm join --token SWMTKN-1-3o42wwkdbanz1qoupsp2ympr4ffkbyzmvj56gdtx0qo7jab70y-392dj3vltlddajkiq3g25fgje 192.168.65.3:2377
+docker swarm join --token SWMTKN-1-4k4q7d1lbsvdoukrkdy8n9qcxnc1is1sysk6gviy2uyvznmns0-d7mjmf89pkdxhrbgbb789biym 192.168.0.17:2377
+```
+
+```bash
+docker node ls
+docker service ls
+docker network ls
+docker inspect bridge
+
+docker service create -d --name serv-jenk -p 80002:8080 jenkins/jenkins
+docker service ls
+docker service ps jenkins
+docker service update jenkins --replicas 5
+docker service ls
+docker service ps jenkins
+```
 
 
