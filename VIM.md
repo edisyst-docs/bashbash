@@ -1,14 +1,15 @@
 ## VIM
 
-Editor modale = 4 modalità su VIM
+https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcli/index.html
 
+Editor modale = 4 modalità su VIM
 
 ## Normal Mode
 - ripetere/annullare l'ultima operazione
  
 Ci torno sempre facendo `ESC`
 
-Navigazione nel testo (con le FRECCE o coi tasti `HJKL`)
+Navigazione nel testo (con le `FRECCE` o coi tasti `HJKL`)
 - `gg`: vai a inizio file
 - `G` : vai a fine file
 -
@@ -58,6 +59,7 @@ Inserimento, Copia, Taglia, Incolla
 - `dd`: taglia l'intera riga
 - `p(ut)`: incolla dal carattere dopo il cursore
 - `P`: incolla dal carattere del cursore
+- `u`: annulla la precedente operazione
 - 
 - `c(change)`: taglia e mi mette in insert. ES: `cfL` cancella il testo fino a `L` e da lì posso scrivere il testo sostitutivo
 - `cc`: taglia l'intera riga, mi mette in insert e mi permette di scrivere di nuovo su quella riga svuotata
