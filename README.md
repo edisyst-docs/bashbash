@@ -1,13 +1,18 @@
 # Esempi
 - http://didawiki.cli.di.unipi.it/doku.php/informatica/sol/laboratorio15/esercitazionia/bashscriptexamples
+- https://kinsta.com/it/blog/comandi-linux/
 - https://www.html.it/pag/53628/redirezione-dellio/
 - https://www.aquilante.net/bash/cap6_esempi.shtml
 - https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 
 # Comandi base
 ```bash
+apropos copy # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare il comando che mi serve
+
 ls -R cartella # mostra ricorsivamente tutti i file di tutte le sottocartelle
+ls --color # colora i file in base al tipo
 ls [a,e]* # mostra i file che cominciano per "a" o per "e"
+
 pwd # stampa la directory corrente
 ps # elenco processi
 (ps;ps) # per vedere che ci son 2 PID annidati
@@ -36,9 +41,10 @@ which ls # dice dove si trova il comando ls, in quale folder
 ```bash
 history # storico di tutti i comandi lanciati
 history 5 # gli ultimi 5 comandi lanciati
-!! # esegue l'ultimo comando della history
-!?at? # esegue l'ultimo comando della history contenente 'at'. Es: date
-!101 # esegue il 101-esimo comando della history
+!!      # esegue l'ultimo comando della history
+sudo !! # esegue l'ultimo comando come SUDO
+!?at?   # esegue l'ultimo comando della history contenente 'at'. Es: date
+!101    # esegue il comando con ID=101 della history
 fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco, li esegue tutti
 ```
 
@@ -70,11 +76,20 @@ ls -l
 ```bash
 CTRL+L # pulisce la shell, shortcut del comando cls
 
-CTRL+R # attiva reverse-search, x cercare i comandi
+CTRL+Z # esco da un processo lasciandolo in background. Es: esco da VIM col file non salvato
+fg     # per prendere il processo in background e portarlo in foreground
+
+CTRL+P # history: indietro di un comando
+CTRL+N # history: avanti   di un comando
+
+CTRL+R # reverse-search, x cercare i comandi precedentemente usati
 CTRL+S # search, non so esattamente cosa faccia
 
-CTRL+U taglia la parte sinistra di ciò che scritto sulla shell
-CTRL+K taglia la parte destra di ciò che scritto sulla shell
+CTRL+U # taglia la parte sinistra di ciò che scritto sulla shell
+CTRL+K # taglia la parte destra di ciò che scritto sulla shell
+
+CTRL+A # vado all'inizio di ciò che ho scritto sulla shell
+CTRL+E # vado alla fine  di ciò che ho scritto sulla shell
 ```
 
 ## Concatenazioni di comandi

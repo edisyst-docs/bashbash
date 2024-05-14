@@ -1,8 +1,14 @@
 # Network
 ```bash
+passwd # per cambiare la propria password
 ssh username@ip_macchina
 sudo useradd nick
-curl https://it.wikipedia.org/wiki/Shred > risultatocurl.html
+
+curl https://official-joke-api.appspot.com/jokes/random > risultatocurl.html
+curl -o risultatocurl.html https://official-joke-api.appspot.com/jokes/ten # fa la stessa cosa
+curl -I https://www.google.com # Mi dà i metadati
+curl -X POST https://www.techwithtim.net/ # il metodo di default è GET
+curl -X POST --data "q=cane&par2=val2" hhttps://www.google.com/search # posso passargli dei parametri in POST
 
 sudo ufw allow 80
 sudo ufw status
@@ -10,7 +16,8 @@ sudo ufw enable
 ```
 
 ```bash
-ifconfig - (ipconfig) - ip address
+ifconfig - (ipconfig) - # eth0 è la mia connessione fisica a internet 
+ip address - ip -4 address # ho solo gli IPv4 
 ipconfig /all # le visualizza tutte, anche quelle spente
 ifconfig /flushdns # caneclla la cache dei DNS
 
@@ -57,8 +64,8 @@ route print # visualizzo la tabella di instradamento completa
 ```
 
 ```bash
-netstat # porte TCP e UDP
-netstat -tulpn
+netstat # stato porte TCP e UDP
+netstat -tulpn # esistono tante opzioni, son da provare
 ss -tulpn
 ```
 

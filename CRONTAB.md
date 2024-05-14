@@ -1,8 +1,8 @@
 # Crontab
 
-`crontab -e` apre (in EDIT MODE) il crontab dell'utente in corso
+`crontab -e` apre (in EDIT MODE, tipicamente con VIM) il crontab dell'utente in corso
 
-`crontab -e -u dpamaster` è quello che lanciamo noi
+`crontab -e -u dpamaster` lo lanciamo noi perchè l'utente è dpamaster, non root
 
 Usage: `crontab [-c DIR] [-u USER] [-ler]|[FILE]`
 
