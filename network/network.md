@@ -74,3 +74,53 @@ ss -tulpn
 ```bash
 clip < network.md # copia negli appunti di Windows il contenuto di quel file
 ```
+
+
+## GPG - Crittografia asimmetrica 
+Esiste il pacchetto GPG (GNU Privacy Garb) su ogni distro Linux per cifrare 1 o + file
+- https://www.youtube.com/watch?v=WR2FGdNkkmI
+- chiave pubblica (serratura) serve per cifrare i file (la posso condividere senza problemi, così gli altri possono cifrare i file, che io con la mia chiave privata potrò aprire)
+- chiave privata (chiave di casa) serve per aprire/decifrare i file
+```bash
+gpg # se è installato mi crea la cartella /home/nomeutente/.gnupg
+gpg --full-generate-key # seleziono RSA and RSA, posso non mettere passphrase
+gpg --list-keys # per leggere le mie chiavi pub
+gpg --list-secret-keys # per leggere le mie chiavi priv
+```
+Se dovesse servire generare entropia posso fare
+```bash
+df -h # per vedere i dischi /dev montati
+dd if=/dev/sdc of=/dev/null #input; output su /dev/null significa buttare ciò che gli si copia dentro. E' un trucco, lo usiamo nei cron ad esempio
+```
+Di norma poi esporto la chiave pubblica in una cartella accessibile anche agli altri utenti, 
+così possono cifrarci un file e mandarcelo
+```bash
+gpg --export --output /tmp/chiavepubblica "nome_chiave" # esporto la pubkey in un file
+cat /tmp/chiavepubblica # è cifrata, non si legge bene
+gpg /tmp/chiavepubblica # dovrebbe darmi lo stesso output di --list-keys
+```
+
+La chiave può essere data a qualsiasi utente/sito (serve solo per cifrare)
+```bash
+useradd utente # creo un utente per provare
+passwd utente  # digito la sua password
+su - utente    # impersono l'utente
+
+gpg /tmp/chiavepubblica # può leggerla perchè è una chiave pubblica
+vim file-cifrato.txt     # ci scrivo qualcosa
+gpg --import /tmp/chiavepubblica # la importo per usarla nella mia /home/utente/.gnupg
+gpg --encrypt -r "nome_chiave" file-cifrato.txt # cifro il mio file, me lo crea nella stessa cartella
+ls -la # vedo entrambi i file: il .txt.gpg sarà illeggibile se uso cat
+
+cp file-cifrato.txt.gpg /tmp # lo metto a disposizione degli altri utenti
+exit # divento root
+
+cd /tmp
+ls -la
+cat file-cifrato.txt.gpg # illeggibile
+gpg /tmp/file-cifrato.txt.gpg # decifro il file, crea il file decifrato
+cat file-cifrato.txt # leggibile
+```
+
+
+
