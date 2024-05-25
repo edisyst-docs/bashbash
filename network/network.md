@@ -18,10 +18,12 @@ sudo ufw enable
 ```bash
 ifconfig - (ipconfig) - # eth0 è la mia connessione fisica a internet 
 ip address - ip -4 address # ho solo gli IPv4 
-ipconfig /all # le visualizza tutte, anche quelle spente
-ifconfig /flushdns # caneclla la cache dei DNS
+ipconfig /all        # mostra tutte le interfacce, anche quelle spente
+ifconfig /displaydns # mostra la cache dei DNS memorizzata attualmente sul sistema
+ifconfig /flushdns   # cancella la cache dei DNS, da fare per prevenire attacchi cache-poisoning
 
 ipconfig | grep "Indirizzo IPv4"
+ipconfig | grep IPv4 # in questo caso fa lo stesso
 ifconfig | grep eth0
 ```
 
@@ -36,12 +38,20 @@ resolvectl status # IP pubblico
 
 ## Windows CMD
 ```bash
-ping 8.8.8.8
-ping www.google.com
-pathping 192.168.1.1 # misura la latenza dal mio router per esempio
+arp -a # stampa la relazione IP-Mac Addr di ogni interfaccia di rete. Opera a livello di MAC ADDRESS (liv.2)
+route print # visualizzo la tabella di instradamento completa 
+
+ping 8.8.8.8 # Opera a livello di IP ADDRESS (liv.3)
+ping google.it
+pathping google.it # misura la latenza dal mio router per esempio
+
+tracert google.it # mostra a video tutti i salti del pacchetto per arrivare all'host remoto
 
 net user # elenco utenti
 net user Edoardo # dettagli utente
+
+net session # elenco dei servizi
+net stop # per fermare un servizio
 ```
 
 ```bash
@@ -55,17 +65,15 @@ systeminfo # info su tutto: CPU, SO, Bios, RAM, schede di rete
 ```
 
 ```bash
-Doskey/history # uguale a history in Linux
+doskey/history # uguale a history in Linux
 nslookup # mi dice il mio DNS
 traceroute www.google.com
-
-arp -a # mi dice tutte le interfacce
-route print # visualizzo la tabella di instradamento completa
 ```
 
 ```bash
-netstat # stato porte TCP e UDP
+netstat # stato porte TCP e UDP. Eseguire da Amministratore
 netstat -tulpn # esistono tante opzioni, son da provare
+netstat -b 5 # in 127.0.0.1:64038 c'è il PID=64038 per identificarlo se voglio killarlo
 ss -tulpn
 ```
 
