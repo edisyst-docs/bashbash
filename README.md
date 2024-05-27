@@ -137,6 +137,8 @@ echo "prima riga" >> file.txt # scrivo "prima riga" dentro file.txt (creandolo s
 
 cd /dev/fd
 ls -l
+
+sed 's/unix/linux/' geekfile.txt # sostituisce ogni occorrenza di "unix" con "linux" nel file geekfile.txt
 ```
 
 ## Differenze tra file

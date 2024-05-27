@@ -5,10 +5,10 @@ ssh username@ip_macchina
 sudo useradd nick
 
 curl https://official-joke-api.appspot.com/jokes/random > risultatocurl.html
-curl -o risultatocurl.html https://official-joke-api.appspot.com/jokes/ten # fa la stessa cosa
+curl -o risultatocurl.html https://official-joke-api.appspot.com/jokes/ten # stessa cosa, stampa su un output
 curl -I https://www.google.com # Mi dà i metadati
 curl -X POST https://www.techwithtim.net/ # il metodo di default è GET
-curl -X POST --data "q=cane&par2=val2" hhttps://www.google.com/search # posso passargli dei parametri in POST
+curl -X POST --data "q=cane&par2=val2" https://www.google.com/search # posso passargli dei parametri in POST
 
 sudo ufw allow 80
 sudo ufw status
