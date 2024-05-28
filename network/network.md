@@ -1,8 +1,18 @@
 # Network
 ```bash
+ifconfig - (ipconfig) - # eth0 è la mia connessione fisica a internet 
+ip address - ip -4 address # ho solo gli IPv4 
+ipconfig /all        # mostra tutte le interfacce, anche quelle spente
+ifconfig /displaydns # mostra la cache dei DNS memorizzata attualmente sul sistema
+ifconfig /flushdns   # cancella la cache dei DNS, da fare per prevenire attacchi cache-poisoning
+
+ipconfig | grep "Indirizzo IPv4"
+ipconfig | grep IPv4 # in questo caso fa lo stesso
+ifconfig | grep eth0
+```
+
+```bash
 passwd # per cambiare la propria password
-ssh 172.10.20.30 # di default l'utente che accede alla macchina host è lo stesso della macchina client
-ssh username@ip_macchina # di default port=22, sarebbe meglio cambiarla per la sicurezza
 sudo useradd nick
 
 curl https://official-joke-api.appspot.com/jokes/random > risultatocurl.html
@@ -16,16 +26,15 @@ sudo ufw status
 sudo ufw enable
 ```
 
+# SSH
 ```bash
-ifconfig - (ipconfig) - # eth0 è la mia connessione fisica a internet 
-ip address - ip -4 address # ho solo gli IPv4 
-ipconfig /all        # mostra tutte le interfacce, anche quelle spente
-ifconfig /displaydns # mostra la cache dei DNS memorizzata attualmente sul sistema
-ifconfig /flushdns   # cancella la cache dei DNS, da fare per prevenire attacchi cache-poisoning
+sudo systemctl status ssh.service # nella macchina host dovrei verificare che SSH sia attivo
 
-ipconfig | grep "Indirizzo IPv4"
-ipconfig | grep IPv4 # in questo caso fa lo stesso
-ifconfig | grep eth0
+ssh-keygen -b 4096 -C "$(whoami)@$(hostname)" # -C per identificarla con un commento e ci scrivo utente@host
+ssh-copy-id username@ip_macchina # invia la pub_key all'host remoto così ci potremo collegare in SSH
+
+ssh 172.10.20.30 # di default l'utente che accede alla macchina host è lo stesso della macchina client
+ssh username@ip_macchina # di default port=22, sarebbe meglio cambiarla per la sicurezza
 ```
 
 ```bash
