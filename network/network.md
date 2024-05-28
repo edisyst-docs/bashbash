@@ -1,7 +1,8 @@
 # Network
 ```bash
 passwd # per cambiare la propria password
-ssh username@ip_macchina
+ssh 172.10.20.30 # di default l'utente che accede alla macchina host è lo stesso della macchina client
+ssh username@ip_macchina # di default port=22, sarebbe meglio cambiarla per la sicurezza
 sudo useradd nick
 
 curl https://official-joke-api.appspot.com/jokes/random > risultatocurl.html
@@ -38,6 +39,9 @@ resolvectl status # IP pubblico
 
 ## Windows CMD
 ```bash
+wmic memphysical get memorydevices # quanti slot RAM sono utilizzati. 
+# Su Gestinoe attività > Prestazioni > Memoria c'è la stessa info
+
 arp -a # stampa la relazione IP-Mac Addr di ogni interfaccia di rete. Opera a livello di MAC ADDRESS (liv.2)
 route print # visualizzo la tabella di instradamento completa 
 

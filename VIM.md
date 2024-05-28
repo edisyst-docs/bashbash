@@ -68,10 +68,11 @@ Inserimento, Copia, Taglia, Incolla
 ## Command Mode
 Per uscire da Vim e salvare. Premo sempre i `:` per entrarci
 - `:set number` (mostra i nr. di riga)
-- `:q` (esci senza salvare)
-- `:w` (salva)
-- `:wq` (salva ed esci)
-- `:156` (vado alla riga 156)
+- `:156` (vai alla riga 156)
+- `:q!`  (esci senza salvare)
+- `:w`   (salva)
+- `:X`   (cifra - chiederà una password)
+- `:wq`  (salva ed esci)
 
 
 ## Visual Mode
