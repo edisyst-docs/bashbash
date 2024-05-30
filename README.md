@@ -29,11 +29,13 @@ sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo
 touch pippo_{1,2,3} # crea pippo_1, pippo_2, pippo_3 
 touch pippo_{01..12} # crea pippo_01, pippo_02, ..., pippo_12
 shred pippo_01 # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
+shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
 ```
 
 ```bash
 nano .bashrc
-whoami # restituisce il mio username
+whoami     # restituisce il mio username
+echo $USER # uguale a sopra
 which ls # dice dove si trova il comando ls, in quale folder
 ```
 
@@ -155,9 +157,10 @@ cd cartella ; ls # due distinti comandi: prima và nella cartella poi esegue ls
 ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
 echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
-cat README.md | grep ciao # apre "README.md" e filtra le righe contenenti "ciao"
+cat README.md | grep ciao    # apre "README.md" e filtra le righe contenenti "ciao"
+cat README.md | grep -c ciao # come sopra, ma restituisce solo il numero di righe trovate
 cat README.md | grep -v ciao # apre "README.md" e filtra le righe NON contenenti "ciao"
-grep ciao README.md | grep ls # filtra le righe contenenti "ciao" e filtra le righe contenenti "ls"
+grep ciao README.md | grep ls # filtra le righe contenenti "ciao" e sul risultato filtra le righe contenenti "ls"
 ```
 
 ```bash
