@@ -12,6 +12,7 @@ apropos copy # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare
 ls -R cartella # mostra ricorsivamente tutti i file di tutte le sottocartelle
 ls --color # colora i file in base al tipo
 ls [a,e]* # mostra i file che cominciano per "a" o per "e"
+ls -l | grep ^d # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
 pwd # stampa la directory corrente
 ps  # elenco processi in esecuzione
@@ -144,6 +145,8 @@ cd /dev/fd
 ls -l
 
 sed 's/unix/linux/' geekfile.txt # sostituisce ogni occorrenza di "unix" con "linux" nel file geekfile.txt
+
+dd if=/path/to/sourcefile of=/path/to/destinationfile # copia file, ma funziona anche per folder e volumi
 ```
 
 ## Differenze tra file
