@@ -7,7 +7,7 @@ info ls   # helper più dettagliato
 ```
 
 ```bash
-uptime # orario, utenti connessi, carico di lavoro sulla macchina
+uptime # orario, tempo di attività, utenti connessi, carico di lavoro sulla macchina
 last   # elenca login/logout di tutti gli utenti da che esiste la macchina
 
 df -h          # elenca i file nel disco fisso 
@@ -20,8 +20,13 @@ who # mostra gli utenti loggati sul sistema
 w   # mostra gli utenti loggati sul sistema con altre info
 uname -a # info sul sistema operativo
 
-htop # mostra le info sulle risorse usate da ogni processo
-free # mostra le risorse di sistema in utilizzo e disponibili
+hostname    # hostname della macchina
+hostname -i # IP
+cat /proc/cpuinfo # info sulla CPU: memoria, modello, ecc.
+cat /proc/meminfo # info sulla memoria
+
+htop    # mostra le info sulle risorse usate da ogni processo
+free -h # mostra le risorse di sistema in utilizzo e disponibili
 mount | column -t # mostra i dischi
 
 sort file.txt # riordina in ordine alfabetico le righe dei file.txt

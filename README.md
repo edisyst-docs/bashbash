@@ -14,9 +14,11 @@ ls --color # colora i file in base al tipo
 ls [a,e]* # mostra i file che cominciano per "a" o per "e"
 
 pwd # stampa la directory corrente
-ps # elenco processi
+ps  # elenco processi in esecuzione
 (ps;ps) # per vedere che ci son 2 PID annidati
 { ps;ps; } # così c'è un solo PID, un'unica sequenza di processi
+
+top # elenco processi e risorse occupate
 ```
 
 ```bash
@@ -35,8 +37,9 @@ shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
 ```bash
 nano .bashrc
 whoami     # restituisce il mio username
-echo $USER # uguale a sopra
-which ls # dice dove si trova il comando ls, in quale folder
+echo $USER # UGUALE
+users      # indica tutti gli utenti connessi
+which ls   # dice dove si trova il comando ls, in quale folder
 ```
 
 ## History
