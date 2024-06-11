@@ -12,6 +12,9 @@ last   # elenca login/logout di tutti gli utenti da che esiste la macchina
 
 df -h          # elenca i file nel disco fisso 
 df -h --total  # mette anche il totale alla fine
+htop    # mostra le info sulle risorse usate da ogni processo
+free -h # mostra le risorse di sistema in utilizzo e disponibili
+mount | column -t # mostra i dischi
 
 sudo wall messaggio # broadcast del messaggio a tutti gli utenti. Per testarlo dovrei creare 2 utenti in 2 terminali
 sudo write messaggio # invio del messaggio a un solo utente. Per testarlo dovrei creare 2 utenti in 2 terminali
@@ -25,9 +28,6 @@ hostname -i # IP
 cat /proc/cpuinfo # info sulla CPU: memoria, modello, ecc.
 cat /proc/meminfo # info sulla memoria
 
-htop    # mostra le info sulle risorse usate da ogni processo
-free -h # mostra le risorse di sistema in utilizzo e disponibili
-mount | column -t # mostra i dischi
 
 sort file.txt # riordina in ordine alfabetico le righe dei file.txt
 sort -r file.txt # riordina in ordine alfabetico inverso
