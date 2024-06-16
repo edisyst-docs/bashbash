@@ -63,3 +63,15 @@ diff -y read/simile1.sh read/simile2.sh # mostra riga per riga evidenziando le d
 
 comm read/simile1.sh read/simile2.sh # 3 colonne: nella terza ci son le righe in comune tra i due file
 ```
+
+## RSYNC
+Per sincronizzare e trasferire file/folder. Trasferisce solo le differenze tra origine e destinazione
+```bash
+rsync -azvP origine/ destinazione/  # ricorsivo, comprime x risparmiar banda, verboso, progress bar
+rsync --delete origine destinazione # in "destinazione" elimina ciò che è stato eliminato da "origine"
+rsync --exclude "*.mp3" # non synca gli mp3
+rsync --delete -azv -e ssh /percorso/origine utente@host_remoto:/percorso/destinazione # -e indica il comando da usare, come SSH
+rsync -avz -e ssh utente@host_remoto:/percorso/sorgente/ /percorso/destinazione/ # posso fare anche il contrario
+```
+
+
