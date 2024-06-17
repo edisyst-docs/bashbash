@@ -1,19 +1,20 @@
-Valori dei permessi:
-r = 4
-w = 2
-x = 1
+### Valori dei permessi
+    r = 4
+    w = 2
+    x = 1
 
-Permessi di default:
+### Permessi di default
 1) per file: rw-rw-r-- => (4+2+0) (4+2+0) (4+0+0) => 664
 1) cartelle: rwxrwxr-x => (4+2+1) (4+2+0) (4+0+1) => 775
 
-Esempi:
-rwxrwxrwx => (4+2+1) (4+2+0) (4+2+1) => 777
-rwxr-xr-x => (4+2+1) (4+0+1) (4+0+1) => 775
-rw-rw-r-- => (4+2+0) (4+0+0) (4+0+0) => 644
---------- => (0+0+0) (0+0+0) (0+0+0) => 000
+### Esempi
+    rwxrwxrwx => (4+2+1) (4+2+0) (4+2+1) => 777
+    rwxr-xr-x => (4+2+1) (4+0+1) (4+0+1) => 775
+    rw-rw-r-- => (4+2+0) (4+0+0) (4+0+0) => 644
+    --------- => (0+0+0) (0+0+0) (0+0+0) => 000
 
-Comandi
+### Comandi
+```bash
 chmod 755 file   # setta i permessi a 755 cioè (rwx)(r-x)(r-x)
 chmod a+w file   # aggiunge permesso WRITE a ALL
 chmod ugo+x file # dà il permesso EXE a USER, GROUP, OTHERS (+ lungo da scrivere)
@@ -23,6 +24,10 @@ chmod -R o-w cartella/  # opera ricorsivamente su tutta la cartella
 
 umask # "maschera" = restituisce 0022
 umask 777 # lo modifico a 777 per esempio
-I permessi di default sono 666 - 0022 (umask)
+```
+> I permessi di default sono 666 - 0022 (umask)
+
 Quindi se voglio modificare i permessi di default x i file devo modificare la maschera, poi creo i file
+```bash
 umask 000 ; touch file2 file3 # avranno entrambi i permessi 777
+```

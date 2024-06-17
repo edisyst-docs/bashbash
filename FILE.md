@@ -19,8 +19,11 @@ rm -r directory_non_vuota       # rimuove directory NON VUOTE, oppure singoli fi
 shred pippo_01    # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
 shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
 
-tar -cf compresso.tar file1 file2 # crea un file compresso.tar contenente file1, file2
-tar -xf compresso.tar             # estrae i file contenuti in compresso.tar
+tar -cvf archivio.tar file1 file2                 # c:crea un file archivio.tar contenente file1, file2
+tar -xvf archivio.tar /destinazione               # x:estrae (in una cartella specifica) il contenuto di archivio.tar
+tar -cvf archivio.tar file1 file2 directory1      # crea archivio contenente sia file che directory
+tar -cvzf compresso.tar.gz file1 file2 directory1 # comprime l'archivio utilizzando gzip (-z), bzip2 (-j), o xz (-J):
+tar -xvzf compresso.tar.gz                        # estrae un archivio compresso di tipo tar.gz 
 
 sort file.txt    # riordina in ordine alfabetico le righe dei file.txt
 sort -r file.txt # riordina in ordine alfabetico inverso
