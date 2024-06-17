@@ -3,6 +3,19 @@
 touch pippo_{1,2,3}  # crea pippo_1, pippo_2, pippo_3 
 touch pippo_{01..12} # crea pippo_01, pippo_02, ..., pippo_12
 
+cp origine destinazione
+cp -i origine destinazione             # chiede conferma in caso di overwriting
+cp file1.txt file2.txt                 # fa una copia file1 e la chiama file2
+cp file1.txt /percorso/directory/      # copia file1 dentro la cartella /directory/
+cp -r directory1 /percorso/directory2/ # copia la directory1 dentro la cartella directory2
+
+mkdir dir1 dir2 dir3
+mkdir -p progetti/2024/giugno   # per crearle già annidate
+mkdir -m 700 dir_privata        # specifico i permessi in creazione
+rmdir directory_vuota           # la directory dev'essere vuota per poterla eliminare
+rmdir -p genitore/figlio/nipote # ricorsivo, ma devono essere tutte vuote
+rm -r directory_non_vuota       # rimuove directory NON VUOTE, oppure singoli file
+
 shred pippo_01    # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
 shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
 
@@ -12,8 +25,9 @@ tar -xf compresso.tar             # estrae i file contenuti in compresso.tar
 sort file.txt    # riordina in ordine alfabetico le righe dei file.txt
 sort -r file.txt # riordina in ordine alfabetico inverso
 
-find ./ -name "long.txt" # cerca un file chiamato long.txt nella directory corrente
+find ./ -name "long.txt" # cerca un file chiamato long.txt nella cartella corrente
 find ./ -type f -name "*.py" ./get_keys.py ./github_automation.py ./binarysearch.py # cerca i file con estensione .py 
+find . -maxdepth 3 -type d # cerca nella cartella corrente solo le directory, scendendo fino a 3 sottolivelli
 ```
 
 
