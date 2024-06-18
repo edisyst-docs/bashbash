@@ -84,14 +84,28 @@ lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 ```
 
 
+# Comando GREP
+Per cercare specifiche stringhe di testo o espressionni regolari all'interno di file, cartelle o output di altri comandi
+```bash
+grep "errore" logfile.txt    # cerca la parola "errore" e restituisce le righe dove la trova
+grep -i "errore" logfile.txt # UGUALE ma non distingue maiuscole da minuscole, quindi trova anche ERRORE, Errore, ecc.
+grep -r "errore" /var/log/   # cerca ricorsivamente "errore" in tutti i file dentro la directory /var/log/
+```
+
+
 # Pipeline di comandi
 ```bash
 cd cartella ; ls # due distinti comandi: prima và nella cartella poi esegue ls
 ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
 echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
+ls | grep "log"               # filtra i file di log, che si chiamano log_qualcosa
+ps aux | grep "apache"        # cerca il processo "apache"
+find /path/to/search -type f | grep "config" # cerca i file nella directory /path/to/search e filtra quelli che contengono "config" nel percorso
+
 cat SCRIPT.md | grep ciao     # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
-cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe trovate
+cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe filtrate
+cat SCRIPT.md | grep -n ciao  # UGUALE, ma restituisce solo gli indici riga delle righe filtrate
 cat SCRIPT.md | grep -v ciao  # apre "SCRIPT.md" e filtra le righe NON contenenti "ciao"
 grep ciao SCRIPT.md | grep ls # filtra le righe contenenti "ciao" e sul risultato filtra le righe contenenti "ls"
 
