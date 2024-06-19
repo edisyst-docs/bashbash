@@ -101,7 +101,7 @@ echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
 ls | grep "log"               # filtra i file di log, che si chiamano log_qualcosa
 ps aux | grep "apache"        # cerca il processo "apache"
-find /path/to/search -type f | grep "config" # cerca i file nella directory /path/to/search e filtra quelli che contengono "config" nel percorso
+find /directory -type f | grep "config" # cerca i file nella cartella /directory e filtra quelli che contengono "config" nel percorso
 
 cat SCRIPT.md | grep ciao     # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
 cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe filtrate

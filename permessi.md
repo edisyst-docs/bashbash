@@ -50,3 +50,12 @@ Quindi se voglio modificare i permessi di default x i file devo modificare la ma
 ```bash
 umask 000 ; touch file2 file3 # avranno entrambi i permessi 777
 ```
+
+
+```bash
+chown utente file.txt       # utente diventa il proprietario di file.txt
+chown alice:staff file.txt  # modifico contemporaneamente proprietario e gruppo di file.txt
+chown :gruppo file.txt      # modifico solo il gruppo di file.txt
+
+chown -R utente /directory/ # si può fare anche per un'intera directory con -R
+```
