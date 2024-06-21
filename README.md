@@ -136,9 +136,44 @@ hostname -i # IP
 ```bash
 df -h          # elenca i file nel disco fisso 
 df -h --total  # mette anche il totale alla fine
+```
 
-top     # mostra processi e risorse occupate
-htop    # mostra le info sulle risorse usate da ogni processo
+```bash
+top              # mostra processi e risorse occupate in realtime
+top -p 1234,5678 # mostra solo i processi con PID 1234 e 5678
+top -u edoardo   # mostra solo i processi di edoardo
+```
+**Opzioni di top**:
+* h: Mostra l'aiuto (elenco dei comandi interattivi).
+* q: Esce da top.
+* c: Attiva/disattiva la visualizzazione del percorso completo del comando.
+* M: Ordina i processi per utilizzo della memoria.
+* P: Ordina i processi per utilizzo della CPU (predefinito).
+* T: Ordina i processi per tempo di CPU cumulativo.
+* k: Uccide un processo. Ti verrà chiesto di inserire il PID del processo e il segnale da inviare.
+* r: Cambia la priorità (niceness) di un processo. Ti verrà chiesto di inserire il PID del processo e il nuovo valore di niceness.
+* u: Filtra i processi per utente. Ti verrà chiesto di inserire il nome utente.
+* n: Cambia il numero di processi visualizzati.
+
+```bash
+htop             # versione migliorata e più interattiva di TOP
+top -p 1234,5678 # mostra solo i processi con PID 1234 e 5678
+top -u edoardo   # mostra solo i processi di edoardo
+```
+**Opzioni di htop**:
+1. [x] h: Mostra l'aiuto (elenco dei comandi interattivi).
+2. [x] q / F10: Esce da htop.
+3. [x] F2: Entra nel menu di configurazione.
+3. [x] F3: Cerca un processo per nome.
+4. [x] F4: Filtra i processi per nome.
+5. [x] F5: Visualizzazione ad albero dei processi.
+6. [x] F6: Cambia il criterio di ordinamento (ad esempio, CPU, memoria, tempo di esecuzione).
+7. [x] F9: Uccidi un processo. Ti verrà chiesto di scegliere il segnale da inviare.
+8. [x] F7/F8: Aumenta/diminuisci la priorità (niceness) di un processo.
+9. [x] F2: Configura htop. Puoi modificare colonne, colori e altre impostazioni.
+
+
+```bash
 free -h # mostra le risorse di sistema in utilizzo e disponibili
 
 mount | column -t # mostra i dischi
