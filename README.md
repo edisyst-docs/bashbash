@@ -156,9 +156,9 @@ top -u edoardo   # mostra solo i processi di edoardo
 * n: Cambia il numero di processi visualizzati.
 
 ```bash
-htop             # versione migliorata e più interattiva di TOP
-top -p 1234,5678 # mostra solo i processi con PID 1234 e 5678
-top -u edoardo   # mostra solo i processi di edoardo
+htop              # versione migliorata e più interattiva di TOP
+htop -p 1234,5678 # mostra solo i processi con PID 1234 e 5678
+htop -u edoardo   # mostra solo i processi di edoardo
 ```
 **Opzioni di htop**:
 1. [x] h: Mostra l'aiuto (elenco dei comandi interattivi).
