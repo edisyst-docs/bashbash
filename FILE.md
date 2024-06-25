@@ -1,5 +1,7 @@
 ## FILE
 ```bash
+file -i CRONTAB.md   # mostra il MIME type del file
+
 touch pippo_{1,2,3}  # crea pippo_1, pippo_2, pippo_3 
 touch pippo_{01..12} # crea pippo_01, pippo_02, ..., pippo_12
 
@@ -14,7 +16,9 @@ mkdir -p progetti/2024/giugno   # per crearle già annidate
 mkdir -m 700 dir_privata        # specifico i permessi in creazione
 rmdir directory_vuota           # la directory dev'essere vuota per poterla eliminare
 rmdir -p genitore/figlio/nipote # ricorsivo, ma devono essere tutte vuote
-rm -r directory_non_vuota       # rimuove directory NON VUOTE, oppure singoli file
+rm        directory_vuota       # rimuove singoli file
+rm -r directory_non_vuota       # rimuove directory NON VUOTE, anche ricorsivamente
+rm -i directory_non_vuota       # chiede conferma prima di rimuovere ogni file
 
 shred pippo_01    # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
 shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
@@ -33,6 +37,16 @@ find ./ -type f -name "*.py" ./get_keys.py ./github_automation.py ./binarysearch
 find . -maxdepth 3 -type d # cerca nella cartella corrente solo le directory, scendendo fino a 3 sottolivelli
 ```
 
+lsof [opzioni] [nome_file|PID|utente|comando]  
+Elenca i file aperti da tutti i processi in esecuzione
+```bash
+lsof -u utente       # file aperti da un utente specifico
+lsof -p 1234         # file aperti dal solo processo con PID=1234
+lsof /var/log/syslog # processi che hanno aperto il file /var/log/syslog
+lsof -c nome_comando # file aperti dai processi corrispondenti a un comando specifico
+lsof -i              # tutte le connessioni di rete aperte
+lsof -i :80          # connessioni di rete per una porta specifica                
+```
 
 # REDIREZIONI
 
@@ -75,10 +89,13 @@ dd if=/path/to/sourcefile of=/path/to/destinationfile # copia file, ma funziona 
 
 ## Differenze tra file
 ```bash
-diff read/simile1.sh read/simile2.sh # mostra le differenze tra i file
+diff read/simile1.sh read/simile2.sh    # mostra le differenze tra i file
 diff -y read/simile1.sh read/simile2.sh # mostra riga per riga evidenziando le differenze
+diff -i file1 file2                     # ignora le differenze di maiuscole/minuscole
+diff -w file1 file2                     # ignora gli spazi bianchi nelle differenze
+diff -u file1 file2                     # output più leggibile per i sistemi di controllo versione
 
-comm read/simile1.sh read/simile2.sh # 3 colonne: nella terza ci son le righe in comune tra i due file
+comm read/simile1.sh read/simile2.sh    # 3 colonne: nella terza ci son le righe in comune tra i due file
 ```
 
 ## RSYNC

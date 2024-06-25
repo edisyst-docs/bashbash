@@ -25,10 +25,13 @@ ls --color # colora i file in base al tipo
 ls [a,e]* # mostra i file che cominciano per "a" o per "e"
 ls -l | grep ^d # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
-pwd        # stampa la directory corrente
-ps         # elenco processi in esecuzione
-(ps;ps)    # per vedere che ci son 2 PID annidati
-{ ps;ps; } # così c'è un solo PID, un'unica sequenza di processi
+pwd                 # stampa la directory corrente
+ps                  # elenco processi attivi 
+ps -e               # elenco processi in esecuzione
+ps aux              # indica anche l'uso di CPU e memoria
+ps aux --sort=-%cpu # UGUALE ma ordinati per uso di CPU
+(ps;ps)             # per vedere che ci son 2 PID annidati
+{ ps;ps; }          # così c'è un solo PID, un'unica sequenza di processi
 
 echo ciao ho $[2024-1981] anni # il carattere $ esegue l'operazione tra le quadre
 echo ciao ci sono $(ls | wc) righe, parole e lettere nei files qui dentro # wc = words count
@@ -103,6 +106,12 @@ ls | grep "log"               # filtra i file di log, che si chiamano log_qualco
 ps aux | grep "apache"        # cerca il processo "apache"
 find /directory -type f | grep "config" # cerca i file nella cartella /directory e filtra quelli che contengono "config" nel percorso
 
+cat -n SCRIPT.md              # numera tutte le righe mostrate
+cat -b SCRIPT.md              # numera solo le righe non vuote
+cat file1 file2 > new_file    # concatena la visualizzazione di più file e scrive tutto in new_file
+cat file2 >> file1            # appende il contenuto di file2 a file1. Risultato=file1+file2
+cat > nuovo_file              # crea nuovo_file e dentro ci scrive ciò che l'utente scrive dopo
+
 cat SCRIPT.md | grep ciao     # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
 cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe filtrate
 cat SCRIPT.md | grep -n ciao  # UGUALE, ma restituisce solo gli indici riga delle righe filtrate
@@ -123,8 +132,8 @@ whoami     # restituisce il mio username
 echo $USER # UGUALE
 users      # indica tutti gli utenti connessi
 
-who # mostra gli utenti loggati sul sistema
-w   # mostra gli utenti loggati sul sistema con altre info
+who      # mostra gli utenti loggati sul sistema
+w        # mostra gli utenti loggati sul sistema con altre info
 uname -a # info sul sistema operativo
 
 hostname    # hostname della macchina
@@ -134,6 +143,7 @@ hostname -i # IP
 
 # Memoria e risorse
 ```bash
+lscpu          # info sulla CPU
 df -h          # elenca i file nel disco fisso 
 df -h --total  # mette anche il totale alla fine
 ```
