@@ -143,9 +143,12 @@ hostname -i # IP
 
 # Memoria e risorse
 ```bash
-lscpu          # info sulla CPU
-df -h          # elenca i file nel disco fisso 
-df -h --total  # mette anche il totale alla fine
+lscpu                  # info sulla CPU
+df -h                  # elenca i file nel disco fisso 
+df -h --total          # aggiunge il totale alla fine
+df -h /dev/sda1        # uso dello spazio su una partizione specifica
+df -hT                 # mostra anche il tipo di file system 
+df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
 ```
 
 ```bash
