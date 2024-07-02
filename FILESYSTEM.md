@@ -67,6 +67,26 @@
 │   └── tmp/
 ```
 
+## Indice
+* [bin](#bin)
+* [boot](#boot)
+* [dev](#dev)
+* [etc](#etc)
+* [home](#home)
+* [lib](#lib)
+* [media](#media)
+* [mnt](#mnt)
+* [opt](#opt)
+* [proc](#proc)
+* [root](#root)
+* [run](#run)
+* [sbin](#sbin)
+* [srv](#srv)
+* [sys](#sys)
+* [tmp](#tmp)
+* [usr](#usr)
+* [var](#var)
+
 ## /bin
 Contiene i binari essenziali per l'uso del sistema, necessari sia per l'utente normale che per l'amministratore di sistema.
 * Esempi:
