@@ -2,7 +2,7 @@
 
 `crontab -e` apre (in EDIT MODE, tipicamente con VIM) il crontab dell'utente in corso
 
-`crontab -e -u dpamaster` lo lanciamo noi perchè l'utente è dpamaster, non root
+`crontab -e -u pippo` lo lancia root impersonando l'utente pippo, evidentemente perchè l'owner non è root ma pippo
 
 Usage: `crontab [-c DIR] [-u USER] [-ler]|[FILE]`
 
