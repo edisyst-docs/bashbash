@@ -29,7 +29,7 @@ $ chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
 
 ### Esempi CHMOD
 ```bash
-chmod ugo file   # SINTASSI: setta i permessi per user-group-others
+chmod 644 file   # SINTASSI: setta i permessi per user(6) group(4) others(4)
 chmod 755 file   # setta i permessi a 755 cioè (rwx)(r-x)(r-x)
 
 chmod a+w file   # aggiunge permesso WRITE a ALL
