@@ -19,13 +19,13 @@ La modalità numerica usa numeri per rappresentare i permessi. Ogni permesso è 
 ```bash
 $ chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
 ```
-u: Utente.
-g: Gruppo.
-o: Altri.
-a: Tutti (utente, gruppo e altri).
-+: Aggiungi un permesso.
--: Rimuovi un permesso.
-=: Imposta i permessi esattamente a quelli specificati.
+* u: Utente.  
+* g: Gruppo.  
+* o: Altri.  
+* a: Tutti (utente, gruppo e altri).  
+* +: Aggiungi un permesso.  
+* -: Rimuovi un permesso.  
+* =: Imposta i permessi esattamente a quelli specificati.  
 
 ### Esempi CHMOD
 ```bash
