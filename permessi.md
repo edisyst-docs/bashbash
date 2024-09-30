@@ -41,7 +41,8 @@ chmod go-w file  # toglie permesso WRITE a GROUP e OTHERS
 chmod -R o-w cartella/  # opera ricorsivamente su tutta la cartella
 chmod -R a+r cartella/  # aggiunge READ a ALL per tutti i file dentro la cartella
 
-umask # "maschera" = restituisce 0022
+umask     # "maschera" = restituisce 0022
+umask -S  # più leggiible: u=rwx,g=rx,o=rx
 umask 777 # lo modifico a 777 per esempio
 ```
 > I permessi di default sono 666 - 0022 (umask)
