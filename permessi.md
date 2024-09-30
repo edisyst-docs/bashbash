@@ -6,13 +6,13 @@ La modalità numerica usa numeri per rappresentare i permessi. Ogni permesso è 
     1: Esecuzione (x)
 
 ## Permessi di default
-1) per file: rw-rw-r-- => (4+2+0) (4+2+0) (4+0+0) => 664
-1) cartelle: rwxrwxr-x => (4+2+1) (4+2+0) (4+0+1) => 775
+1) per file: rw-r--r-- => (4+2+0) (4+0+0) (4+0+0) => 644
+1) cartelle: rwxrwxr-x => (4+2+1) (4+0+1) (4+0+1) => 755
 
 ### Esempi notazioni
     rwxrwxrwx => (4+2+1) (4+2+0) (4+2+1) => 777
-    rwxr-xr-x => (4+2+1) (4+0+1) (4+0+1) => 775
-    rw-rw-r-- => (4+2+0) (4+0+0) (4+0+0) => 644
+    rwxr-xr-x => (4+2+1) (4+2+1) (4+0+1) => 775
+    rw-rw-r-- => (4+2+0) (4+2+0) (4+0+0) => 644
     --------- => (0+0+0) (0+0+0) (0+0+0) => 000
 
 ## CHMOD per modificare i permessi
