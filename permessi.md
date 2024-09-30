@@ -35,13 +35,14 @@ $ chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
 
 ### Esempi CHMOD
 ```bash
-chmod 644 file   # SINTASSI: setta i permessi per user(6) group(4) others(4)
-chmod 755 file   # setta i permessi a 755 cioè (rwx)(r-x)(r-x)
+chmod 644 file   # setta i permessi per user(6) group(4) others(4): cioè (rw-)(r--)(r--)
+chmod 755 file   # setta i permessi a 755: cioè (rwx)(r-x)(r-x)
 
 chmod a+w file   # aggiunge permesso WRITE a ALL
 chmod u+x file   # aggiunge permesso EXE a USER
 chmod g-w file   # toglie permesso WRITE a GROUP
-chmod ugo+x file # dà il permesso EXE a USER, GROUP, OTHERS (+ lungo da scrivere)
+chmod ugo+x file # aggiunge a USER, GROUP, OTHERS il permesso EXE
+chmod o=rwx file # aggiunge a OTHERS i permessi EXE, READ, WRITE
 chmod o-x file   # toglie permesso EXE a OTHERS
 chmod go-w file  # toglie permesso WRITE a GROUP e OTHERS
 chmod -R o-w cartella/  # opera ricorsivamente su tutta la cartella
