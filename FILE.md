@@ -1,6 +1,7 @@
 ## FILE
 ```bash
 file -i CRONTAB.md   # mostra il MIME type del file
+file file1.txt       # mi dice il tipo di file (ASCII text)
 
 touch pippo_{1,2,3}  # crea pippo_1, pippo_2, pippo_3 
 touch pippo_{01..12} # crea pippo_01, pippo_02, ..., pippo_12
