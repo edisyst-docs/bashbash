@@ -16,7 +16,8 @@ FILE    Replace crontab by FILE ('-': stdin)
 ```
 
 **Esempio**: aggiungo questo nel crontab per fargli scrivere ogni minuto una riga nel file prova:
-
-`* * * * * echo "ciao - 1" >> /tmp/prova`
+```bash
+* * * * * echo "Oggi è il giorno $(date '+%d-%m-%Y') e sono le ore $(date '+%H:%M:%S')" >> orario.txt
+```
 
 **Esempi**: https://crontab.guru/examples.html
