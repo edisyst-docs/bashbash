@@ -20,9 +20,10 @@ info ls   # helper più dettagliato
 
 # Comandi base
 ```bash
-ls -R cartella # mostra ricorsivamente tutti i file di tutte le sottocartelle
-ls --color # colora i file in base al tipo
-ls [a,e]* # mostra i file che cominciano per "a" o per "e"
+ls -R cartella  # mostra ricorsivamente tutti i file di tutte le sottocartelle
+ls --color      # colora i file in base al tipo
+ls [a,e]*       # mostra i file che cominciano per "a" o per "e"
+ls -l *.rar     # mostra i file che terminano con .rar
 ls -l | grep ^d # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
 pwd                 # stampa la directory corrente
@@ -88,14 +89,28 @@ lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 
 
 # Comando GREP
-Per cercare specifiche stringhe di testo o espressionni regolari all'interno di file, cartelle o output di altri comandi
+Per cercare specifiche stringhe di testo o espressioni regolari all'interno di file, cartelle o output di altri comandi
 ```bash
-grep stringa file # SINTASSI BASE
+grep stringa file             # SINTASSI BASE
+cat file | grep stringa       # ALTERNATIVA
 
-grep "errore" logfile.txt    # cerca la parola "errore" e restituisce le righe dove la trova
-grep -i "errore" logfile.txt # UGUALE ma non distingue maiuscole da minuscole, quindi trova anche ERRORE, Errore, ecc.
-grep -r "errore" /var/log/   # cerca ricorsivamente "errore" in tutti i file dentro la directory /var/log/
-grep '^b' logfile.txt        # cerca tutte le righe del file che iniziano per "b"
+grep "errore" logfile.txt     # cerca la parola "errore" e restituisce le righe dove la trova
+grep -i "errore" logfile.txt  # UGUALE ma non distingue maiuscole/minuscole, quindi trova anche ERRORE, Errore, ecc.
+grep -r "errore" /var/log/    # cerca ricorsivamente "errore" in tutti i file dentro la cartella /var/log/
+grep '^b' logfile.txt         # cerca tutte le righe del file che iniziano per "b"
+grep 'fine$' logfile.txt      # cerca tutte le righe del file che finiscono con la parola "fine"
+grep errore *                 # cerca la parola "errore" in tutti i file dentro la cartella corrente
+grep 'de.' logfile.txt        # filtra le righe contenenti "dei", "del", "degli", "delle"  
+grep 'de*' logfile.txt        # filtra le righe contenenti "de", "dei", "del", "degli", "delle", "deambulante"  
+grep '^\.' logfile.txt        # filtra le righe che iniziano col . (uso il \ per indicare un carattere speciale)
+grep [.ca] logfile.txt        # filtra le righe contenenti almeno un carattere tra quelli tra parentesi (un punto o una "a" o una "c")
+grep [^.ca] logfile.txt       # filtra le righe contenenti almeno un carattere NON tra quelli tra parentesi
+
+cat SCRIPT.md | grep ciao     # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
+cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe filtrate
+cat SCRIPT.md | grep -n ciao  # UGUALE, ma restituisce solo gli indici riga delle righe filtrate
+cat SCRIPT.md | grep -v ciao  # apre "SCRIPT.md" e filtra le righe NON contenenti "ciao"
+grep ciao SCRIPT.md | grep ls # filtra le righe contenenti "ciao" e sul risultato filtra le righe contenenti "ls"
 ```
 
 
@@ -107,19 +122,13 @@ echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
 ls | grep "log"               # filtra i file di log, che si chiamano log_qualcosa
 ps aux | grep "apache"        # cerca il processo "apache"
-find /directory -type f | grep "config" # cerca i file nella cartella /directory e filtra quelli che contengono "config" nel percorso
+find /cartella -type f | grep "config" # cerca i file nella directory "cartella" e filtra quelli che contengono "config" nel percorso
 
 cat -n SCRIPT.md              # numera tutte le righe mostrate
 cat -b SCRIPT.md              # numera solo le righe non vuote
 cat file1 file2 > new_file    # concatena la visualizzazione di più file e scrive tutto in new_file
 cat file2 >> file1            # appende il contenuto di file2 a file1. Risultato=file1+file2
 cat > nuovo_file              # crea nuovo_file e dentro ci scrive ciò che l'utente scrive dopo
-
-cat SCRIPT.md | grep ciao     # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
-cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe filtrate
-cat SCRIPT.md | grep -n ciao  # UGUALE, ma restituisce solo gli indici riga delle righe filtrate
-cat SCRIPT.md | grep -v ciao  # apre "SCRIPT.md" e filtra le righe NON contenenti "ciao"
-grep ciao SCRIPT.md | grep ls # filtra le righe contenenti "ciao" e sul risultato filtra le righe contenenti "ls"
 
 ls |& tr "AEIOU" "12345"  # ls(output+error) collegato con tr(input)
 lss | tr "AEIOU" "12345"  # dà errore
@@ -152,6 +161,7 @@ df -h --total          # aggiunge il totale alla fine
 df -h /dev/sda1        # uso dello spazio su una partizione specifica
 df -hT                 # mostra anche il tipo di file system 
 df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
+du -h -s cartella      # per sapere quanto occupa la cartella
 ```
 
 ```bash
