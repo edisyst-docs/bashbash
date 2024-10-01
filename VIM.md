@@ -2,6 +2,13 @@
 
 https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcli/index.html
 
+https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcla/index.html
+
+https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html 
+- leggi qui per COPY, MOVE, DELETE DI INTERE RIGHE
+https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclm/index.html
+- leggi qui per RICERCA coln lo SLASH
+
 Editor modale = 4 modalità su VIM
 
 ## Normal Mode
