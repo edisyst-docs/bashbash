@@ -90,6 +90,8 @@ lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 # Comando GREP
 Per cercare specifiche stringhe di testo o espressionni regolari all'interno di file, cartelle o output di altri comandi
 ```bash
+grep stringa file # SINTASSI BASE
+
 grep "errore" logfile.txt    # cerca la parola "errore" e restituisce le righe dove la trova
 grep -i "errore" logfile.txt # UGUALE ma non distingue maiuscole da minuscole, quindi trova anche ERRORE, Errore, ecc.
 grep -r "errore" /var/log/   # cerca ricorsivamente "errore" in tutti i file dentro la directory /var/log/
