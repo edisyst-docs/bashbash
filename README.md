@@ -95,6 +95,7 @@ grep stringa file # SINTASSI BASE
 grep "errore" logfile.txt    # cerca la parola "errore" e restituisce le righe dove la trova
 grep -i "errore" logfile.txt # UGUALE ma non distingue maiuscole da minuscole, quindi trova anche ERRORE, Errore, ecc.
 grep -r "errore" /var/log/   # cerca ricorsivamente "errore" in tutti i file dentro la directory /var/log/
+grep '^b' logfile.txt        # cerca tutte le righe del file che iniziano per "b"
 ```
 
 
