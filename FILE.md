@@ -36,6 +36,8 @@ sort -r file.txt # riordina in ordine alfabetico inverso
 find ./ -name "long.txt" # cerca un file chiamato long.txt nella cartella corrente
 find ./ -type f -name "*.py" ./get_keys.py ./github_automation.py ./binarysearch.py # cerca i file con estensione .py 
 find . -maxdepth 3 -type d # cerca nella cartella corrente solo le directory, scendendo fino a 3 sottolivelli
+find /lib/modules/$(uname -r)/ -iname "*xt*.ko*"
+# cerca in /modules/cartella_sistema_operativo tutti i file che contengono "xt" nel nome e sono di estensione .koqualcosa
 ```
 
 lsof [opzioni] [nome_file|PID|utente|comando]  
@@ -86,6 +88,9 @@ ls -l
 sed 's/unix/linux/' geekfile.txt # sostituisce ogni occorrenza di "unix" con "linux" nel file geekfile.txt
 
 dd if=/path/to/sourcefile of=/path/to/destinationfile # copia file, ma funziona anche per folder e volumi
+
+ldd /bin/pwd /sbin/pwck # mostra le dipendenze di questi eseguibili, quali librerie gli servono per funzionare
+ldconfig -p # per ogni libreria stampa il path sul file system: i comandi son tutti dei link simbolici
 ```
 
 ## Differenze tra file

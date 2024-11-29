@@ -237,6 +237,8 @@ fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco,
 
 ## Date
 ```bash
+dpkg-reconfigure tzdata # modifica timezone/fuso orario
+
 date   # stampa la data di oggi
 cal    # mostra il calendario
 uptime # orario, tempo di attività, utenti connessi, carico di lavoro sulla macchina
@@ -275,4 +277,18 @@ CTRL+A # vado all'inizio di ciò che ho scritto sulla shell
 CTRL+E # vado alla fine  di ciò che ho scritto sulla shell
 ```
 
+# Gestione pacchetti
+```bash
+apt-cache search pdf   # cerca ad esempio programmi per PDF
+apt-cache pkgnames pdf # cerca programmi che iniziano con "pdf"
+apt-cache show xpdf    # mostra info sul programma "xpdf"
+apt-cache showpkg xpdf # info sulle dipendenze
+apt-cache depends xpdf # elenco dipendenze di xpdf
+apt-cache stats        # statistiche sulla cache dei pacchetti
+apt-cache stats        # statistiche sulla cache dei pacchetti
+apt-cache unmet        # quali dipendenze non sono soddisfatte
+
+apt-get -s install virtualbox # con -s simula l'install così vedo se ci sarebbero errori/problemi
+ls /var/cache/apt/archives/   # elenco pacchetti scaricati (non necessariamente anche installati)
+```
 
