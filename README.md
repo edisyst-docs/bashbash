@@ -150,6 +150,8 @@ uname -a # info sul sistema operativo
 
 hostname    # hostname della macchina
 hostname -i # IP
+
+hostnamectl # info hostname
 ```
 
 
@@ -162,6 +164,8 @@ df -h /dev/sda1        # uso dello spazio su una partizione specifica
 df -hT                 # mostra anche il tipo di file system 
 df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
 du -h -s cartella      # per sapere quanto occupa la cartella
+
+blkid /dev/sda /dev/sdb /dev/sdc # mostra gli UUID dei dischi
 ```
 
 ```bash
@@ -237,7 +241,8 @@ fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco,
 
 ## Date
 ```bash
-dpkg-reconfigure tzdata # modifica timezone/fuso orario
+dpkg-reconfigure tzdata  # modifica timezone/fuso orario
+dpkg-reconfigure locales # modifica la lingua del terminale
 
 date   # stampa la data di oggi
 cal    # mostra il calendario
@@ -290,5 +295,12 @@ apt-cache unmet        # quali dipendenze non sono soddisfatte
 
 apt-get -s install virtualbox # con -s simula l'install così vedo se ci sarebbero errori/problemi
 ls /var/cache/apt/archives/   # elenco pacchetti scaricati (non necessariamente anche installati)
+apt-get remove virtualbox     # lo elimina ma lascia i pacchetti delle dipendenze ormai inutili
+apt-get autoremove virtualbox # lo elimina con tutte le dipendenze
+
+apt list          # restituisce una lista immensa
+apt list ssh      # mostra 2 versioni per questo particolare pacchetto
+apt show ssh      # dettagli sul SW
+apt search webcam # trova software per la webcam
 ```
 
