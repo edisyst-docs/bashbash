@@ -18,6 +18,19 @@ info ls   # helper più dettagliato
 ```
 
 
+# Shell varie
+```bash
+echo $SHELL              # /bin/bash è la shell di default
+grep edoardo /etc/passwd # tra le varie info mi dice anche la shell di default di edoardo
+sh                       # apre al volo la shell sh (esiste anche ksh)
+cat /etc/shells          # elenco shell
+chsh -l                  # elenco shell, mi permette anche di cambiare shell
+chsh -s /bin/sh morro    # modifico la shell all'utente morro
+
+exec ping 8.8.8.8 -c 4   # esegue il comando e poi fa exit/logout dalla shell
+```
+
+
 # Comandi base
 ```bash
 ls -R cartella  # mostra ricorsivamente tutti i file di tutte le sottocartelle
