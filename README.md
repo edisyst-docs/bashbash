@@ -10,7 +10,8 @@
 ```bash
 apropos copy # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare il comando che mi serve
 whatis ls    # dice solo cosa fa il comando ls
-which ls     # dice dove si trova il comando ls, in quale folder
+which ls     # dice dove si trova l'eseguibile di ls, in quale folder
+whereis  ls  # dice dove s trova  l'eseguibile e il manuale di ls
 
 ls --help # helper del comando
 man ls    # helper più dettagliato
@@ -28,6 +29,9 @@ chsh -l                  # elenco shell, mi permette anche di cambiare shell
 chsh -s /bin/sh morro    # modifico la shell all'utente morro
 
 exec ping 8.8.8.8 -c 4   # esegue il comando e poi fa exit/logout dalla shell
+
+echo $(date)             # date è un comando: lo esegue e stampa il suo output
+echo `date`              # stessa cosa, ma è una sintassi vecchia
 ```
 
 
@@ -53,17 +57,28 @@ echo ciao ci sono $(ls | wc -w) parole nei files qui dentro # wc = words count
 ```
 
 
-# Variabili e alias
+# Alias
 ```bash
-echo $? # stampa 13 (valore di ritorno) di uno script che finisce con exit 13
-echo $? # stampa l'exit status dell'ultimo script eseguito # stampa 13 se lo script finisce con exit 13
-env     # mostra le variabili d'ambiente
+type pwd # mi dice che tipo di comando è
+type ls  # mi dice il suo alias, perchè ha un alias
+ls       # è come lanciare "ls --color=auto"
+\ls      # è come lanciare "ls", non esegue gli eventuali alias
 
 alias   # mostra gli alias temporanei creati da me. Se faccio exit, scompaiono
 alias x="echo ciao;ls;ls;echo hello" # creo un alias con N comandi inline da eseguire in sequenza
 unalias x # rimuove quell'alias
 ```
 - Con le {} bisogna mettere uno spazio all'inizio e uno alla fine, e bisogna terminare con ;
+
+
+# Variabili d'ambiente
+```bash
+echo $? # stampa 13 (valore di ritorno) di uno script che finisce con exit 13
+echo $? # stampa l'exit status dell'ultimo script eseguito # stampa 13 se lo script finisce con exit 13
+
+echo $ [TAB]   # mostra l'elenco di tutte le var d'ambiente disponibili
+env            # mostra i valori di molte variabili d'ambiente
+```
 
 
 # VARIABILI
@@ -74,8 +89,22 @@ declare -r costante="ciao" # costante: se le assegno un altro valore ho un error
 declare -x variabileglobale="globale" # costante: se le asegno un altro valore ho un errore
 export -n variabileglobale # setta la variabile come NON PIU' GLOBALE
 
+set +o           # elenca le opzioni di bash. Il + significa che è disattivata (è fuorviante)
+echo $SHELLOPTS  # mostra velocemente solo quelle attive
+set -o allexport # da questo momento in poi ogni variabile sarà automaticamente esportata
+
 declare -a array=[] # array numerico
 declare -A arrayassociativo=[] # array associativo
+
+merenda=torta         # variabile valorizzata
+echo $merenda         # stampa torta
+export merenda        # la esporta così posso usarla anche nelle shell figlie
+export merenda=torta  # fa entrambe le operazioni in un colpo solo
+unset merenda         # setta a NULL la variabile
+
+sudo su -     # è un esempio per scendere in profondità coi processi figli
+bash          # vado giù ancora di un livello
+ps --forest   # vedo la gerarchia dei vari processi
 
 $nomevar   #  prendo il valore della variabile
 ${nomevar} #  stessa cosa ma è più leggibile in caso di concatenazioni strane
@@ -117,13 +146,15 @@ grep 'de.' logfile.txt        # filtra le righe contenenti "dei", "del", "degli"
 grep 'de*' logfile.txt        # filtra le righe contenenti "de", "dei", "del", "degli", "delle", "deambulante"  
 grep '^\.' logfile.txt        # filtra le righe che iniziano col . (uso il \ per indicare un carattere speciale)
 grep [.ca] logfile.txt        # filtra le righe contenenti almeno un carattere tra quelli tra parentesi (un punto o una "a" o una "c")
+grep ^[d]  logfile.txt        # filtra le righe che iniziano col carattere "d"
 grep [^.ca] logfile.txt       # filtra le righe contenenti almeno un carattere NON tra quelli tra parentesi
 
-cat SCRIPT.md | grep ciao     # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
-cat SCRIPT.md | grep -c ciao  # UGUALE, ma restituisce solo il numero di righe filtrate
-cat SCRIPT.md | grep -n ciao  # UGUALE, ma restituisce solo gli indici riga delle righe filtrate
-cat SCRIPT.md | grep -v ciao  # apre "SCRIPT.md" e filtra le righe NON contenenti "ciao"
-grep ciao SCRIPT.md | grep ls # filtra le righe contenenti "ciao" e sul risultato filtra le righe contenenti "ls"
+cat SCRIPT.md | grep ciao       # apre "SCRIPT.md" e filtra le righe contenenti "ciao"
+cat SCRIPT.md | grep -c ciao    # UGUALE, ma restituisce solo il numero di righe filtrate
+cat SCRIPT.md | grep -n ciao    # UGUALE, ma restituisce solo gli indici riga delle righe filtrate
+cat SCRIPT.md | grep -v ciao    # apre "SCRIPT.md" ed esclude le righe contenenti "ciao"
+cat SCRIPT.md | grep -v '^[#;]' # apre "SCRIPT.md" ed esclude le righe che non cominciano per # o ;
+grep ciao SCRIPT.md | grep ls   # filtra le righe contenenti "ciao" e sul risultato filtra le righe contenenti "ls"
 ```
 
 
@@ -242,12 +273,17 @@ cmatrix # inutile, è Matrix
 
 ## History
 ```bash
-history # storico di tutti i comandi lanciati
-history 5 # gli ultimi 5 comandi lanciati
+history            # storico di tutti i comandi lanciati
+cat  .bash_history # viene letto questo file della mia home
+history 5          # gli ultimi 5 comandi lanciati
+history -c         # cancello tutta la history
+
+!101    # esegue il comando con ID=101 della history
 !!      # esegue l'ultimo comando della history
 sudo !! # esegue l'ultimo comando come SUDO
 !?at?   # esegue l'ultimo comando della history contenente 'at'. Es: date
-!101    # esegue il comando con ID=101 della history
+!apt    # esegue l'ultimo comando della history che inizia con 'apt'. Es: apt-get update
+
 fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco, li esegue tutti
 ```
 
@@ -285,7 +321,7 @@ fg     # per prendere il processo in background e portarlo in foreground
 CTRL+P # history: indietro di un comando
 CTRL+N # history: avanti   di un comando
 
-CTRL+R # reverse-search, x cercare i comandi precedentemente usati
+CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
 CTRL+S # search, non so esattamente cosa faccia
 
 CTRL+U # taglia la parte sinistra di ciò che scritto sulla shell
