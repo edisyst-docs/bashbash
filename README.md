@@ -178,7 +178,7 @@ ls |& tr "AEIOU" "12345"  # ls(output+error) collegato con tr(input)
 lss | tr "AEIOU" "12345"  # dà errore
 lss |& tr "AEIOU" "12345" # traduce l'errore
 
-cd .. ; ls bashbash/cartella | sort -f | less # esempio di sequenza + pipeline
+cd .. ; ls bashbash/cartella | sort -f | uniq # esempio di sequenza + pipeline
 ```
 
 
