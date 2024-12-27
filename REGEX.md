@@ -1,0 +1,15 @@
+https://www.youtube.com/watch?v=fPii79dBQqY&list=PL4L8OWDC99_c1pppqEyT3FXuBPDI3Qx4F
+
+https://regex101.com/  
+https://regexr.com/
+
+? => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE
+* => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE
++ => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE
+. => QUALSIASI CARATTERE (A PARTE L'A CAPO) 
+[] => QUALSIASI CARATTERE dentro le []
+
+
+
+
+

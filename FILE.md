@@ -1,4 +1,4 @@
-## FILE
+## Crea, copia, elimina file
 ```bash
 file -i CRONTAB.md   # mi dice il MIME type del file
 file file1.txt       # mi dice il tipo di file (ASCII text)
@@ -30,12 +30,17 @@ tar -xvf archivio.tar /destinazione               # x:estrae (in una cartella sp
 tar -cvf archivio.tar file1 file2 directory1      # crea archivio contenente sia file che directory
 tar -cvzf compresso.tar.gz file1 file2 directory1 # comprime l'archivio utilizzando gzip (-z), bzip2 (-j), o xz (-J):
 tar -xvzf compresso.tar.gz                        # estrae un archivio compresso di tipo tar.gz 
+```
 
+
+## Stampa file e modifica stampa file
+```bash
 sort file.txt     # riordina in ordine alfabetico le righe dei file.txt
 sort -r file.txt  # riordina in ordine alfabetico inverso
 sort -R file.txt  # ordine alfabetico RANDOMICO
 
 sort phonebook                  # ordina alfabeticamente le righe del file phonebook (in base al nome)
+sort phonebook | uniq           # ordina alfabeticamente e non mostra eventuali righe duplicate
 sort phonebook -k 2             # ordina alfabeticamente ma in base al secondo campo (in base al cognome)
 du -s /home/edoardo/* | sort -n # ordina le righe per NUMERO
 
@@ -44,20 +49,44 @@ find ./ -type f -name "*.py" ./get_keys.py ./github_automation.py ./binarysearch
 find . -maxdepth 3 -type d # cerca nella cartella corrente solo le directory, scendendo fino a 3 sottolivelli
 find /lib/modules/$(uname -r)/ -iname "*xt*.ko*"
 # cerca in /modules/cartella_sistema_operativo tutti i file che contengono "xt" nel nome e sono di estensione .koqualcosa
+
+less divina # dentro posso fare /non e mi evidenzia tutte le stringhe "non"
+
+paste ciao        # uguale a cat
+paste ciao -s     # scrive tutte le righe in 1 unica riga, separandole con un TAB
+paste ciao -s -d, # scrive tutte le righe in 1 unica riga, separandole con la ,
+
+
+
+$ for l in $(seq 5000) ; do
+> echo "riga-numero---$l" >> file_5000
+> done
 ```
+
+
+```bash
+cat file_5000 | paste - -     # stampa su 2 colonne
+cat file_5000 | paste - - -d, # UGUALE ma separa con le virgole
+cat file_5000 | paste - - -   # stampa su 3 colonne
+
+head -n 50 file_5000 | paste - - - -d,:   # stampa su 3 colonne e ogni riga è A,B:C
+
+pr file_5000    # me lo stampa con la paginazione, pronto per la stampa
+```
+
 
 # Splittare file
 ```bash
 for l in $(seq 5000) ; do
-> echo "riga numero $l" >> file_5000.txt
+> echo "riga numero $l" >> file_5000
 > done
 
-wc  -l file_5000.txt # ha effettivamente 5000 righe/linee
+wc  -l file_5000     # ha effettivamente 5000 righe/linee
 wc  -l *             # fa la stessa cosa su tutti i file della cartella in cui mi trovo
-split file_5000.txt  # di default spezza ogni 1000 righe
+split file_5000      # di default spezza ogni 1000 righe
 cat xa* > nuovo_file # ESCAMOTAGE PER VERIFICARE
 
-split file_5000.txt -l 500 text_splitted_ # ora spezza ogni 500 righe e i chunk si chiameranno text_splitted_aa,ab,ac
+split file_5000 -l 500 text_splitted_ # ora spezza ogni 500 righe e i chunk si chiameranno text_splitted_aa,ab,ac
 
 split -b 5m video.mp4 # splitta un file grosso in blocchi BINARI da 5 Mega
 # Potrei far lo stesso per i file di testo, ma per quelli è più comodo splittarli in N file che rimangano leggibili
@@ -90,6 +119,17 @@ cut -d':' -f1,7 --output-delimiter='#' /etc/passwd   # stampa f1 ed f7 ma li del
 cut -d':' -f1,7 --output-delimiter=$'\n' /etc/passwd # stampa f1 ed f7 e li delimita andando a capo
 ```
 
+
+## sed
+```bash
+cat /etc/xattr.conf > config  # contiene alcune righe commentate, iniziano per #
+sed -n '1,5 p' config         # printa le righe 1,2,3,4,5
+sed -n '5,$ p' config         # printa le righe dalla 5 alla fine del file
+
+sed -i.$(date +%F) '/^#/d;' config # crea un backup con la data di oggi, e su config cerca le linee che iniziano per # e le elimina
+
+sed 's/unix/linux/' geekfile.txt # sostituisce ogni occorrenza di "unix" con "linux" nel file geekfile.txt
+```
 
 lsof [opzioni] [nome_file|PID|utente|comando]  
 Elenca i file aperti da tutti i processi in esecuzione
@@ -145,8 +185,6 @@ echo "prima riga" >> file.txt # scrivo "prima riga" dentro file.txt (creandolo s
 
 cd /dev/fd
 ls -l
-
-sed 's/unix/linux/' geekfile.txt # sostituisce ogni occorrenza di "unix" con "linux" nel file geekfile.txt
 
 dd if=/path/to/sourcefile of=/path/to/destinationfile # copia file, ma funziona anche per folder e volumi
 
