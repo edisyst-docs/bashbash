@@ -80,8 +80,8 @@ find /etc/ -iname '*' -mtime +365 -exec ls -lhdt {} \;          # questi sono tu
 find /etc/ -iname '*' -mtime +365 -exec ls -lhdt {} \; | wc -l  # così li conto
 find /etc/ -iname '*' -mtime -30  -exec ls -lhdt {} \;          # questi sono tutti i file modificati nell'ultimo mese
 
-find /etc/ -iname '*' -size +4k  # file più grandi di 4 KB
-find /etc/ -iname '*' -size +8k  # file più grandi di 8 KB
+find /etc/ -iname '*' -size +4k  # file più grandi  di 4 KB
+find /etc/ -iname '*' -size -1k  # file più piccoli di 1 KB
 ```
 
 
