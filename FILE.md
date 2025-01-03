@@ -95,6 +95,8 @@ sort phonebook                  # ordina alfabeticamente le righe del file phone
 sort phonebook | uniq           # ordina alfabeticamente e non mostra eventuali righe duplicate
 sort phonebook -k 2             # ordina alfabeticamente ma in base al secondo campo (in base al cognome)
 du -s /home/edoardo/* | sort -n # ordina le righe per NUMERO
+
+ls -l | sort -k9 -r             # ordine inverso per i file di "ls -l" (che di default son già  stampati in ordine alfabetico)
 ```
 
 
@@ -214,6 +216,14 @@ lsof -i :80          # connessioni di rete per una porta specifica
 
 ## Lettura e scrittura
 ```bash
+touch file{1,2,4,5}                       # creo 5 file
+ls -lh file1 file0                        # ho errore per file0 e output per file1
+ls -lh file1 file0  > risultati           # qui ci finisce solo lo standard output (1), lo standard error (2) è stampato a video
+ls -lh file1 file0 2> errori              # qui ci finisce solo lo standard error (2), lo standard output (1) è stampato a video
+ls -lh file1 file0  > risultati 2> errori # posso fare entrambe le cose insieme
+ls -lh file1 file0 &> tutto               # UGUALE ma metto tutto (standard output ed error) dentro un unico file
+ls -lh file1 file0  > tutti 2>&1          # UGUALE IDENTICO al precedente
+
 exec > ~/t.txt    # serve per la redirezione permanente
 exec > /dev/pts/0 # serve per la redirezione permanente
 exec 5>~/t.txtv   # creo il file descriptor 5: chi può accedere allo stdOUT (default=1) scriverà in quel file
@@ -223,6 +233,12 @@ exec 5>&-         # chiudo il file descriptor "custom" 5 in SCRITTURA
 
 ## Lettura su file
 ```bash
+cat elenco | sort > ordinato  # legge "elenco", lo ordina, e scrive dentro "ordinato" in ordine
+sort < elenco > ordinato      # UGUALE ma sfrutto la redirezione dell'input invece che dell'output
+
+echo "testo1 testo2 testo3" | xargs -n1   # stampa il testo andando a capo a ogni parola
+xargs -n1 <<< "testo1 testo2 testo3"       # UGUALE ma più elegante perchè uso l'operatore <<<
+
 CMD n< file # LETTURA - aprire il file in lettura; default n=0
 
 head -n 5 divina_commedia.txt # mostra le prime  5 righe (default=10)

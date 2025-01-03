@@ -179,6 +179,10 @@ lss | tr "AEIOU" "12345"  # dà errore
 lss |& tr "AEIOU" "12345" # traduce l'errore
 
 cd .. ; ls divina_commedia.txt | sort -f | uniq # esempio di sequenza + pipeline
+
+echo {1..9} | xargs -n4       # xargs prende i suoi parametri dallo std_input (default 0), li processa 4 alla volta, e ne fa un echo
+find /etc/ -iname '*.conf' | xargs tar -czvf configs.tar.gz    # mi scrive tutto in un archivio compresso tar 
+tar -tf configs.tar.gz | wc -l                                 # leggo quante righe sono
 ```
 
 
