@@ -44,12 +44,25 @@ ls -l *.rar     # mostra i file che terminano con .rar
 ls -l | grep ^d # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
 pwd                 # stampa la directory corrente
-ps                  # elenco processi attivi 
-ps -e               # elenco processi in esecuzione
+ps                  # elenco processi attivi (in esecuzione ce ne sono tanti altri, anche in altre shell)
+ps -u edoardo       # elenco processi del solo utente "edoardo"
+ps -f               # qualche info in più
+ps -lf              # qualche info in più
+ps -e               # elenco di tutti i processi in esecuzione
 ps aux              # indica anche l'uso di CPU e memoria
 ps aux --sort=-%cpu # UGUALE ma ordinati per uso di CPU
+pgrep snap          # cerca i processi facendo un grep sul nome
+ps -ef | grep snap  # UGUALE
+
 (ps;ps)             # per vedere che ci son 2 PID annidati
 { ps;ps; }          # così c'è un solo PID, un'unica sequenza di processi
+
+kill -l            # lista dei segnali che posso mandare
+kill -1 1234       # forza il reload del processo 1234
+kill -9 1234       # termina forzatamente il processo 1234
+kill    1234       # di default manda il segnale 15 (chiede al processo 1234 di terminarsi)
+pkill calc         # termina tutti i processi facendo un grep sul nome
+killall calc       # SIMILE: termina tutti i processi con quel nome esatto
 
 echo ciao ho $[2024-1981] anni # il carattere $ esegue l'operazione tra le quadre
 echo ciao ci sono $(ls | wc) righe, parole e lettere nei files qui dentro # wc = words count
@@ -165,7 +178,6 @@ ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
 echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
 ls | grep "log"               # filtra i file di log, che si chiamano log_qualcosa
-ps aux | grep "apache"        # cerca il processo "apache"
 find /cartella -type f | grep "config" # cerca i file nella directory "cartella" e filtra quelli che contengono "config" nel percorso
 
 cat -n SCRIPT.md              # numera tutte le righe mostrate
@@ -214,20 +226,56 @@ df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
 du -h -s cartella      # per sapere quanto occupa la cartella
 
 blkid /dev/sda /dev/sdb /dev/sdc # mostra gli UUID dei dischi
+
+watch ls -lh /var/log/       # esegue ls -lh ogni 2 secondi
+watch -n 5 ls -lh /var/log/  # esegue ls -lh ogni 5 secondi
 ```
 
+
+## tmux   
+Terminali multipli su una singola istanza (es: collegamento SSH)
+
 ```bash
-top              # mostra processi e risorse occupate in realtime
+tmux                 # apre una nuova sessione
+tmux ls              # mostra le sessioni attive
+tmux new -s sessione # crea una nuova sessione chiamata "sessione"
+tmux attach -t 0     # permette di ricollegarsi alla sessione 0
+exit                 # esce da una sezione/finestra/sessione in base a dove mi trovo nei vari livelli
+```
+
+All'interno di tmux posso fare diverse azioni, ognuna delle quali deve essere sempre preceduta da CTRL+B:
+- CTRL+B seguito da ?: mostra l'elenco dei comandi disponibili
+- CTRL+B seguito da C: (create) crea una nuova finestra
+- CTRL+B seguito da N: (next) passa alla finestra successiva
+- CTRL+B seguito da P: (previous) passa alla finestra precedente
+- CTRL+B seguito da ,: permette di rinominare la finestra corrente
+- CTRL+B seguito da [: (copy) permette di copiare il testo dalla finestra corrente
+- CTRL+B seguito da &: (kill) chiude la sezione/finestra/sessione corrente. E' come digitare `exit`
+- CTRL+B seguito da %: (split) divide la finestra corrente in due sezioni orizzontali
+- CTRL+B seguito da ": (split) divide la finestra corrente in due sezioni verticali
+- CTRL+B seguito da freccia: permette di spostarsi tra le varie sezioni della finestra.
+- CTRL+B seguito da D: (detach) stacca la sessione corrente ma non la chiude, così posso sempre riaprirla
+
+
+## top e htop
+```bash
+top              # mostra processi e risorse occupate imodalità interattiva
 top -p 1234,5678 # mostra solo i processi con PID 1234 e 5678
 top -u edoardo   # mostra solo i processi di edoardo
+top -b -n2 -d2   # esegue top 2 volte, ogni 2 secondi, in background (invece che in modalità interattiva)
 ```
 **Opzioni di top**:
 * h: Mostra l'aiuto (elenco dei comandi interattivi).
 * q: Esce da top.
+* F: Fields management: permette di scegliere (premendo D o spazio) quali colonne mostrare, e anche su cosa ordinare i processi.
+* l: Attiva/disattiva la visualizzazione della prima riga
 * c: Attiva/disattiva la visualizzazione del percorso completo del comando.
+* m: Mostra in modo diverso la visualizzazione dell'utilizzo della memoria.
+* t: Mostra in modo diverso la visualizzazione dell'utilizzo della CPU.
 * M: Ordina i processi per utilizzo della memoria.
 * P: Ordina i processi per utilizzo della CPU (predefinito).
 * T: Ordina i processi per tempo di CPU cumulativo.
+* R: Ordina i processi in ordine inverso rispetto a quello attuale.
 * k: Uccide un processo. Ti verrà chiesto di inserire il PID del processo e il segnale da inviare.
 * r: Cambia la priorità (niceness) di un processo. Ti verrà chiesto di inserire il PID del processo e il nuovo valore di niceness.
 * u: Filtra i processi per utente. Ti verrà chiesto di inserire il nome utente.
@@ -261,7 +309,10 @@ sudo write messaggio # invio del messaggio a un solo utente. Per testarlo dovrei
 
 cat /proc/cpuinfo # info sulla CPU: memoria, modello, ecc.
 cat /proc/meminfo # info sulla memoria
+ls /proc/         # ci sono tante cartelle chiamate coi PID dei processi in esecuzione: se chiudo un processo scompare la cartella corrispondente
+```
 
+```bash
 shutdown -r now # riavvia adesso
 shutdown -h now # spegne  adesso
 shutdown -h +10 # spegne  fra 10 min
@@ -299,7 +350,7 @@ dpkg-reconfigure locales # modifica la lingua del terminale
 
 date   # stampa la data di oggi
 cal    # mostra il calendario
-uptime # orario, tempo di attività, utenti connessi, carico di lavoro sulla macchina
+uptime # orario, tempo di attività, utenti connessi, carico di lavoro sulla macchina (è la prima riga del comando "top")
 last   # elenca login/logout di tutti gli utenti da che esiste la macchina
 
 ping 8.8.8.8 # verifica semplice di connessione
@@ -356,4 +407,3 @@ apt list ssh      # mostra 2 versioni per questo particolare pacchetto
 apt show ssh      # dettagli sul SW
 apt search webcam # trova software per la webcam
 ```
-
