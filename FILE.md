@@ -283,8 +283,9 @@ dd if=testo of=TESTO conv=ucase        # creo un file di testo mettendo tutto in
 
 dd if=/dev/zero of=zero.dat                  # crea un file gigante all'infinito finchè non premo CTRL+C
 dd if=/dev/zero of=zero.dat bs=1024          # crea un file gigante all'infinito finchè non premo CTRL+C
-dd if=/dev/zero of=zero.dat bs=1024 count=10 # crea un file da 10KB
+dd if=/dev/zero of=zero.dat bs=1024 count=10 # crea un file da 10 KB
 ls -lh zero.dat                              # verifico che occupi effettivamente 10KB, cioè 10240 byte
+dd if=/dev/zero of=zero.dat bs=1M   count=10 # crea un file da 10 MB
 
 ls -lh testo                                 # vedo che occupa 25 Byte
 dd if=/dev/urandom of=testo bs=25 count=1    # modo sicuro per eliminare (sovrascrivendo) un file di 25 Byte
