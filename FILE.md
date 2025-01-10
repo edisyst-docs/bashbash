@@ -181,11 +181,12 @@ cat /etc/xattr.conf > config  # contiene alcune righe commentate, iniziano per #
 sed -n '1,5 p' config         # printa le righe 1,2,3,4,5
 sed -n '5,$ p' config         # printa le righe dalla 5 alla fine del file
 
-sed -i.$(date +%F) '/^#/d;' config # crea un backup con la data di oggi, e su config cerca le linee che iniziano per # e le elimina
+sed -i             '/^#/d;' config    # cerca nel file config le linee che iniziano per # e le elimina dal file
+sed -i.$(date +%F) '/^#/d;' config    # UGUALE ma crea anche un backup che chiamo con la data di oggi
 
 echo "ciao mamma" | sed 's/mamma/babbo/'    # "ciao babbo"
 echo "ciao mamma" | sed 's/[a-z]*/(&)/g'    # "(ciao) (mamma)"
-echo "123 abc" | sed 's/[0-9]*/& &/'        # sostituisce le stringhe numeriche con se stesse due volte: "123 123 abc"
+echo "123 abc"    | sed 's/[0-9]*/& &/'     # sostituisce le stringhe numeriche con se stesse due volte: "123 123 abc"
 
 echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # con -r supporta le REGEX estese, il + e le () senza escape 
 echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # sed supporta fino a 9 pattern (qui gliene dò 2 e li trova entrambi) 

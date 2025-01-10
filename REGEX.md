@@ -3,6 +3,8 @@ https://www.youtube.com/watch?v=fPii79dBQqY&list=PL4L8OWDC99_c1pppqEyT3FXuBPDI3Q
 https://regex101.com/  
 https://regexr.com/
 
+Se digito `man regex` vedo il manuale di regex su Linux
+
 Utili da usare con SED e con GREP
 
 ? => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE
@@ -15,11 +17,14 @@ Utili da usare con SED e con GREP
 [] => QUALSIASI CARATTERE dentro le []
 
 [.aeiou]      => cerca tutte le vocali e i punti
+[0-9]         => cerca tutti i numeri
 [a-z]         => cerca tutte le lettere minuscole
 [a-z] | [A-Z] => cerca tutte le lettere minuscole o maiuscole
 [A-Z] [a-z]+  => cerca tutte le parole che iniziano per una MAIUSCOLA
 [A-Z] [a-z]*  => così prenderebbe anche le SIGLE tutte maiuscole
-[^e]          => tutto tranne la lettera "e"
+[^e]          => cerca tutto tranne la lettera "e"
+[^L]inux      => cerca tutto tranne la parola "Linux"
+[^0-9]        => cerca tutto tranne i numeri
 [^aeiou ]     => esclude le vocali minuscole, e gli SPAZI (è un carattere anche lo spazio)
 [Cc]iao       => matcha "ciao" e "Ciao"
 

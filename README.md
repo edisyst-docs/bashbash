@@ -6,6 +6,32 @@
 - https://www.youtube.com/watch?v=aghQ6P3Qu3Y
 
 
+# Shortcuts
+```bash
+CTRL+L # pulisce la shell, shortcut del comando cls
+
+CTRL+C # interrompe l'esecuzione di un comando
+CTRL+Z # esco da un processo lasciandolo in background. Es: esco da VIM col file non salvato
+
+CTRL+SHIFT+C  # copia 
+CTRL+SHIFT+V  # incolla
+
+CTRL+D # esco dalla shell/sottoshell se stò impersonando un altro utente
+
+CTRL+P # history: indietro di un comando
+CTRL+N # history: avanti   di un comando
+
+CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
+CTRL+S # search, non so esattamente cosa faccia
+
+CTRL+U # taglia la parte sinistra di ciò che scritto sulla shell
+CTRL+K # taglia la parte destra di ciò che scritto sulla shell
+
+CTRL+A # vado all'inizio di ciò che ho scritto sulla shell
+CTRL+E # vado alla fine  di ciò che ho scritto sulla shell
+```
+
+
 # Helpers
 ```bash
 apropos copy # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare il comando che mi serve
@@ -144,14 +170,19 @@ lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 
 
 # Comando GREP
-Per cercare specifiche stringhe di testo o espressioni regolari all'interno di file, cartelle o output di altri comandi
+Cercare specifiche stringhe di testo o regex all'interno di file, cartelle o output di altri comandi
 ```bash
 grep stringa file             # SINTASSI BASE
 cat file | grep stringa       # ALTERNATIVA
 
 grep "errore" logfile.txt     # cerca la parola "errore" e restituisce le righe dove la trova
 grep -i "errore" logfile.txt  # UGUALE ma non distingue maiuscole/minuscole, quindi trova anche ERRORE, Errore, ecc.
+grep -o "errore" logfile.txt  # restituisce solo la parola cercata, non tutta la riga (di default grep farebbe così)
 grep -r "errore" /var/log/    # cerca ricorsivamente "errore" in tutti i file dentro la cartella /var/log/
+grep -E '[0-9]{3}' logfile    # -E per accettare anche le regex estese; cerca tutte le sequenze di 3 numeri
+egrep '[0-9]{3}' logfile      # UGUALE
+fgrep [circa] logfile         # cerca esattamente [circa], le [] e i simboli non li interpreta come regex 
+
 grep '^b' logfile.txt         # cerca tutte le righe del file che iniziano per "b"
 grep 'fine$' logfile.txt      # cerca tutte le righe del file che finiscono con la parola "fine"
 grep errore *                 # cerca la parola "errore" in tutti i file dentro la cartella corrente
@@ -225,16 +256,49 @@ df -hT                 # mostra anche il tipo di file system
 df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
 du -h -s cartella      # per sapere quanto occupa la cartella
 
-blkid /dev/sda /dev/sdb /dev/sdc # mostra gli UUID dei dischi
-
 watch ls -lh /var/log/       # esegue ls -lh ogni 2 secondi
 watch -n 5 ls -lh /var/log/  # esegue ls -lh ogni 5 secondi
+
+free -h # mostra la memoria libera e occupata
+```
+
+Posso gestire la priority di un processo e la sua niceness (capacità di condividere le sue risorse) con nice e renice:
+```bash
+ps -l                   # mostra anche priorità e niceness dei processi
+nice -n 5 sleep 1000&   # lancia un processo in bg che dura un po' con niceness 5
+nice -n 10 sleep 1000&  # lancia un processo in bg che dura un po' con niceness 10
+ps -l                   # questi processi hanno priorità e nicenessdifferenti dal default
+renice -n 7 95740       # cambia la priorità del PID 95740 a 7. Posso solo incrementargliela se non sono root
+renice -n 10 -u edoardo # cambia la priorità di tutti i processi di edoardo a 10
+```
+Posso fare il renice anche tramite il comando top, premendo la r.  
+Il valore di nice è tra -20 e 19, dove -20 è la priorità più alta e 19 la più bassa. 
+Ma solo root può diminuire la priorità di un processo, nonchè creare un processo con priorità negativa.
+
+
+## Dischi
+```bash
+mount                           # mostra i dischi montati
+mount | column -t               # UGUALE più leggibile
+mount | grep sda1               # mostra solo il disco sda1
+
+lsblk | grep -v loop             # mostra i dischi (pen drive, HD esterni/interni, ecc.): è come un ls per i dischi
+blkid                            # mostra gli UUID dei dischi
+blkid /dev/sda /dev/sdb /dev/sdc # se gli passo i dischi specifici mi fornisce anche info più dettagliate
+
+cat /etc/fstab | grep -v '#'    # mostra i dischi montati
+ls -lh /dev/disk/by-uuid/       # mostra i dischi montati con i loro UUID
+ls -lh /dev/disk/by-id/         # mostra i dischi montati con i loro ID
+
+cat /etc/systemd/system/snap-snapd-21759.mount   # esempio di configurazione di un disco montato
 ```
 
 
-## tmux   
-Terminali multipli su una singola istanza (es: collegamento SSH)
 
+
+
+## tmux   
+Terminali e finestre multipli su una singola istanza (es: su un singolo collegamento SSH)
 ```bash
 tmux                 # apre una nuova sessione
 tmux ls              # mostra le sessioni attive
@@ -243,17 +307,20 @@ tmux attach -t 0     # permette di ricollegarsi alla sessione 0
 exit                 # esce da una sezione/finestra/sessione in base a dove mi trovo nei vari livelli
 ```
 
-All'interno di tmux posso fare diverse azioni, ognuna delle quali deve essere sempre preceduta da CTRL+B:
+All'interno di tmux posso fare diverse azioni, ognuna delle quali deve essere sempre preceduta da `CTRL+B`:
 - CTRL+B seguito da ?: mostra l'elenco dei comandi disponibili
 - CTRL+B seguito da C: (create) crea una nuova finestra
+- CTRL+B seguito da ,: permette di rinominare la finestra corrente
 - CTRL+B seguito da N: (next) passa alla finestra successiva
 - CTRL+B seguito da P: (previous) passa alla finestra precedente
-- CTRL+B seguito da ,: permette di rinominare la finestra corrente
+- CTRL+B seguito da W: (windows) 
+- 
 - CTRL+B seguito da [: (copy) permette di copiare il testo dalla finestra corrente
 - CTRL+B seguito da &: (kill) chiude la sezione/finestra/sessione corrente. E' come digitare `exit`
 - CTRL+B seguito da %: (split) divide la finestra corrente in due sezioni orizzontali
 - CTRL+B seguito da ": (split) divide la finestra corrente in due sezioni verticali
 - CTRL+B seguito da freccia: permette di spostarsi tra le varie sezioni della finestra.
+- 
 - CTRL+B seguito da D: (detach) stacca la sessione corrente ma non la chiude, così posso sempre riaprirla
 
 
@@ -277,7 +344,7 @@ top -b -n2 -d2   # esegue top 2 volte, ogni 2 secondi, in background (invece che
 * T: Ordina i processi per tempo di CPU cumulativo.
 * R: Ordina i processi in ordine inverso rispetto a quello attuale.
 * k: Uccide un processo. Ti verrà chiesto di inserire il PID del processo e il segnale da inviare.
-* r: Cambia la priorità (niceness) di un processo. Ti verrà chiesto di inserire il PID del processo e il nuovo valore di niceness.
+* r: Cambia la priorità (niceness) di un processo. Fa ciò che fa il comando `renice`
 * u: Filtra i processi per utente. Ti verrà chiesto di inserire il nome utente.
 * n: Cambia il numero di processi visualizzati.
 
@@ -301,8 +368,6 @@ htop -u edoardo   # mostra solo i processi di edoardo
 
 ```bash
 free -h # mostra le risorse di sistema in utilizzo e disponibili
-
-mount | column -t # mostra i dischi
 
 sudo wall messaggio # broadcast del messaggio a tutti gli utenti. Per testarlo dovrei creare 2 utenti in 2 terminali
 sudo write messaggio # invio del messaggio a un solo utente. Per testarlo dovrei creare 2 utenti in 2 terminali
@@ -365,26 +430,6 @@ ln -s cartella link2
 ls -l
 ```
 
-
-# Shortcuts
-```bash
-CTRL+L # pulisce la shell, shortcut del comando cls
-
-CTRL+Z # esco da un processo lasciandolo in background. Es: esco da VIM col file non salvato
-fg     # per prendere il processo in background e portarlo in foreground
-
-CTRL+P # history: indietro di un comando
-CTRL+N # history: avanti   di un comando
-
-CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
-CTRL+S # search, non so esattamente cosa faccia
-
-CTRL+U # taglia la parte sinistra di ciò che scritto sulla shell
-CTRL+K # taglia la parte destra di ciò che scritto sulla shell
-
-CTRL+A # vado all'inizio di ciò che ho scritto sulla shell
-CTRL+E # vado alla fine  di ciò che ho scritto sulla shell
-```
 
 # Gestione pacchetti
 ```bash
