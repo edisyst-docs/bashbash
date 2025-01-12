@@ -92,21 +92,6 @@ done
 read var1 var2 var3
 ```
 
-```bash
-# here documents
-# cmd << EOF "end of file"
-tr "aeiou" "56789" << FINE
-> ciao questa è una frase lunga
-> divisa in più righe
-> e finisco qua
-> FINE
-```
-
-```bash
-# here strings
-python <<< 'print("Hello Word in python")'
-```
-
 # ESPANSIONI (non credo che mi servirà mai approfondirle tutte)
 Quando eseguo un cmdN, la shell bash per prima cosa applica eventuali redirezioni date, di seguito 
 applica in ordine le varie espansioni della shell bach che vi sono in gioco.
@@ -144,6 +129,3 @@ Le single quotes inibiscono sempre
 8) Process substitution (double quotes inibiscono)
 
 9) Quote removal
-
-
-

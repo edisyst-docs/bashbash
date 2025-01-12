@@ -278,13 +278,17 @@ Ma solo root può diminuire la priorità di un processo, nonchè creare un proce
 
 ## Dischi
 ```bash
+mount /dev/sda1 /mnt            # monta il disco sda1 nella cartella /mnt
+umount /mnt                     # smonta il disco sda1 dalla cartella /mnt
+
 mount                           # mostra i dischi montati
 mount | column -t               # UGUALE più leggibile
 mount | grep sda1               # mostra solo il disco sda1
 
-lsblk | grep -v loop             # mostra i dischi (pen drive, HD esterni/interni, ecc.): è come un ls per i dischi
-blkid                            # mostra gli UUID dei dischi
-blkid /dev/sda /dev/sdb /dev/sdc # se gli passo i dischi specifici mi fornisce anche info più dettagliate
+lsblk | grep -v loop            # mostra dischi/partizioni (anche l'alberatura): più dettagliato di mount
+lsblk -f | grep -v loop         # UGUALE ma mostra anche i punti di mount
+blkid                           # mostra gli UUID dei dischi
+blkid /dev/sda /dev/sdb         # se gli passo i dischi specifici mi fornisce anche info più dettagliate
 
 cat /etc/fstab | grep -v '#'    # mostra i dischi montati
 ls -lh /dev/disk/by-uuid/       # mostra i dischi montati con i loro UUID

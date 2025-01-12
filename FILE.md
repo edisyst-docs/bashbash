@@ -218,12 +218,16 @@ lsof -i :80          # connessioni di rete per una porta specifica
 ## Lettura e scrittura
 ```bash
 touch file{1,2,4,5}                       # creo 5 file
-ls -lh file1 file0                        # ho errore per file0 e output per file1
+ls -lh file1 file0                        # ho errore per file0 e output per file1. Default: stdout (/dev/tty0), stderr (/dev/tty1) 
 ls -lh file1 file0  > risultati           # qui ci finisce solo lo standard output (1), lo standard error (2) è stampato a video
+ls -lh file1 file0 1> risultati           # UGUALE IDENTICO
 ls -lh file1 file0 2> errori              # qui ci finisce solo lo standard error (2), lo standard output (1) è stampato a video
 ls -lh file1 file0  > risultati 2> errori # posso fare entrambe le cose insieme
-ls -lh file1 file0 &> tutto               # UGUALE ma metto tutto (standard output ed error) dentro un unico file
-ls -lh file1 file0  > tutti 2>&1          # UGUALE IDENTICO al precedente
+ls -lh file1 file0 &> tutto               # UGUALE ma metto entrambi (output ed error) dentro un unico file "tutto"
+ls -lh file1 file0  > tutti 2>&1          # UGUALE IDENTICO (output dentro "tutti", error dove reindirizzo l'output, cioè sempre "tutti")
+ls -lh file1 file0  2>&1 > risultati      # Equivale a > risultati. Perchè? Perchè stderr viene reindirizzato sul default di stdout (/dev/tty0) 
+
+echo messaggio | tee file                 # stampa "messaggio" a video e lo scrive dentro "file". Equivale a echo messaggio && messaggio > file
 
 exec > ~/t.txt    # serve per la redirezione permanente
 exec > /dev/pts/0 # serve per la redirezione permanente
@@ -231,6 +235,28 @@ exec 5>~/t.txtv   # creo il file descriptor 5: chi può accedere allo stdOUT (de
 exec 5<>~/t.txt   # così lo creo sia per LETTURA che SCRITTURA
 exec 5>&-         # chiudo il file descriptor "custom" 5 in SCRITTURA
 ```
+
+
+
+## << (Here-Document) e <<< (Here-String)
+```bash
+python <<< 'print("Ciao Mondo")'  # Usato per fornire una stringa singola come input.
+
+cat << EOF > file.txt             # ciò che digito dopo lo scrive in file.txt finchè non digito EOF
+> Questa è la prima riga.         # cat riceve come input le righe scritte fino al delimitatore EOF
+> Questa è la seconda riga.       # utile per passare  input multi-linea a un comando
+> EOF                             # EOF è un delimitatore, posso chiamarlo come voglio
+```
+    
+```bash 
+tr "aeiou" "56789" << FINE
+> ciao questa è una frase lunga
+> divisa in più righe
+> e finisco qua
+> FINE
+```
+
+
 
 ## Lettura su file
 ```bash
