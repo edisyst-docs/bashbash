@@ -324,8 +324,8 @@ All'interno di tmux posso fare diverse azioni, ognuna delle quali deve essere se
 - 
 - CTRL+B seguito da [: (copy) permette di copiare il testo dalla finestra corrente
 - CTRL+B seguito da &: (kill) chiude la sezione/finestra/sessione corrente. E' come digitare `exit`
-- CTRL+B seguito da %: (split) divide la finestra corrente in due sezioni orizzontali
-- CTRL+B seguito da ": (split) divide la finestra corrente in due sezioni verticali
+- CTRL+B seguito da %: (split) divide la finestra corrente in due sezioni verticali
+- CTRL+B seguito da ": (split) divide la finestra corrente in due sezioni orizzontali
 - CTRL+B seguito da freccia: permette di spostarsi tra le varie sezioni della finestra.
 - 
 - CTRL+B seguito da D: (detach) stacca la sessione corrente ma non la chiude, così posso sempre riaprirla
