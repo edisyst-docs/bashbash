@@ -184,7 +184,7 @@ Contiene file temporanei (dati di run-time volatili) che descrivono lo stato del
   * systemd/: directory contenente i file di stato gestiti da systemd
 
 ## /sbin
-Contiene i binari essenziali per l'admin del sistema. Questi comandi sono usati di solito dall'utente root
+Contiene i binari essenziali (anche in modalità provvisoria) per l'admin del sistema. Questi comandi sono usati di solito dall'utente root
 * Esempi:
   * ifconfig: configurazione delle interfacce di rete
   * reboot: riavvio del sistema

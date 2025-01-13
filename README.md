@@ -39,9 +39,12 @@ whatis ls    # dice solo cosa fa il comando ls
 which ls     # dice dove si trova l'eseguibile di ls, in quale folder
 whereis  ls  # dice dove s trova  l'eseguibile e il manuale di ls
 
-ls --help # helper del comando
-man ls    # helper più dettagliato
-info ls   # helper più dettagliato
+echo $PATH        # dice dove tutto cerca gli eseguibili per which e whereis
+PATH=$PATH:/opt/  # aggiungo /opt/ ai percorsi di $PATH 
+
+ls --help    # helper del comando
+man ls       # helper più dettagliato
+info ls      # helper più dettagliato ancora
 ```
 
 
@@ -98,14 +101,14 @@ echo ciao ci sono $(ls | wc -w) parole nei files qui dentro # wc = words count
 
 # Alias
 ```bash
-type pwd # mi dice che tipo di comando è
-type ls  # mi dice il suo alias, perchè ha un alias
-ls       # è come lanciare "ls --color=auto"
-\ls      # è come lanciare "ls", non esegue gli eventuali alias
+type pwd   # mi dice che tipo di comando è
+type ls    # mi dice il suo alias, perchè ha un alias
+ls         # è come lanciare "ls --color=auto"
+\ls        # è come lanciare "ls", non esegue gli eventuali alias
+unalias ls # rimuove l'alias per questa sessione di terminale
 
-alias   # mostra gli alias temporanei creati da me. Se faccio exit, scompaiono
+alias                                # mostra tutti gli alias della sessione
 alias x="echo ciao;ls;ls;echo hello" # creo un alias con N comandi inline da eseguire in sequenza
-unalias x # rimuove quell'alias
 ```
 - Con le {} bisogna mettere uno spazio all'inizio e uno alla fine, e bisogna terminare con ;
 
@@ -208,7 +211,7 @@ cd cartella ; ls # due distinti comandi: prima và nella cartella poi esegue ls
 ls | tr "AEIOU" "12345" #  pipeline di comandi: ls(output) diventa tr(input)
 echo "6+9"| bc # svolge l'operazione e stampa il risultato
 
-ls | grep "log"               # filtra i file di log, che si chiamano log_qualcosa
+ls | grep "log"                        # filtra i file di log, che si chiamano log_qualcosa
 find /cartella -type f | grep "config" # cerca i file nella directory "cartella" e filtra quelli che contengono "config" nel percorso
 
 cat -n SCRIPT.md              # numera tutte le righe mostrate
@@ -427,11 +430,18 @@ sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo
 ```
 
 
-## Link simbolici
+## Simlink e hardlink
 ```bash
-ln -s s.sh link1
-ln -s cartella link2
-ls -l
+ln -s file link1      # LINK SIMBOLICO
+ln -s cartella link2  # è un altro file con permessi 777, ma tanto eredita i permessi del file che linka
+ls -l                 # riconosco il link dalla l iniziale
+
+touch pippo
+ls -l                 # vedo che pippo ha 1 nella colonna degli inode
+ln pippo paperino     # HARD LINK. Apparentemente è come un file diverso
+ls -l                 # hanno entrambi 2 nella colonna degli inode
+ls -i                 # hanno lo stesso numero di inode
+ls -li                # son proprio lo stesso file, tutti i dati coincidono. Se ne modifico uno, modifico anche l'altro
 ```
 
 
