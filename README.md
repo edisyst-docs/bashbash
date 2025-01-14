@@ -8,7 +8,7 @@
 
 # Shortcuts
 ```bash
-CTRL+L # pulisce la shell, shortcut del comando cls
+CTRL+L # pulisce la shell, shortcut del comando clear
 
 CTRL+C # interrompe l'esecuzione di un comando
 CTRL+Z # esco da un processo lasciandolo in background. Es: esco da VIM col file non salvato
@@ -66,11 +66,15 @@ echo `date`              # stessa cosa, ma è una sintassi vecchia
 
 # Comandi base
 ```bash
-ls -R cartella  # mostra ricorsivamente tutti i file di tutte le sottocartelle
-ls --color      # colora i file in base al tipo
-ls [a,e]*       # mostra i file che cominciano per "a" o per "e"
-ls -l *.rar     # mostra i file che terminano con .rar
-ls -l | grep ^d # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
+ls -R cartella      # mostra ricorsivamente tutti i file di tutte le sottocartelle
+ls --color          # colora i file in base al tipo
+ls [a,e]*           # mostra i file che cominciano per "a" o per "e"
+ls -l *.rar         # mostra i file che terminano con .rar
+ls -l | grep ^d     # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
+
+mv testo{,.old}     # mv testo testo.old 
+mv testo.{old,new}  # mv testo.old testo.new
+mv testo{.old,}     # mv testo.old testo
 
 pwd                 # stampa la directory corrente
 ps                  # elenco processi attivi (in esecuzione ce ne sono tanti altri, anche in altre shell)
@@ -125,6 +129,8 @@ env            # mostra i valori di molte variabili d'ambiente
 
 # VARIABILI
 ```bash
+mount /dev/sda /mnt -o offset=$((512*811006))  # esempio: prima esegue la moltiplicazione e il risultato lo usa nel comando
+
 variabile="valore" # senza nessuno spazio
 declare -i numero=13 # se non è stringa lo devo dichiarare: integer
 declare -r costante="ciao" # costante: se le assegno un altro valore ho un errore
@@ -407,9 +413,11 @@ history -c         # cancello tutta la history
 
 !101    # esegue il comando con ID=101 della history
 !!      # esegue l'ultimo comando della history
-sudo !! # esegue l'ultimo comando come SUDO
+sudo !! # esegue l'ultimo comando come SUDO (TRUCCHETTO UTILE)
 !?at?   # esegue l'ultimo comando della history contenente 'at'. Es: date
 !apt    # esegue l'ultimo comando della history che inizia con 'apt'. Es: apt-get update
+
+rm !$   # !$ è l'argomento dell'ultimo comando digitato, per cui rimuove il file (se) digitato nel comando precedente (es: touch file nuovo)
 
 fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco, li esegue tutti
 ```
@@ -420,10 +428,16 @@ fc 92 94 # apre nano/vim scrivendo in un file tmp i comandi 92-93-94. Come esco,
 dpkg-reconfigure tzdata  # modifica timezone/fuso orario
 dpkg-reconfigure locales # modifica la lingua del terminale
 
-date   # stampa la data di oggi
-cal    # mostra il calendario
-uptime # orario, tempo di attività, utenti connessi, carico di lavoro sulla macchina (è la prima riga del comando "top")
-last   # elenca login/logout di tutti gli utenti da che esiste la macchina
+date                          # stampa data e ora di oggi
+date -I                       # stampa solo la data
+date '+%d-%m-%Y'              # stampa la data nel formato che gli dico io
+date '+%H:%M:%S'              # posso indicargli anche un formato per stampare l'ora
+date '+%d-%m-%Y --- %H:%M:%S' # altro esempio per combinarli
+touch docum-$(date -I)        # trucco per creare un file con la data di oggi nel nome
+
+cal     # mostra il calendario
+uptime  # orario, tempo di attività, utenti connessi, carico di lavoro sulla macchina (è la prima riga del comando "top")
+last    # elenca login/logout di tutti gli utenti da che esiste la macchina
 
 ping 8.8.8.8 # verifica semplice di connessione
 sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo

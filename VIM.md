@@ -124,6 +124,7 @@ Per uscire da Vim e salvare. Premo sempre i `:` per entrarci
 - `:w`   (salva)
 - `:X`   (cifra - chiederà una password)
 - `:wq`  (salva ed esci)
+- `:w !sudo tee %`   (salva con sudo, se mi accorgo solo alla fine che non avevo i permessi x salvare)
 
 
 

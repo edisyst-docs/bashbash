@@ -21,3 +21,9 @@ for var in "ciao come va"
 do
     echo $var
 done
+
+#for file in *
+#do
+#ls $file               # così controllo quali file sarebbero impattati
+#  mv $file $file.old   # modifico effettivamente i filename
+#done
