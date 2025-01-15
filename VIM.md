@@ -46,10 +46,12 @@ In generale `N comando` esegue il comando N volte: `10 dd` taglia 10 righe, `10 
 - `/ciao`   : cerca "ciao" `verso avanti`
 - `n` e `N` : cerca il "ciao" successivo/precedente
 - `?ciao`   : cerca "ciao" `verso indietro`. `N` e `n` cambiano verso di ricerca
+- 
 
-**Copia e incolla testo** senza entrare in INSERT MODE
+  **Copia, incolla, taglia testo** senza entrare in INSERT MODE
 - `y(ank)`: copia. ES: `yft` copia dal cursore fino alla prossima t
 - `yy`: copia l'intera riga
+- `yw`: copia fino alla fine della parola (yank word)
 - 
 - `p(aste)`: incolla dal carattere dopo il cursore o nella riga sotto (in caso di `yy`)
 - `P`: incolla dal carattere del cursore o nella riga sopra (in caso di `yy`)
@@ -60,6 +62,9 @@ In generale `N comando` esegue il comando N volte: `10 dd` taglia 10 righe, `10 
 - `d`: taglia. ES: `dfT` taglia dal cursore fino alla prossima T
 - `D`: taglia dal cursore fino a fine riga
 - `dd`: taglia l'intera riga
+- `dw`: taglia l'intera parola (delete word)
+- 
+- `CANC`: CANCELLA (IN REALTà TAGLIA) IL CARATTERE CORRENTE SENZA ENTRARE IN INSERT MODE (è l'unico tasto che mantiene sempre lo stesso comportamento)
 - 
 - `r(eplace)`: replace carattere corrente. ES: `rT` sostituisce il carattere sul cursore con una T
 - `R`: entro in replace mode. Da questo momento se scrivo, sostituisco il testo dove ho il cursore
@@ -125,6 +130,8 @@ Per uscire da Vim e salvare. Premo sempre i `:` per entrarci
 - `:X`   (cifra - chiederà una password)
 - `:wq`  (salva ed esci)
 - `:w !sudo tee %`   (salva con sudo, se mi accorgo solo alla fine che non avevo i permessi x salvare)
+- `:read ! sudo blkid /dev/sda` (incolla nel file aperto con VIM l'output el comando blkid... c'è sudo in questo caso specifico sennò non restituisce output)
+- `:read ! sudo | grep riga`    (incolla nel file aperto con VIM il contenuto del file altro_file greppato per "riga")
 
 
 
