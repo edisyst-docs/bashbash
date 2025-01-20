@@ -263,7 +263,8 @@ df -h --total          # aggiunge il totale alla fine
 df -h /dev/sda1        # uso dello spazio su una partizione specifica
 df -hT                 # mostra anche il tipo di file system 
 df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
-du -h -s cartella      # per sapere quanto occupa la cartella
+du -hs /home/edo/*     # per sapere quanto occupa ogni singolo elemento di /home/edo/
+du -hs /home/edo/      # per sapere quanto occupa in totale la cartella /home/edo/
 
 watch ls -lh /var/log/       # esegue ls -lh ogni 2 secondi
 watch -n 5 ls -lh /var/log/  # esegue ls -lh ogni 5 secondi
