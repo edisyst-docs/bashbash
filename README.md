@@ -299,7 +299,7 @@ lsblk -f | grep -v loop         # UGUALE ma mostra anche i punti di mount
 blkid                           # mostra gli UUID dei dischi
 blkid /dev/sda /dev/sdb         # se gli passo i dischi specifici mi fornisce anche info più dettagliate
 
-cat /etc/fstab | grep -v '#'    # mostra i dischi montati
+cat /etc/fstab | grep -v '#'    # mostra i dischi montati automaticamente all'avvio.
 ls -lh /dev/disk/by-uuid/       # mostra i dischi montati con i loro UUID
 ls -lh /dev/disk/by-id/         # mostra i dischi montati con i loro ID
 

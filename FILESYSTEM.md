@@ -106,12 +106,13 @@ Contiene i file necessari per l'avvio del sistema (immagini del kernel, i file d
     * Es: /boot/grub/grub.cfg ==> file di config bootloader per cambiare le opzioni di avvio
 
 ## /dev
-Contiene i file dei dispositivi, che permettono l’accesso alle periferiche hardware del sistema.
+Contiene i file di dispositivo, che permettono l’accesso alle periferiche hardware del sistema.
 * Esempi:
-  * sda1: rappresenta la prima partizione del primo disco rigido.
-  * tty: terminali.
-  * null: null device, che scarta qualsiasi input e produce un output vuoto.
-  * loop0: dispositivo di loopback
+  * `sda`: il primo disco rigido (primary drive) rilevato.
+  * `sda1`: la prima partizione del primo disco rigido `/dev/sda`.
+  * `tty`: terminali.
+  * `null`: null device, che scarta qualsiasi input e produce un output vuoto.
+  * `loop0`: dispositivo di loopback
     * Es: `sudo mount /dev/loop0 /mnt` per montare un file immagine come un dispositivo
 
 ## /etc
@@ -145,14 +146,15 @@ Contiene i punti di montaggio per i dispositivi rimovibili montati automaticamen
 * Esempi:
   * /media/cdrom: punto di montaggio per i CD-ROM.
   * /media/usb: punto di montaggio per le chiavette USB
-  * /media/username/usbdrive: se la chiavetta la inserisce un utente username nella sua sessione privata
+  * /media/username/usbdrive: se la chiavetta la inserisce l'utente "username" nella sua sessione privata
 
 ## /mnt
-Utilizzata unicamente per i montaggi temporanei. Solo gli admin di sistema possono montare file system temporanei qui.
+Utilizzata unicamente per i montaggi manuali temporanei. Solo gli admin di sistema possono montare file system temporanei qui.
 * Montaggio disco temp: `sudo mount /dev/sdb1 /mnt` e l'accesso al disco sarà `cd /mnt`
 * Esempi:
-  * /mnt/backup: montaggio di un disco per backup.
-  * /mnt/disk: montaggio temporaneo di un disco.
+  * `sudo mkdir /mnt/dati && sudo mount -t ext4 /dev/sdb1 /mnt/dati`: montaggio di un disco dati su /mnt/dati
+  * `/mnt/backup`: montaggio di un disco per backup.
+  * `/mnt/disk`: montaggio temporaneo di un disco.
 
 ## /opt
 Contiene software/pacchetti opzionali aggiuntivi che non fanno parte della distribuzione standard. Un pacchetto si installa nella cartella /opt/nome-pacchetto
@@ -235,4 +237,3 @@ filesystem separato**
   * /var/log: file di log.
   * /var/spool: spool di stampa e mail.
   * /var/tmp: file temporanei che possono essere mantenuti tra riavvii.
-
