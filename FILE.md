@@ -7,15 +7,15 @@ file *               # mi dice il tipo di file di tutti quelli in cartella
 touch pippo_{1,2,3}  # crea pippo_1, pippo_2, pippo_3 
 touch pippo_{01..12} # crea pippo_01, pippo_02, ..., pippo_12
 
-ls /etc/*.conf                         # mostra tutti i file .conf che sono dentro /etc
-cp /etc/*.conf destinazione            # copia tutti i file .conf che sono dentro /etc dentro destinazione
-cp -i origine destinazione             # chiede conferma in caso di overwriting
-cp file1.txt file2.txt                 # fa una copia file1 e la chiama file2
-cp file1.txt /percorso/directory/      # copia file1 dentro la cartella /directory/
-cp -r directory1 /percorso/directory2/ # copia la directory1 dentro la cartella directory2
+ls /etc/*.conf                  # mostra tutti i file .conf che sono dentro /etc
+cp /etc/*.conf destinazione     # copia tutti i file .conf che sono dentro /etc dentro destinazione
+cp -i origine destinazione      # UGUALE ma chiede conferma in caso di overwriting
+cp file1 file2                  # fa una copia file1 e la chiama file2
+cp file1 /percorso/directory/   # copia file1 dentro la cartella /percorso/directory/
+cp -r dir_1 /percorso/dir_2/    # copia la dir_1 dentro la cartella /percorso/dir_2
 
 mkdir dir{1,2,3}                # UGUALE a mkdir dir1 dir2 dir3
-mkdir -p progetti/2024/giugno   # per crearle già annidate
+mkdir -p progetti/2024/giugno   # le crea tutte, già annidate, altrimenti dovrei crearle una x volta
 mkdir -m 700 dir_privata        # specifico i permessi in creazione
 
 rmdir directory_vuota           # la directory dev'essere vuota per poterla eliminare
@@ -26,30 +26,35 @@ rm -ri directory_non_vuota      # chiede conferma prima di rimuovere ogni file
 
 shred pippo_01    # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
 shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
+
+wc file    # numero di righe, parole, caratteri presenti in file
+wc -l file # numero di righe presenti in file
+wc -w file # numero di parole presenti in file
+wc -c file # numero di caratteri presenti in file.txt
 ```
 
 
 ## Archiviazione (file unico che contiene N file e cartelle) e Compressione (riduzione spazio)
 ```bash
 cat /var/log/apt/history.log                      # leggo un file di testo
-zcat /var/log/apt/history.log.1.gz                # leggo un file compresso .gz (senza doverlo scompattare per forza)
+zcat /var/log/apt/history.log.1.gz                # leggo un file compresso .gz (senza scompattarlo per forza)
 bzcat, xzcat                                      # analoghi per file compressi .bz e .xz
 
-gzip file1 file2                                  # sostituisce file1 e file2 con file1.gz e file2.gz compressi
+gzip file1 file2                                  # SOSTITUISCE file1 e file2 con file1.gz e file2.gz compressi
 zcat file1.gz e file2.gz                          # non li posso leggere con cat ma con zcat
 gzip -l file1.gz                                  # ci dice quanto occupa da compresso e da scompattato
-gunzip file1.gz e file2.gz                        # sostituisce file1.gz e file2.gz compressi con file1 e file2 (INVERSO di gzip)
+gunzip file1.gz e file2.gz                        # SOSTITUISCE file1.gz e file2.gz compressi con file1 e file2 (INVERSO di gzip)
 
-xz file1                                          # sostituisce file1 con file1.xz compresso (comprime di più di gzip)
+xz file1                                          # SOSTITUISCE file1 con file1.xz compresso (comprime di più di gzip)
 xz -l file1.xz                                    # ci dice quanto occupa da compresso e da scompattato
-xz -d file1.xz                                    # sostituisce file1.gz compresso con file1 (INVERSO di xz)
+xz -d file1.xz                                    # SOSTITUISCE file1.gz compresso con file1 (INVERSO di xz)
 
-tar -cvf archivio.tar file1 file2                 # c:crea un file archivio.tar NON COMPRESSO contenente file1, file2
-tar -xvf archivio.tar /destinazione               # x:estrae (in una cartella specifica) il contenuto di archivio.tar
-tar -cvf archivio.tar file1 file2 directory1      # crea archivio contenente sia file che directory
-tar -cvzf compresso.tar.gz file1 file2 directory1 # comprime l'archivio utilizzando gzip (-z), bzip2 (-j), o xz (-J):
-tar -xvzf compresso.tar.gz                        # estrae un archivio compresso di tipo tar.gz 
-tar -tvf compresso.tar.gz                         # è come fare "ls -l" ma dentro un archivio compresso
+tar -cvf  archivio.tar file1 file2                # c:CREA il file archivio.tar NON COMPRESSO contenente file1, file2
+tar -xvf  archivio.tar /destinazione              # x:ESTRAE (in una cartella specifica) il contenuto di archivio.tar
+tar -cvf  archivio.tar file1 file2 directory1     # CREA archivio contenente sia file che directory
+tar -cvfz compresso.tar.gz file1 file2 directory1 # COMPRIME l'archivio con gzip (-z), bzip2 (-j), o xz (-J):
+tar -xvfz compresso.tar.gz                        # ESTRAE un archivio compresso di tipo tar.gz 
+tar -tvf  compresso.tar.gz                        # è come fare "ls -l" ma dentro un archivio compresso
 
 du -sh compresso.tar.gz file1 file2 directory1    # con questo comando posso confrontare quanto occupano tutti quegli elementi
 ```
@@ -58,9 +63,9 @@ du -sh compresso.tar.gz file1 file2 directory1    # con questo comando posso con
 ## find: cerca file e cartelle
 ```bash
 find ./ -name "long.txt"           # cerca un file chiamato long.txt nella cartella corrente
-find / -name config                # cerca file/folder chiamato config in tutto il disco (avrò errori di Permesso Negato)
+find / -name config                # cerca file/folder chiamato "config" in tutto il disco (avrò errori di Permesso Negato)
 find / -iname config               # UGUALE ma è case insensitive
-find / -name config 2>/dev/null    # redirige l'output 2 (standard error) su dev/null (perchè ho errori di Permesso Negato)
+find / -name config 2>/dev/null    # redirige l'output 2 (std_error) su dev/null (perchè ho errori di Permesso Negato)
 find / -iname '*.conf' 2>/dev/null # cerca tutti i file .conf dentro il disco
 
 find /home/ -iname config -exec ls -ldh {} \;          # cerca file/cartelle chiamate config e fa un ls di essi
@@ -121,7 +126,7 @@ paste ciao -s     # scrive tutte le righe in 1 unica riga, separandole con un TA
 paste ciao -s -d, # scrive tutte le righe in 1 unica riga, separandole con la ,
 
 
-md5sum file.txt      # fa l'hash del file, utile per verificare se un file è stato scaricato/trasferito con successo
+md5sum file.txt      # calcola l'hash del file, utile per verificare se un file è stato trasferito con successo
 sha256sum, sha512sum # alternative più sicure (hash con più bit)
 ```
 
@@ -132,15 +137,16 @@ for l in $(seq 5000) ; do
 > echo "riga numero $l" >> file_5000
 > done
 
-wc  -l file_5000     # ha effettivamente 5000 righe/linee
-wc  -l *             # fa la stessa cosa su tutti i file della cartella in cui mi trovo
-split file_5000      # di default spezza ogni 1000 righe
-cat xa* > nuovo_file # ESCAMOTAGE PER VERIFICARE
+wc  -l file_5000      # ha effettivamente 5000 righe/linee
+wc  -l *              # fa la stessa cosa su tutti i file della cartella in cui mi trovo
+split file_5000       # di default spezza ogni 1000 righe
+cat xa* > nuovo_file  # ESCAMOTAGE PER VERIFICARE
 
 split file_5000 -l 500 text_splitted_ # ora spezza ogni 500 righe e i chunk si chiameranno text_splitted_aa,ab,ac
 
-split -b 5m video.mp4 # splitta un file grosso in blocchi BINARI da 5 Mega
+split -b 5m video.mp4  # splitta un file BINARIO in blocchi BINARI da 5Mega
 # Potrei far lo stesso per i file di testo, ma per quelli è più comodo splittarli in N file che rimangano leggibili
+cat video* > unito.mp4 # ESCAMOTAGE PER VERIFICARE
 ```
 
 
@@ -149,16 +155,17 @@ split -b 5m video.mp4 # splitta un file grosso in blocchi BINARI da 5 Mega
 echo "il comando cut serve a ritagliare l'output dai programmi
 il termine cut signigica proprio tagliare
 da non confondere con cat!
-il comando cat serve inceve a concatenare più file" > cut-example.txt
+il comando cat serve invece a concatenare più file" > cut-example.txt
 
 cut -c12  cut-example.txt   # stampa il carattere nella colonna 12 di ogni riga del file
 cut -c12-15 cut-example.txt # ritaglia tutte le righe del file e stampa le colonne 12-13-14-15
 cut -c12- cut-example.txt   # ritaglia tutte le righe del file e stampa le colonne dalla 12 fino alla fine
 cut -c-12 cut-example.txt   # ritaglia tutte le righe del file e stampa le colonne dall'inizio alla 12
 
-cut -d':' -f1 /etc/passwd       # usa : come delimitatore e stampa il 1° campo individuato col delimitatore
-cat /etc/passwd | cut -d':' -f1 # COME SOPRA 
-cat /etc/passwd | cut -d':' -f1 | sort # così li ordino anche alfabeticamente 
+cut -d ':' -f 1 /etc/passwd            # usa i : come delimitatore e stampa il 1° campo (field) individuato col delimitatore
+cat /etc/passwd | cut -d':' -f1        # UGUALE 
+cut -d ':' -f 1,7 /etc/passwd          # UGUALE, ma stampa i campi 1 e 7 
+cat /etc/passwd | cut -d':' -f1 | sort # UGUALE, ma li ordina anche alfabeticamente 
 
 cut -d':' -f7 /etc/passwd       # stessa cosa ma stampa il 7° campo separato dal :
 cut -d':' -f1,7 /etc/passwd     # stessa cosa ma stampa il 1° e il 7° campo separato dal :
@@ -219,13 +226,16 @@ lsof -i :80          # connessioni di rete per una porta specifica
 ```bash
 touch file{1,2,4,5}                       # creo 5 file
 ls -lh file1 file0                        # ho errore per file0 e output per file1. Default: stdout (/dev/tty0), stderr (/dev/tty1) 
-ls -lh file1 file0  > risultati           # qui ci finisce solo lo standard output (1), lo standard error (2) è stampato a video
-ls -lh file1 file0 1> risultati           # UGUALE IDENTICO
-ls -lh file1 file0 2> errori              # qui ci finisce solo lo standard error (2), lo standard output (1) è stampato a video
-ls -lh file1 file0  > risultati 2> errori # posso fare entrambe le cose insieme
-ls -lh file1 file0 &> tutto               # UGUALE ma metto entrambi (output ed error) dentro un unico file "tutto"
-ls -lh file1 file0  > tutti 2>&1          # UGUALE IDENTICO (output dentro "tutti", error dove reindirizzo l'output, cioè sempre "tutti")
-ls -lh file1 file0  2>&1 > risultati      # Equivale a > risultati. Perchè? Perchè stderr viene reindirizzato sul default di stdout (/dev/tty0) 
+
+ls -lh file1 file0  > risultati           # redirigo nel file solo std_output (1), std_error (2) è stampato a video (terminale /dev/tty0)
+ls -lh file1 file0 1> risultati           # UGUALE 
+
+ls -lh file1 file0 2> errori              # redirigo nel file solo std_error (2), std_output (1) è stampato a video
+ls -lh file1 file0  > risultati 2> errori # posso fare ENTRAMBE LE COSE INSIEME
+ls -lh file1 file0 &> tutto               # UGUALE ma redirigo entrambi (output ed error) dentro un unico file "tutto"
+ls -lh file1 file0  > tutti 2>&1          # UGUALE (output dentro "tutti", error dove reindirizzo l'output, cioè sempre "tutti")
+
+ls -lh file1 file0  2>&1 > risultati      # Equivale a > risultati. Perchè std_error è reindirizzato nel default di std_output (/dev/tty0) 
 
 echo messaggio | tee file                 # stampa "messaggio" a video e lo scrive dentro "file". Equivale a echo messaggio && messaggio > file
 
@@ -249,7 +259,7 @@ cat << EOF > file.txt             # ciò che digito dopo lo scrive in file.txt f
 ```
     
 ```bash 
-tr "aeiou" "56789" << FINE
+tr 'aeiou' 'AEIOU' << FINE
 > ciao questa è una frase lunga
 > divisa in più righe
 > e finisco qua
@@ -264,7 +274,7 @@ cat elenco | sort > ordinato  # legge "elenco", lo ordina, e scrive dentro "ordi
 sort < elenco > ordinato      # UGUALE ma sfrutto la redirezione dell'input invece che dell'output
 
 echo "testo1 testo2 testo3" | xargs -n1   # stampa il testo andando a capo a ogni parola
-xargs -n1 <<< "testo1 testo2 testo3"       # UGUALE ma più elegante perchè uso l'operatore <<<
+xargs -n1 <<< "testo1 testo2 testo3"      # UGUALE ma più elegante perchè uso l'operatore <<<
 
 CMD n< file # LETTURA - aprire il file in lettura; default n=0
 
@@ -285,8 +295,8 @@ ldconfig -p # per ogni libreria stampa il path sul file system: i comandi son tu
 
 ## Scrittura su file
 ```bash
-tr "1234" "abcd"   # provo a digitare 1261681185 e lui mi scrive ab6a68aa85
-tr 'r' 'R' < t.txt # legge nel file e stampa sovrascrivendo quel carattere
+tr 'aeiou' 'AEIOU' # provo a digitare "cane nero" e lui mi scrive "cAnE nErO"
+tr 'r' 'R' < t.txt # legge nel file e stampa a video sovrascrivendo quel carattere
 tr -d 'ar'         # legge nel file e stampa eliminando quei caratteri
 tr -dc 'ar'        # complementare a sopra, quindi elimina tutto tranne quei caratteri
 
@@ -304,9 +314,9 @@ ls -l
 
 ## Comando dd (copia e scrittura file)
 ```bash
-dd if=/path/to/sourcefile of=/path/to/destinationfile # copia file, cartelle, interi volumi (es. CD-ROM)
-echo "ciao ciao mamma guarda" > testo  # creo un file di testo
-dd if=testo of=TESTO conv=ucase        # creo un file di testo mettendo tutto in MAIUSCOLO
+dd if=/path/to/source of=/path/to/destination # copia (bit a bit) file, cartelle, interi volumi (es. CD-ROM)
+echo "ciao ciao mamma guarda" > testo         # creo un file di testo
+dd if=testo of=TESTO conv=ucase               # creo un file di testo mettendo tutto in MAIUSCOLO
 
 dd if=/dev/zero of=zero.dat                  # crea un file gigante all'infinito finchè non premo CTRL+C
 dd if=/dev/zero of=zero.dat bs=1024          # crea un file gigante all'infinito finchè non premo CTRL+C

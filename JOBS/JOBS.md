@@ -22,7 +22,6 @@ Mi viene restituito il PID del processo in background, così posso stopparlo qua
 ```bash
 ps                     # Mostra i processi attivi
 ps aux | grep 6522     # Mostra più info, tra cui chi esegue il processo, ossia /bin/bash
-ps | grep contatore.sh # è il mio (6522)
 
 jobs                   # Mostra i processi in background (al momento 1 solo)
 fg 1                   # Riporta il processo 1 in foreground: come se lo avessi lanciato normalmente senza la &

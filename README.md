@@ -11,7 +11,7 @@
 CTRL+L # pulisce la shell, shortcut del comando clear
 
 CTRL+C # interrompe l'esecuzione di un comando
-CTRL+Z # esco da un processo lasciandolo in background. Es: esco da VIM col file non salvato
+CTRL+Z # metto in pausa un processo lasciandolo in background. Es: esco da VIM col file non salvato
 
 CTRL+SHIFT+C  # copia 
 CTRL+SHIFT+V  # incolla
@@ -105,14 +105,17 @@ echo ciao ci sono $(ls | wc -w) parole nei files qui dentro # wc = words count
 
 # Alias
 ```bash
-type pwd   # mi dice che tipo di comando è
+type pwd   # mi dice se è un comando, un alias o un percorso
+type apt   # mi dice il suo percorso eseguibile
 type ls    # mi dice il suo alias, perchè ha un alias
+
 ls         # è come lanciare "ls --color=auto"
 \ls        # è come lanciare "ls", non esegue gli eventuali alias
-unalias ls # rimuove l'alias per questa sessione di terminale
 
 alias                                # mostra tutti gli alias della sessione
 alias x="echo ciao;ls;ls;echo hello" # creo un alias con N comandi inline da eseguire in sequenza
+
+unalias ls # rimuove l'alias per questa sessione di terminale
 ```
 - Con le {} bisogna mettere uno spazio all'inizio e uno alla fine, e bisogna terminare con ;
 
@@ -258,13 +261,13 @@ hostnamectl # info hostname
 # Memoria e risorse
 ```bash
 lscpu                  # info sulla CPU
-df -h                  # elenca i file nel disco fisso 
+df -h                  # mostra l'uso del disco (per ogni partizione)
 df -h --total          # aggiunge il totale alla fine
 df -h /dev/sda1        # uso dello spazio su una partizione specifica
 df -hT                 # mostra anche il tipo di file system 
 df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
-du -hs /home/edo/*     # per sapere quanto occupa ogni singolo elemento di /home/edo/
-du -hs /home/edo/      # per sapere quanto occupa in totale la cartella /home/edo/
+du -hs /home/edo/*     # restituisce la dimensione di ogni elemento dentro /home/edo/
+du -hs /home/edo/      # restituisce la dimensione totale della cartella /home/edo/
 
 watch ls -lh /var/log/       # esegue ls -lh ogni 2 secondi
 watch -n 5 ls -lh /var/log/  # esegue ls -lh ogni 5 secondi
