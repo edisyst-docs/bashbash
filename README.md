@@ -16,13 +16,14 @@ CTRL+Z # metto in pausa un processo lasciandolo in background. Es: esco da VIM c
 CTRL+SHIFT+C  # copia 
 CTRL+SHIFT+V  # incolla
 
-CTRL+D # esco dalla shell/sottoshell se stò impersonando un altro utente
+CTRL+D # esco dalla shell (sottoshell se stò impersonando un altro utente). Equivale a digitare "exit"
 
 CTRL+P # history: indietro di un comando
 CTRL+N # history: avanti   di un comando
 
 CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
-CTRL+S # search, non so esattamente cosa faccia
+CTRL+S # sospende la visualizzazione dell’output che sta scorrendo sullo schermo senza interrompere il comando
+CTRL+Q # riprende la visualizzazione dell’output che sta scorrendo sullo schermo
 
 CTRL+U # taglia la parte sinistra di ciò che scritto sulla shell
 CTRL+K # taglia la parte destra di ciò che scritto sulla shell
