@@ -68,8 +68,8 @@ find / -iname config               # UGUALE ma è case insensitive
 find / -name config 2>/dev/null    # redirige l'output 2 (std_error) su dev/null (perchè ho errori di Permesso Negato)
 find / -iname '*.conf' 2>/dev/null # cerca tutti i file .conf dentro il disco
 
-find /home/ -iname config -exec ls -ldh {} \;          # cerca file/cartelle chiamate config e fa un ls di essi
-find /home/ -iname config -type f -exec ls -ldh {} \;  # cerca solo file
+find /home/ -iname config -exec ls -ldh {} \;          # cerca file/cartelle chiamate config e fa un ls SU CIASCUBO DI ESSI
+find /home/ -iname config -type f -exec ls -ldh {} \;  # cerca solo file;
 find /home/ -iname config -type d -exec ls -ldh {} \;  # cerca solo le directory
 
 find /etc/ -iname '*.conf' | wc -l               # cerca dentro tutta la ramificazione di /etc/
@@ -87,6 +87,27 @@ find /etc/ -iname '*' -mtime -30  -exec ls -lhdt {} \;          # questi sono tu
 
 find /etc/ -iname '*' -size +4k  # file più grandi  di 4 KB
 find /etc/ -iname '*' -size -1k  # file più piccoli di 1 KB
+```
+
+
+## -exec: esegue un comando su ogni risultato trovato da find
+Sintassi: find [percorso] [criteri] -exec [comando] {} \;
+- {} è il placeholder per il risultato di find
+- \; è il terminatore del comando
+```bash
+find /etc/ -iname '*.conf' -exec cp {} /tmp/ \;     # copia tutti i file .conf dentro /tmp/
+find /etc/ -iname '*.conf' -exec cp {} /tmp/ \;     # UGUALE ma chiede conferma in caso di overwriting
+find /etc/ -iname '*.conf' -exec cp {} /tmp/ +      # UGUALE ma copia tutti i file in un'unica istanza di cp
+find /etc/ -iname '*.conf' -exec mv {} /tmp/ \;     # sposta tutti i file .conf dentro /tmp/
+find /etc/ -iname '*.conf' -exec rm {} \;           # elimina tutti i file .conf
+find /etc/ -iname '*.conf' -exec rm {} +            # UGUALE ma elimina tutti i file in un'unica istanza di rm
+
+find /tmp -name "*.tmp" -exec rm {} \;               # elimina tutti i file .tmp dentro /tmp/ 
+find . -name "*.jpg" -exec cp {} /backup/images/ \;  # copia tutti i file .jpg dentro /backup/images/
+find /var -type f -name "*.conf" -exec ls -l {} \;   # lista tutti i file .conf dentro /var/
+find . -name "*.log" -exec rm {} +                   # elimina tutti i file .log
+find /home -name "*.tmp" | xargs rm                 # UGUALE ma con xargs
+
 ```
 
 
@@ -179,34 +200,57 @@ cut -d':' -f1,7 --output-delimiter=$'\n' /etc/passwd # stampa f1 ed f7 e li deli
 
 
 ## sed = Stream EDitor
-Individua dei pattern di testo che io gli definisco e poi si comporta di conseguenza con l'azione che io gli dico
+Individua dei pattern di testo che gli definisco e poi trasforma il testo in base all'azione che gli dico
 ```bash
-sed 'comando/<ricerca>/<sostituisci>/(parametri)'  # SINTASSI
+sed [OPZIONI] 'ESPRESSIONE' [FILE]                 # SINTASSI BASE
+sed 'comando/<ricerca>/<sostituisci>/(parametri)'  # SINTASSI PER 'ESPRESSIONE'
 sed 'comando:<ricerca>:<sostituisci>:(parametri)'  # ALTERNATIVA: in verità posso usare ogni carattere speciale non contenuto nel testo
 
-cat /etc/xattr.conf > config  # contiene alcune righe commentate, iniziano per #
-sed -n '1,5 p' config         # printa le righe 1,2,3,4,5
-sed -n '5,$ p' config         # printa le righe dalla 5 alla fine del file
+# Comandi che modificano l'output di file, ma non modificano il file stesso
+cat /etc/xattr.conf > config   # contiene alcune righe commentate, iniziano per #
+sed -n '1,5 p' config          # printa le righe 1,2,3,4,5
+sed -n '5,$ p' config          # printa le righe dalla 5 alla fine del file
+sed -n '/test/p' config        # printa le righe che contengono "test"
+sed -n '/^#/p' config          # printa le righe che iniziano per #
 
-sed -i             '/^#/d;' config    # cerca nel file config le linee che iniziano per # e le elimina dal file
+sed '2a testo aggiunto' config # aggiunge "testo aggiunto" DOPO la riga 2
+sed '2i testo aggiunto' config # aggiunge "testo aggiunto" PRIMA della riga 2
+sed '2c testo aggiunto' config # SOSTITUISCE la riga 2 con "testo aggiunto" 
+
+sed    '2,4 d' config            # elimina le righe 2,3,4
+sed  '/ciao/d' config            # elimina le righe che contengono "ciao"
+sed '2,4s/prima/dopo/g' config   # sostituisce "prima" con "dopo" nelle righe 2,3,4
+sed 's/^/#/'            config   # aggiunge # all'inizio di ogni riga
+
+# Comandi che modificano il file stesso
+sed -i             '/^#/d;' config    # cerca nel file config le linee che iniziano per # e le ELIMINA DAL FILE (non stampa)
 sed -i.$(date +%F) '/^#/d;' config    # UGUALE ma crea anche un backup che chiamo con la data di oggi
 
+# Altri comandi utili per modificare l'output
 echo "ciao mamma" | sed 's/mamma/babbo/'    # "ciao babbo"
 echo "ciao mamma" | sed 's/[a-z]*/(&)/g'    # "(ciao) (mamma)"
 echo "123 abc"    | sed 's/[0-9]*/& &/'     # sostituisce le stringhe numeriche con se stesse due volte: "123 123 abc"
+echo "abc-123"    | sed 's/^[a-z]*//'       # elimina le stringhe di sole lettere all'inizio
 
 echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # con -r supporta le REGEX estese, il + e le () senza escape 
-echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # sed supporta fino a 9 pattern (qui gliene dò 2 e li trova entrambi) 
+echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # sed può matchare fino a 9 distinti pattern (qui gliene dò 2 e li trova entrambi) 
 echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/\2\1/'  # stampa stringa2 che matcha pattern2 seguita da stringa1 che matcha pattern1 
 echo "123abc" | sed 's/\([0-9]*\)\([a-z]*\)/\2\1/' # UGUALE ma senza -r quindi non posso usare le REGEX estese
 echo "abc123" | sed 's/\([a-z]*\).*/\1/'           # identifica le stringhe di sole lettere e stampa solo quelle
 
-echo "buon giorno giorno" | sed 's/giorno/notte/'  # "buon notte giorno" perchè SED opera 1 volta per riga
-echo "buon giorno giorno" | sed 's/giorno/notte/g' # "buon notte notte"  perchè gli dico di operare GLOBALMENTE
+echo "Mario Rossi" | sed 's/\([A-Za-z]*\) \([A-Za-z]*\)/\2 \1/' # Esempio pratico: stampa "Rossi Mario"
+
+echo "buon giorno giorno" | sed 's/giorno/notte/'   # "buon notte giorno" perchè SED opera 1 volta per riga
+echo "buon giorno giorno" | sed 's/giorno/notte/g'  # "buon notte notte"  perchè gli dico di operare GLOBALMENTE
 echo "ciao ciao" | sed 's/\([a-z][a-z]*\) \1/\1/'   # identifica i duplicati e li elimina
 
-sed 's/unix/linux/' geek.txt       # sostituisce ogni occorrenza di "unix" con "linux" nel testo del file geek.txt MA NON SOVRASCRIVE ILFILE
-sed 's/unix/linux/' geek.txt > aaa # ora l'output non lo stampa ma lo scrive in aaa
+sed -e 's/uno/UNO/g' -e '/tre/d' config         # sostituisce "uno" con "UNO" e elimina le righe che contengono "tre"
+sed -e 's/uno/UNO/g' -e '/tre/d' *.txt          # UGUALE ma esegue i comandi su tutti i file che gli passo
+
+sed = config | sed 'N;s/\n/ /'                  # aggiunge all'output la numerazione delle righe
+
+sed 's/unix/linux/g' geek.txt       # sostituisce ogni occorrenza di "unix" con "linux" nel testo del file geek.txt MA NON SOVRASCRIVE IL FILE
+sed 's/unix/linux/g' geek.txt > aaa # ora l'output non lo stampa ma lo scrive in aaa
 ```
 
 lsof [opzioni] [nome_file|PID|utente|comando]  
