@@ -201,6 +201,7 @@ cut -d':' -f1,7 --output-delimiter=$'\n' /etc/passwd # stampa f1 ed f7 e li deli
 
 ## sed = Stream EDitor
 Individua dei pattern di testo che gli definisco e poi trasforma il testo in base all'azione che gli dico
+CCCCCCCCCCCCCCERCA ccccccccccccccirca a meta' sed (stream editor) è un comando per manipolare e trasformare il testo in file o input standard. La sua sintassi di base è:
 ```bash
 sed [OPZIONI] 'ESPRESSIONE' [FILE]                 # SINTASSI BASE
 sed 'comando/<ricerca>/<sostituisci>/(parametri)'  # SINTASSI PER 'ESPRESSIONE'
