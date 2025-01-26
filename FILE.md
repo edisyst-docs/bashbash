@@ -1,3 +1,15 @@
+https://www.aquilante.net/bash/cap6_esempi.shtml
+https://kinsta.com/it/blog/comandi-linux/
+https://didawiki.cli.di.unipi.it/doku.php/informatica/sol/laboratorio15/esercitazionia/bashscriptexamples
+https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html
+https://vim.rtorr.com/lang/it
+https://supporthost.com/it/comandi-linux/#:~:text=Tieni%20presente%20che%20Ctrl%2BS,interrompendo%20l'esecuzione%20del%20comando.
+
+https://www.tecmint.com/advanced-linux-commands/
+https://www.tecmint.com/linux-commands-cheat-sheet/
+https://www.tecmint.com/linux-command-line-tips/
+
+
 ## Crea, copia, elimina file
 ```bash
 file -i CRONTAB.md   # mi dice il MIME type del file
