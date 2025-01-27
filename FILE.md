@@ -4,10 +4,7 @@ https://didawiki.cli.di.unipi.it/doku.php/informatica/sol/laboratorio15/esercita
 https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html
 https://vim.rtorr.com/lang/it
 https://supporthost.com/it/comandi-linux/#:~:text=Tieni%20presente%20che%20Ctrl%2BS,interrompendo%20l'esecuzione%20del%20comando.
-
-https://www.tecmint.com/advanced-linux-commands/
 https://www.tecmint.com/linux-commands-cheat-sheet/
-https://www.tecmint.com/linux-command-line-tips/
 
 
 ## Crea, copia, elimina file
@@ -73,12 +70,16 @@ du -sh compresso.tar.gz file1 file2 directory1    # con questo comando posso con
 
 
 ## find: cerca file e cartelle
+SINTASSI: find [percorso] [criteri] [azione]
 ```bash
-find ./ -name "long.txt"           # cerca un file chiamato long.txt nella cartella corrente
-find / -name config                # cerca file/folder chiamato "config" in tutto il disco (avrò errori di Permesso Negato)
+find . -name "long.txt"            # cerca un file chiamato "long.txt" nella cartella corrente
+find / -name config                # cerca file/folder chiamati esattamente "config" in tutto il disco (avrò errori di Permesso Negato)
 find / -iname config               # UGUALE ma è case insensitive
 find / -name config 2>/dev/null    # redirige l'output 2 (std_error) su dev/null (perchè ho errori di Permesso Negato)
 find / -iname '*.conf' 2>/dev/null # cerca tutti i file .conf dentro il disco
+
+find . -type f -size +500M         # cerca tutti i file più grandi di 500 MB
+find . -type f -perm 644           # cerca tutti i file con permessi 644.
 
 find /home/ -iname config -exec ls -ldh {} \;          # cerca file/cartelle chiamate config e fa un ls SU CIASCUBO DI ESSI
 find /home/ -iname config -type f -exec ls -ldh {} \;  # cerca solo file;
@@ -88,9 +89,11 @@ find /etc/ -iname '*.conf' | wc -l               # cerca dentro tutta la ramific
 find /etc/ -maxdepth 2 -iname '*.conf' | wc -l   # cerca solo fino al livello 2
 find /etc/ -maxdepth 1 -iname '*.conf' | wc -l   # cerca solo al 1° livello, cioè dentro la sola /etc/
 
+find . -type f ! -name "*.txt" | wc -l           # cerca solo file, ma escludendo tutti i .txt
+
 find /lib/modules/$(uname -r)/ -iname "*xt*.ko*" # cerca in /modules/cartella_sistema_operativo tutti i file che contengono "xt" nel nome e sono di estensione .koqualcosa
 
-find /cartella -type f | grep "config" # cerca i file nella directory "cartella" e filtra quelli che contengono "config" nel percorso
+find /cartella -type f | grep "config"           # cerca i file dentro /cartella e filtra quelli che contengono "config" nel percorso
 
 ls -lht /etc/                                                   # raggruppo i file per data
 find /etc/ -iname '*' -mtime +365 -exec ls -lhdt {} \;          # questi sono tutti i file più vecchi di un anno
@@ -99,26 +102,37 @@ find /etc/ -iname '*' -mtime -30  -exec ls -lhdt {} \;          # questi sono tu
 
 find /etc/ -iname '*' -size +4k  # file più grandi  di 4 KB
 find /etc/ -iname '*' -size -1k  # file più piccoli di 1 KB
+
+locate ".log" # locate è PIU' VELOCE di find: usa un DB indicizzato del file system, ma può restituire risultati obsoleti se il DB non è aggiornato (aggiorna con updatedb)
 ```
 
 
 ## -exec: esegue un comando su ogni risultato trovato da find
 Sintassi: find [percorso] [criteri] -exec [comando] {} \;
+- [criteri]: Condizioni per selezionare i file (es. -name, -size, -type, ecc.).
 - {} è il placeholder per il risultato di find
 - \; è il terminatore del comando
 ```bash
 find /etc/ -iname '*.conf' -exec cp {} /tmp/ \;     # copia tutti i file .conf dentro /tmp/
 find /etc/ -iname '*.conf' -exec cp {} /tmp/ \;     # UGUALE ma chiede conferma in caso di overwriting
 find /etc/ -iname '*.conf' -exec cp {} /tmp/ +      # UGUALE ma copia tutti i file in un'unica istanza di cp
+find /etc/ -iname '*.conf' | xargs cp -t /tmp/      # UGUALE ma con xargs (serve l'opzione cp -t in questo caso)
+
 find /etc/ -iname '*.conf' -exec mv {} /tmp/ \;     # sposta tutti i file .conf dentro /tmp/
+
 find /etc/ -iname '*.conf' -exec rm {} \;           # elimina tutti i file .conf
 find /etc/ -iname '*.conf' -exec rm {} +            # UGUALE ma elimina tutti i file in un'unica istanza di rm
 
-find /tmp -name "*.tmp" -exec rm {} \;               # elimina tutti i file .tmp dentro /tmp/ 
 find . -name "*.jpg" -exec cp {} /backup/images/ \;  # copia tutti i file .jpg dentro /backup/images/
-find /var -type f -name "*.conf" -exec ls -l {} \;   # lista tutti i file .conf dentro /var/
-find . -name "*.log" -exec rm {} +                   # elimina tutti i file .log
-find /home -name "*.tmp" | xargs rm                 # UGUALE ma con xargs
+find /var -type f -name "*.conf" -exec ls -lh {} \;  # lista tutti i file .conf dentro /var/
+
+find /tmp -name "*.tmp" -exec rm -i {} \;            # elimina INTERATTIVAMENTE tutti i file .tmp dentro /tmp/ 
+find . -name "*.log" -exec rm {} +                   # elimina tutti i file .log IN UN COLPO SOLO (+ efficiente che eseguirlo file per file)
+find /home -name "*.tmp" | xargs rm                  # UGUALE ma con xargs
+
+find /cart -type f -mtime +7 -exec mv {} /cart/bkp/ \;     # sposta i file più vecchi di 7gg in una cartella di backup
+find . -maxdepth 1 -iname "*.txt" -exec cp {} ./backup/ \; # copia i file .txt in una cartella di backup
+find /var/www -type f -perm 644 -exec chmod 600 {} \;      # cerca i file con permessi 644 e modificali in 600
 
 ```
 
@@ -129,8 +143,9 @@ sort file.txt     # riordina in ordine alfabetico le righe dei file.txt
 sort -r file.txt  # riordina in ordine alfabetico inverso
 sort -R file.txt  # ordine alfabetico RANDOMICO
 
-sort phonebook                  # ordina alfabeticamente le righe del file phonebook (in base al nome)
-sort phonebook | uniq           # ordina alfabeticamente e non mostra eventuali righe duplicate
+sort phonebook                  # ordina alfabeticamente le righe del file in base al primo campo (in base al nome)
+sort phonebook | uniq           # UGUALE, ma elimina dall'output le righe duplicate
+sort phonebook | uniq -d        # ESATTAMENTE OPPOSTO, ora uniq stampa solo le righe duplicate
 sort phonebook -k 2             # ordina alfabeticamente ma in base al secondo campo (in base al cognome)
 du -s /home/edoardo/* | sort -n # ordina le righe per NUMERO
 
@@ -144,16 +159,6 @@ $ for l in $(seq 5000) ; do
 > done
 ```
 ```bash
-cat file_5000 | paste - -     # stampa su 2 colonne
-cat file_5000 | paste - - -d, # UGUALE ma separa con le virgole
-cat file_5000 | paste - - -   # stampa su 3 colonne
-
-head -n 50 file_5000 | paste - - - -d,:   # stampa su 3 colonne e ogni riga è A,B:C
-
-pr file_5000    # me lo stampa con la paginazione, pronto per la stampa
-
-less divina # dentro posso fare /non e mi evidenzia tutte le stringhe "non"
-
 paste ciao        # uguale a cat
 paste ciao -s     # scrive tutte le righe in 1 unica riga, separandole con un TAB
 paste ciao -s -d, # scrive tutte le righe in 1 unica riga, separandole con la ,
@@ -220,24 +225,31 @@ sed 'comando/<ricerca>/<sostituisci>/(parametri)'  # SINTASSI PER 'ESPRESSIONE'
 sed 'comando:<ricerca>:<sostituisci>:(parametri)'  # ALTERNATIVA: in verità posso usare ogni carattere speciale non contenuto nel testo
 
 # Comandi che modificano l'output di file, ma non modificano il file stesso
-cat /etc/xattr.conf > config   # contiene alcune righe commentate, iniziano per #
-sed -n '1,5 p' config          # printa le righe 1,2,3,4,5
-sed -n '5,$ p' config          # printa le righe dalla 5 alla fine del file
-sed -n '/test/p' config        # printa le righe che contengono "test"
-sed -n '/^#/p' config          # printa le righe che iniziano per #
+cat /etc/xattr.conf > config         # contiene alcune righe commentate, iniziano per #
+sed -n '1,5 p' config                # printa le righe 1,2,3,4,5
+sed    '1,5 p' config                # printa tutto il file MA DUPLICA le righe 1,2,3,4,5
+sed -n '5,$ p' config                #  printa le righe dalla 5 alla fine del file
+sed -n '/pattern/p' config           # printa le righe che contengono "pattern"
+sed -n '/^#/p' config                # printa le righe che iniziano per #
+sed -n '/Inizio/,/Fine/p' config     # printa tutto il contenuto tra "Inizio" e "Fine"
 
-sed '2a testo aggiunto' config # aggiunge "testo aggiunto" DOPO la riga 2
-sed '2i testo aggiunto' config # aggiunge "testo aggiunto" PRIMA della riga 2
-sed '2c testo aggiunto' config # SOSTITUISCE la riga 2 con "testo aggiunto" 
+sed '2a testo aggiunto' config       # aggiunge "testo aggiunto" DOPO la riga 2
+sed '2i testo aggiunto' config       # aggiunge "testo aggiunto" PRIMA della riga 2
+sed '2c testo aggiunto' config       # SOSTITUISCE la riga 2 con "testo aggiunto" 
 
-sed    '2,4 d' config            # elimina le righe 2,3,4
-sed  '/ciao/d' config            # elimina le righe che contengono "ciao"
-sed '2,4s/prima/dopo/g' config   # sostituisce "prima" con "dopo" nelle righe 2,3,4
-sed 's/^/#/'            config   # aggiunge # all'inizio di ogni riga
+sed '/ciao/a\riga dopo' file.txt     # aggiunge una nuova riga DOPO ogni riga dove trova la parola "ciao"
+sed '/ciao/i\riga prima' file.txt    # aggiunge una nuova riga PRIMA di ogni riga dove trova la parola "giorno"
 
-# Comandi che modificano il file stesso
-sed -i             '/^#/d;' config    # cerca nel file config le linee che iniziano per # e le ELIMINA DAL FILE (non stampa)
-sed -i.$(date +%F) '/^#/d;' config    # UGUALE ma crea anche un backup che chiamo con la data di oggi
+sed    '2,4 d' config                # elimina le righe 2,3,4
+sed  '/pattern/d' config             # elimina le righe che contengono "pattern"
+sed '2,4s/prima/dopo/g' config       # sostituisce "prima" con "dopo" nelle righe 2,3,4
+sed 's/^/#/'            config       # aggiunge # all'inizio di ogni riga
+
+sed '/ciao/r altrofile.txt' config   # inserisce il contenuto altrofile.txt dentro config DOPO OGNI RIGA che contiene "ciao"
+
+# Comandi che modificano direttamente il file stesso
+sed -i             '/^#/d;' config   # cerca nel file config le linee che iniziano per # e le ELIMINA DAL FILE (non stampa)
+sed -i.$(date +%F) '/^#/d;' config   # UGUALE ma crea anche un backup che chiamo con la data di oggi
 
 # Altri comandi utili per modificare l'output
 echo "ciao mamma" | sed 's/mamma/babbo/'    # "ciao babbo"
@@ -255,6 +267,8 @@ echo "Mario Rossi" | sed 's/\([A-Za-z]*\) \([A-Za-z]*\)/\2 \1/' # Esempio pratic
 
 echo "buon giorno giorno" | sed 's/giorno/notte/'   # "buon notte giorno" perchè SED opera 1 volta per riga
 echo "buon giorno giorno" | sed 's/giorno/notte/g'  # "buon notte notte"  perchè gli dico di operare GLOBALMENTE
+sed 's/pattern/nuovo/I' file.txt                    # sostituisce ignorando maiuscole/minuscole   
+
 echo "ciao ciao" | sed 's/\([a-z][a-z]*\) \1/\1/'   # identifica i duplicati e li elimina
 
 sed -e 's/uno/UNO/g' -e '/tre/d' config         # sostituisce "uno" con "UNO" e elimina le righe che contengono "tre"
@@ -295,7 +309,9 @@ ls -lh file1 file0  > tutti 2>&1          # UGUALE (output dentro "tutti", error
 ls -lh file1 file0  2>&1 > risultati      # Equivale a > risultati. Perchè std_error è reindirizzato nel default di std_output (/dev/tty0) 
 
 echo messaggio | tee file                 # stampa "messaggio" a video e lo scrive dentro "file". Equivale a echo messaggio && messaggio > file
-
+                                          # legge dallo std_input e invia il testo sia allo std_output (schermo), sia in uno o più file.
+echo "altra riga" | tee -a file           # uguale ma fa l'APPEND nel file
+                                          
 exec > ~/t.txt    # serve per la redirezione permanente
 exec > /dev/pts/0 # serve per la redirezione permanente
 exec 5>~/t.txtv   # creo il file descriptor 5: chi può accedere allo stdOUT (default=1) scriverà in quel file
@@ -306,21 +322,25 @@ exec 5>&-         # chiudo il file descriptor "custom" 5 in SCRITTURA
 
 
 ## << (Here-Document) e <<< (Here-String)
-```bash
-python <<< 'print("Ciao Mondo")'  # Usato per fornire una stringa singola come input.
-
+- Operatore << (Here-Document): usato per fornire input multi-linea a un comando, con un DELIMITATORE definito dall'utente.
+```bash 
 cat << EOF > file.txt             # ciò che digito dopo lo scrive in file.txt finchè non digito EOF
 > Questa è la prima riga.         # cat riceve come input le righe scritte fino al delimitatore EOF
-> Questa è la seconda riga.       # utile per passare  input multi-linea a un comando
+> Questa è la seconda riga.       # utile per passare input multi-linea a un comando
 > EOF                             # EOF è un delimitatore, posso chiamarlo come voglio
 ```
-    
-```bash 
+```bash
 tr 'aeiou' 'AEIOU' << FINE
 > ciao questa è una frase lunga
 > divisa in più righe
 > e finisco qua
 > FINE
+```
+
+- Operatore <<< (Here-String): usato per fornire una stringa singola come input a un comando.
+```bash
+grep "parola" <<< "Frase contenente parola." # la stringa è passata come input a grep, come se fosse letta da un file o da uno stdin.
+python <<< 'print("Ciao Mondo")'             # Usato per fornire una stringa singola come input.
 ```
 
 
@@ -335,16 +355,28 @@ xargs -n1 <<< "testo1 testo2 testo3"      # UGUALE ma più elegante perchè uso 
 
 CMD n< file # LETTURA - aprire il file in lettura; default n=0
 
+cat file_5000 | paste - -     # stampa su 2 colonne
+cat file_5000 | paste - - -d, # UGUALE ma separa con le virgole
+cat file_5000 | paste - - -   # stampa su 3 colonne
+
+nl divina_commedia.txt        # UGUALE A cat, ma aggiunge gli indici riga
+
+head -n 50 file_5000 | paste - - - -d,:   # stampa su 3 colonne e ogni riga è A,B:C
 head -n 5 divina_commedia.txt # mostra le prime  5 righe (default=10)
-tail -n 5 divina_commedia.txt # mostra le ultime 5 righe
-tail -f divina_commedia.txt   # mostra la coda ma non esce dal file: se viene modificato, lo vedo in tempo reale (utile per i log)
+
+tail -n 5 file_5000                # mostra le ultime 5 righe (default=10)
+tail -f file_5000                  # mostra la coda ma non esce dal file: se viene modificato, lo vedo in tempo reale (utile per i log)
+tail -f file_5000 | grep 'error'   # UGUALE, ma greppato
 
 tail ciao addio               # funziona anche multiplo
 tail -f ciao addio            # funziona anche multiplo
 
-nl divina_commedia.txt | tail -n 15 # mostra e numera le ultime 15 righe
-nl divina_commedia.txt | head -n 15 # mostra e numera le prime 15 righe
-nl divina_commedia.txt              # è come un cat, ma aggiunge gli indici riga
+pr file_5000    # me lo stampa con la paginazione, pronto per la stampa
+
+less divina     # dentro posso fare /non e mi evidenzia tutte le stringhe "non"
+more divina     # UGUALE ma ha meno funzionalità di less
+
+awk -F ';' '{print $1}' file.csv    # stampa la prima colonna di un file CSV (non funge con XLSX)
 
 ldd /bin/pwd /sbin/pwck # mostra le dipendenze di questi eseguibili, quali librerie gli servono per funzionare
 ldconfig -p # per ogni libreria stampa il path sul file system: i comandi son tutti dei link simbolici
@@ -394,6 +426,8 @@ diff -y read/simile1.sh read/simile2.sh # mostra riga per riga evidenziando le d
 diff -i file1 file2                     # ignora le differenze di maiuscole/minuscole
 diff -w file1 file2                     # ignora gli spazi bianchi nelle differenze
 diff -u file1 file2                     # output più leggibile per i sistemi di controllo versione
+
+cmp file1.bin file2.bin                 # confronta file byte per byte
 
 comm read/simile1.sh read/simile2.sh    # 3 colonne: nella terza ci son le righe in comune tra i due file
 ```
