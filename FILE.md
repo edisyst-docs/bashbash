@@ -45,8 +45,8 @@ wc -c file # numero di caratteri presenti in file.txt
 
 ## Archiviazione (file unico che contiene N file e cartelle) e Compressione (riduzione spazio)
 ```bash
-cat /var/log/apt/history.log                      # leggo un file di testo
-zcat /var/log/apt/history.log.1.gz                # leggo un file compresso .gz (senza scompattarlo per forza)
+cat  /var/log/apt/history.log                     # legge un file di testo
+zcat /var/log/apt/history.log.1.gz                # legge un file compresso .gz (senza bisogno di scompattarlo)
 bzcat, xzcat                                      # analoghi per file compressi .bz e .xz
 
 gzip file1 file2                                  # SOSTITUISCE file1 e file2 con file1.gz e file2.gz compressi

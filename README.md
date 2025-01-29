@@ -13,15 +13,16 @@ CTRL+L # pulisce la shell, shortcut del comando clear
 CTRL+C # interrompe l'esecuzione di un comando
 CTRL+Z # metto in pausa un processo lasciandolo in background. Es: esco da VIM col file non salvato
 
+CTRL+D # esco dalla shell (sottoshell se stò impersonando un altro utente). Equivale a digitare "exit"
+
 CTRL+SHIFT+C  # copia 
 CTRL+SHIFT+V  # incolla
 
-CTRL+D # esco dalla shell (sottoshell se stò impersonando un altro utente). Equivale a digitare "exit"
+CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
 
 CTRL+P # history: indietro di un comando
 CTRL+N # history: avanti   di un comando
 
-CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
 CTRL+S # sospende la visualizzazione dell’output che sta scorrendo sullo schermo senza interrompere il comando
 CTRL+Q # riprende la visualizzazione dell’output che sta scorrendo sullo schermo
 
@@ -261,8 +262,11 @@ hostnamectl # info hostname
 
 # Memoria e risorse
 ```bash
+lshw	               # info sull'hardware della macchina
 lscpu                  # info sulla CPU
-df -h                  # mostra l'uso del disco (per ogni partizione)
+lsmem                  # info sulla memoria
+
+df -h                  # mostra spazio occupato e libero (per ogni partizione)
 df -h --total          # aggiunge il totale alla fine
 df -h /dev/sda1        # uso dello spazio su una partizione specifica
 df -hT                 # mostra anche il tipo di file system 
