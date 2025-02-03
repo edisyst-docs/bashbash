@@ -1,5 +1,11 @@
 # LOGROTATE
 
+`logrotate` è un utility su Linux che aiuta a gestire i file di log. Il suo scopo principale è quello di ruotare i log, 
+ovvero rinominarli, comprimerli, eliminarli o inviarli via email dopo che hanno raggiunto una certa dimensione o dopo un certo periodo di tempo. 
+Questo evita che i file di log crescano indefinitamente, occupando spazio su disco.
+
+
+
 Ecco un esempio pratico da provare su una VM Ubuntu, in cui:
 - ✅ Generiamo dei log con uno script Bash
 - ✅ Creiamo una configurazione `logrotate` per gestire la rotazione dei log
