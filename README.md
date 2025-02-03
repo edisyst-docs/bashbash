@@ -70,8 +70,10 @@ echo `date`              # stessa cosa, ma è una sintassi vecchia
 ```bash
 ls -R cartella      # mostra ricorsivamente tutti i file di tutte le sottocartelle
 ls --color          # colora i file in base al tipo
+ls -s               # mostra anche le dimensioni dei file 
 ls [a,e]*           # mostra i file che cominciano per "a" o per "e"
-ls -l *.rar         # mostra i file che terminano con .rar
+ls -l doc*.rar      # mostra i file che si chiamano docXXXXX.rar
+ls -l doc?.rar      # mostra i file che si chiamano docX.rar (un solo carattere)
 ls -l | grep ^d     # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
 mv testo{,.old}     # mv testo testo.old 
@@ -263,16 +265,17 @@ hostnamectl # info hostname
 # Memoria e risorse
 ```bash
 lshw	               # info sull'hardware della macchina
+lshw -short            # UGUALE ma senza tante info inutili
 lscpu                  # info sulla CPU
 lsmem                  # info sulla memoria
 
+du -hs /home/edo/*     # restituisce la dimensione di ogni elemento dentro /home/edo/
+du -hs /home/edo/      # restituisce la dimensione totale della cartella /home/edo/
 df -h                  # mostra spazio occupato e libero (per ogni partizione)
 df -h --total          # aggiunge il totale alla fine
 df -h /dev/sda1        # uso dello spazio su una partizione specifica
 df -hT                 # mostra anche il tipo di file system 
 df -hT | grep -v tmpfs # calcolo escludendo i file system temp (es: tmpfs)
-du -hs /home/edo/*     # restituisce la dimensione di ogni elemento dentro /home/edo/
-du -hs /home/edo/      # restituisce la dimensione totale della cartella /home/edo/
 
 watch ls -lh /var/log/       # esegue ls -lh ogni 2 secondi
 watch -n 5 ls -lh /var/log/  # esegue ls -lh ogni 5 secondi
@@ -461,7 +464,7 @@ ls -l                 # riconosco il link dalla l iniziale
 
 touch pippo
 ls -l                 # vedo che pippo ha 1 nella colonna degli inode
-ln pippo paperino     # HARD LINK. Apparentemente è come un file diverso
+ln origine link       # HARD LINK. Apparentemente è come un file diverso
 ls -l                 # hanno entrambi 2 nella colonna degli inode
 ls -i                 # hanno lo stesso numero di inode
 ls -li                # son proprio lo stesso file, tutti i dati coincidono. Se ne modifico uno, modifico anche l'altro

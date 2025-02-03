@@ -3,7 +3,6 @@ https://kinsta.com/it/blog/comandi-linux/
 https://didawiki.cli.di.unipi.it/doku.php/informatica/sol/laboratorio15/esercitazionia/bashscriptexamples
 https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html
 https://vim.rtorr.com/lang/it
-https://supporthost.com/it/comandi-linux/#:~:text=Tieni%20presente%20che%20Ctrl%2BS,interrompendo%20l'esecuzione%20del%20comando.
 https://www.tecmint.com/linux-commands-cheat-sheet/
 
 
@@ -58,11 +57,11 @@ xz file1                                          # SOSTITUISCE file1 con file1.
 xz -l file1.xz                                    # ci dice quanto occupa da compresso e da scompattato
 xz -d file1.xz                                    # SOSTITUISCE file1.gz compresso con file1 (INVERSO di xz)
 
-tar -cvf  archivio.tar file1 file2                # c:CREA il file archivio.tar NON COMPRESSO contenente file1, file2
-tar -xvf  archivio.tar /destinazione              # x:ESTRAE (in una cartella specifica) il contenuto di archivio.tar
-tar -cvf  archivio.tar file1 file2 directory1     # CREA archivio contenente sia file che directory
-tar -cvfz compresso.tar.gz file1 file2 directory1 # COMPRIME l'archivio con gzip (-z), bzip2 (-j), o xz (-J):
-tar -xvfz compresso.tar.gz                        # ESTRAE un archivio compresso di tipo tar.gz 
+tar -cvf  archivio.tar file1 file2                # CREA (-c) il file chiamato (-f) archivio.tar NON COMPRESSO contenente file1,2
+tar -xvf  archivio.tar /destinazione              # ESTRAE (-x) in una cartella specifica (-f) il contenuto di archivio.tar
+tar -cvf  archivio.tar file1 file2 directory1     # CREA (-c) archivio contenente sia file che directory
+tar -cvfz compresso.tar.gz file1 file2 directory1 # COMPRIME (-z) l'archivio con gzip (-z), bzip2 (-j), o xz (-J):
+tar -xvfz compresso.tar.gz                        # ESTRAE (-x) un archivio COMPRESSO (-z) di tipo tar.gz 
 tar -tvf  compresso.tar.gz                        # è come fare "ls -l" ma dentro un archivio compresso
 
 du -sh compresso.tar.gz file1 file2 directory1    # con questo comando posso confrontare quanto occupano tutti quegli elementi

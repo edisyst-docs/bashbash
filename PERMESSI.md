@@ -39,15 +39,14 @@ chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
 chmod 644 file   # setta i permessi per user(6) group(4) others(4): cioè (rw-)(r--)(r--)
 chmod 755 file   # setta i permessi a 755: cioè (rwx)(r-x)(r-x)
 
-chmod a+w file   # aggiunge permesso WRITE a ALL
-chmod u+x file   # aggiunge permesso EXE a USER
-chmod g-w file   # toglie permesso WRITE a GROUP
-chmod ugo+x file # aggiunge a USER, GROUP, OTHERS il permesso EXE
-chmod o=rwx file # aggiunge a OTHERS i permessi EXE, READ, WRITE
-chmod o-x file   # toglie permesso EXE a OTHERS
-chmod go-w file  # toglie permesso WRITE a GROUP e OTHERS
-chmod -R o-w cartella/  # opera ricorsivamente su tutta la cartella
-chmod -R a+r cartella/  # aggiunge READ a ALL per tutti i file dentro la cartella
+chmod u+x file      # aggiunge a USER il permesso EXE
+chmod g-w file      # toglie   a GROUP il permesso WRITE
+chmod o=rx file     # setta    a OTHERS i permessi READ, EXE
+chmod go-w file     # toglie   a GROUP, OTHERS il permesso WRITE
+chmod ugo+x file    # aggiunge a USER, GROUP, OTHERS il permesso EXE
+chmod a+x file      # UGUALE   (ALL = USER + GROUP + OTHERS)
+chmod +x file       # UGUALE
+chmod -R o-w cart/  # opera ricorsivamente su tutta la cartella
 
 mkdir protetta
 chmod +t protetta  # setta sticky bit: solo il proprietario può cancellare i file all'interno, a prescindere dai permessi sui file
@@ -70,6 +69,15 @@ umask 000 ; touch file2 file3 # avranno entrambi i permessi 777
 ```
 
 
+## UTENTI: aggiungi e rimuovi
+```bash
+adduser pippo        # crea utente "pippo", gruppo "pippo", e cartella "/home/pippo"
+adduser pippo disney # crea utente "pippo", gruppo "disney", e cartella "/home/pippo"
+groups  pippo        # mi dice i gruppi di "pippo"
+deluser pippo, pluto # elimina entrambi gli utenti
+passwd  pippo        # modifica pwd di "pippo"; senza argomento, modifica la pwd dell'utente corrente
+```
+
 
 ## CHOWN per modificare il proprietario
 ```bash
@@ -78,8 +86,8 @@ chown alice:staff file.txt  # modifico contemporaneamente proprietario e gruppo 
 chown :gruppo file.txt      # modifico solo il gruppo di file.txt
 chown -R utente /directory/ # si può fare anche per un'intera directory con -R
 
-useradd -m messi                 
-useradd -m benzema
+useradd -m messi                 # adduser è UGUALE, ma setta tutte le cose seguenti ai valori di default. Quindi abitualmente userò adduser 
+useradd -m benzema               # useradd permette di specificarle se voglio modificarle dal default
 useradd -m ronaldo               # -m crea anche la /home/ del nuovo utente
 useradd -m -s /bin/bash ronaldo  # -s specifica la shell di default
 sudo passwd ronaldo              # devo settargli la prima password per poterlo usare
