@@ -1,13 +1,12 @@
 https://www.aquilante.net/bash/cap6_esempi.shtml
-https://kinsta.com/it/blog/comandi-linux/
-https://didawiki.cli.di.unipi.it/doku.php/informatica/sol/laboratorio15/esercitazionia/bashscriptexamples
-https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html
 https://vim.rtorr.com/lang/it
 https://www.tecmint.com/linux-commands-cheat-sheet/
 
 
 ## Crea, copia, elimina file
 ```bash
+basename /etc/apache2/conf-available/common.conf # stampa solo common.conf
+
 file -i CRONTAB.md   # mi dice il MIME type del file
 file file1.txt       # mi dice il tipo di file (ASCII text)
 file *               # mi dice il tipo di file di tutti quelli in cartella
@@ -33,7 +32,7 @@ rm -r  directory_non_vuota      # rimuove directory NON VUOTE, eliminando ricors
 rm -ri directory_non_vuota      # chiede conferma prima di rimuovere ogni file
 
 shred pippo_01    # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
-shred -u pippo_01 # sovrascrive in modo illeggibile il file e lo elimina pure
+shred -u pippo_01 # UGUALE ma elimina pure il file
 
 wc file    # numero di righe, parole, caratteri presenti in file
 wc -l file # numero di righe presenti in file
@@ -216,8 +215,7 @@ cut -d':' -f1,7 --output-delimiter=$'\n' /etc/passwd # stampa f1 ed f7 e li deli
 
 
 ## sed = Stream EDitor
-Individua dei pattern di testo che gli definisco e poi trasforma il testo in base all'azione che gli dico
-CCCCCCCCCCCCCCERCA ccccccccccccccirca a meta' sed (stream editor) è un comando per manipolare e trasformare il testo in file o input standard. La sua sintassi di base è:
+Individua dei pattern di testo che gli definisco e trasforma il testo in base all'azione che gli dico
 ```bash
 sed [OPZIONI] 'ESPRESSIONE' [FILE]                 # SINTASSI BASE
 sed 'comando/<ricerca>/<sostituisci>/(parametri)'  # SINTASSI PER 'ESPRESSIONE'
@@ -329,7 +327,7 @@ cat << EOF > file.txt             # ciò che digito dopo lo scrive in file.txt f
 > EOF                             # EOF è un delimitatore, posso chiamarlo come voglio
 ```
 ```bash
-tr 'aeiou' 'AEIOU' << FINE
+tr 'a-z' 'A-Z' << FINE
 > ciao questa è una frase lunga
 > divisa in più righe
 > e finisco qua
@@ -383,7 +381,7 @@ ldconfig -p # per ogni libreria stampa il path sul file system: i comandi son tu
 
 ## Scrittura su file
 ```bash
-tr 'aeiou' 'AEIOU' # provo a digitare "cane nero" e lui mi scrive "cAnE nErO"
+tr  a-z A-Z        # provo a digitare "cane" e lui mi scrive "CANE"
 tr 'r' 'R' < t.txt # legge nel file e stampa a video sovrascrivendo quel carattere
 tr -d 'ar'         # legge nel file e stampa eliminando quei caratteri
 tr -dc 'ar'        # complementare a sopra, quindi elimina tutto tranne quei caratteri

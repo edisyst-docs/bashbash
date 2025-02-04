@@ -3,7 +3,6 @@
 * https://vim.rtorr.com/lang/it (VIM CHEAT SHEET)
 * https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcli/index.html
 * https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcla/index.html
-* https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html (leggi qui per COPY, MOVE, DELETE DI INTERE RIGHE)
 * https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclm/index.html (leggi qui per RICERCA con lo SLASH)
 
 Editor modale = 4 modalità su VIM
@@ -31,8 +30,8 @@ In generale `N comando` esegue il comando N volte: `10 dd` taglia 10 righe, `10 
 - `0 (zero)`: vai a inizio riga
 - `$`: vai a fine riga
 - 
-- `50 G` : vai alla riga 50
-- `: 50` : UGUALE (come in **Command Mode**), forse anche più comodo
+- `50 G`: vai alla riga 50
+- `:50` : UGUALE (come in **Command Mode**), forse anche più comodo
 - `10 ENTER/FRECCIA_GIU`: vai avanti di 10 righe
 - `10 SPAZIO/FRECCIA_DX`: vai avanti di 10 lettere
 -
@@ -45,7 +44,7 @@ In generale `N comando` esegue il comando N volte: `10 dd` taglia 10 righe, `10 
 - 
 - `/ciao`   : cerca "ciao" `verso avanti`
 - `n` e `N` : cerca il "ciao" successivo/precedente
-- `?ciao`   : cerca "ciao" `verso indietro`. `N` e `n` cambiano verso di ricerca
+- `?ciao`   : cerca "ciao" `verso indietro`. `N` e `n` cambiano verso di cerca
 - 
 
   **Copia, incolla, taglia testo** senza entrare in INSERT MODE
@@ -119,11 +118,17 @@ Per uscire da Vim e salvare. Premo sempre i `:` per entrarci
 - `:set number` e `:set nonumber` (mostra/nasconde i numeri di riga)
 - `:156` (vai alla riga 156)
 - 
-- `s/vecchio/nuovo`    (sostituisce la prima occorrenza di "vecchio" con "nuovo" nella riga corrente)
-- `s/vecchio/nuovo/g`  (sostituisce globalmente "vecchio" con "nuovo" nella riga corrente)
-- `%s/vecchio/nuovo`   (sostituisce la prima occorrenza di "vecchio" con "nuovo" in ogni riga del file)
-- `%s/vecchio/nuovo/g` (sostituisce globalmente "vecchio" con "nuovo" in tutto il file)
-- `%s/vecchio/nuovo/gc`(UGUALE ma chiede conferma per ogni occorrenza)
+- https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghclk/index.html
+- `:2,5 co 12`  (COPIA  le righe 2,3,4,5 e INCOLLALE subito dopo la riga 12)
+- `:2,5  m 12`  (TAGLIA le righe 2,3,4,5 e INCOLLALE subito dopo la riga 12)
+- `:2    m 12`  (TAGLIA la riga 2 e INCOLLA subito dopo la riga 12)
+- `:2,5  d`     (ELIMINA le righe 2,3,4,5)
+- 
+- `:s/vecchio/nuovo`    (sostituisce la prima occorrenza di "vecchio" con "nuovo" nella riga corrente)
+- `:s/vecchio/nuovo/g`  (sostituisce globalmente "vecchio" con "nuovo" nella riga corrente)
+- `:%s/vecchio/nuovo`   (sostituisce la prima occorrenza di "vecchio" con "nuovo" in ogni riga del file)
+- `:%s/vecchio/nuovo/g` (sostituisce globalmente "vecchio" con "nuovo" in tutto il file)
+- `:%s/vecchio/nuovo/gc`(UGUALE ma chiede conferma per ogni occorrenza)
 - 
 - `:q!`  (esci senza salvare)
 - `:w`   (salva)

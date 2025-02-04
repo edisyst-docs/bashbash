@@ -193,7 +193,7 @@ cat file | grep stringa       # ALTERNATIVA
 
 grep "errore" logfile.txt     # cerca la parola "errore" e restituisce le righe dove la trova
 grep -i "errore" logfile.txt  # UGUALE ma non distingue maiuscole/minuscole, quindi trova anche ERRORE, Errore, ecc.
-grep -o "errore" logfile.txt  # restituisce solo la parola cercata, non tutta la riga (di default grep farebbe così)
+grep -c "errore" logfile.txt  # restituisce solo il conteggio delle righe trovate
 grep -r "errore" /var/log/    # cerca ricorsivamente "errore" in tutti i file dentro la cartella /var/log/
 grep -E '[0-9]{3}' logfile    # -E per accettare anche le regex estese; cerca tutte le sequenze di 3 numeri
 egrep '[0-9]{3}' logfile      # UGUALE
@@ -405,7 +405,10 @@ ls /proc/         # ci sono tante cartelle chiamate coi PID dei processi in esec
 ```bash
 shutdown -r now # riavvia adesso
 shutdown -h now # spegne  adesso
+shutdown    now # UGUALE
+shutdown  20:40 # spegne alle 20:40
 shutdown -h +10 # spegne  fra 10 min
+shutdown -c     # annulla lo spegnimento
 
 tail file      # mostra le ultime 10 righe del file
 tail -n 3 file # mostra le ultime 3  righe del file
