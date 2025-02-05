@@ -28,6 +28,7 @@ CTRL+Q # riprende la visualizzazione dell’output che sta scorrendo sullo scher
 
 CTRL+U # taglia la parte sinistra di ciò che scritto sulla shell
 CTRL+K # taglia la parte destra di ciò che scritto sulla shell
+CTRL+Y # reincolla la stringa eliminata coi comandi precedenti
 
 CTRL+A # vado all'inizio di ciò che ho scritto sulla shell
 CTRL+E # vado alla fine  di ciò che ho scritto sulla shell

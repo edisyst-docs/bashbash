@@ -134,6 +134,13 @@ chmod 660 /home/ronaldo/prova3.txt                 # Solo ronaldo (proprietario)
 su - ronaldo                         # cambio utente a ronaldo (sarò loggato come ronaldo)
 sudo -i -u ronaldo                   # UGUALE, se ho accesso root posso impersonalo senza inserire la sua password
 sudo -u ronaldo ls /root             # UGUALE ma posso anche specificare il comando da eseguire
+```
+
+
+## RUNUSER per eseguire comandi come un altro utente (devo esser già loggato come root)
+```bash
+runuser -l ronaldo -c '<comando>'    # SIMILE a "su", si usa in script o ambienti non interattivi (non richiede la passw)
+runuser -l ronaldo -c 'tar -czf /backup.tar.gz /dati'  # il file backup.tar.gz avrà come owner ronaldo
 
 # DOPO LE PROVE POSSO ELIMINARE UTENTI, GRUPPI, CARTELLE
 userdel -r messi        # -r rimuove anche la home
