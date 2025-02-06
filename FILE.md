@@ -225,7 +225,7 @@ sed 'comando:<ricerca>:<sostituisci>:(parametri)'  # ALTERNATIVA: in verità pos
 cat /etc/xattr.conf > config         # contiene alcune righe commentate, iniziano per #
 sed -n '1,5 p' config                # printa le righe 1,2,3,4,5
 sed    '1,5 p' config                # printa tutto il file MA DUPLICA le righe 1,2,3,4,5
-sed -n '5,$ p' config                #  printa le righe dalla 5 alla fine del file
+sed -n '5,$ p' config                # printa le righe dalla 5 alla fine del file
 sed -n '/pattern/p' config           # printa le righe che contengono "pattern"
 sed -n '/^#/p' config                # printa le righe che iniziano per #
 sed -n '/Inizio/,/Fine/p' config     # printa tutto il contenuto tra "Inizio" e "Fine"
@@ -373,8 +373,9 @@ pr file_5000    # me lo stampa con la paginazione, pronto per la stampa
 less divina     # dentro posso fare /non e mi evidenzia tutte le stringhe "non"
 more divina     # UGUALE ma ha meno funzionalità di less
 
+awk -F: '{ print $1 }' /etc/passwd  # stampa la prima colonna di un file coi campi separati dai :
 awk -F ';' '{print $1}' file.csv    # stampa la prima colonna di un file CSV (non funge con XLSX)
-
+awk -F;    '{print $1}' file.csv    # UGUALE, si può scrivere anche così
 ldd /bin/pwd /sbin/pwck # mostra le dipendenze di questi eseguibili, quali librerie gli servono per funzionare
 ldconfig -p # per ogni libreria stampa il path sul file system: i comandi son tutti dei link simbolici
 ```

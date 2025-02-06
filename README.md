@@ -130,6 +130,8 @@ unalias ls # rimuove l'alias per questa sessione di terminale
 echo $? # stampa 13 (valore di ritorno) di uno script che finisce con exit 13
 echo $? # stampa l'exit status dell'ultimo script eseguito # stampa 13 se lo script finisce con exit 13
 
+echo $RANDOM   # stampa un numero casuale tra 0 e 32767. Può ritornare utile
+
 echo $ [TAB]   # mostra l'elenco di tutte le var d'ambiente disponibili
 env            # mostra i valori di molte variabili d'ambiente
 ```
