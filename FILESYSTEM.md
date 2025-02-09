@@ -1,6 +1,6 @@
 # FILE SYSTEM DEBIAN/UBUNTU
 
-```plaintext
+```bash
 /
 ├── bin
 │   ├── ls
@@ -61,10 +61,10 @@
 │   ├── lib/
 │   ├── local/
 │   └── share/
-├── var
-│   ├── log/
-│   ├── spool/
-│   └── tmp/
+└── var
+    ├── log/
+    ├── spool/
+    └── tmp/
 ```
 
 ## Indice

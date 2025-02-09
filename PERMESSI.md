@@ -35,6 +35,7 @@ chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
   * x (esecuzione)
 
 ### Esempi CHMOD
+> **NOTA**: i permessi di default sono 644 per i file e 755 per le cartelle.
 ```bash
 chmod 644 file   # setta i permessi per user(6) group(4) others(4): cioè (rw-)(r--)(r--)
 chmod 755 file   # setta i permessi a 755: cioè (rwx)(r-x)(r-x)
@@ -47,11 +48,21 @@ chmod ugo+x file    # aggiunge a USER, GROUP, OTHERS il permesso EXE
 chmod a+x file      # UGUALE   (ALL = USER + GROUP + OTHERS)
 chmod +x file       # UGUALE
 chmod -R o-w cart/  # opera ricorsivamente su tutta la cartella
+```
 
-mkdir protetta
-chmod +t protetta  # setta sticky bit: solo il proprietario può cancellare i file all'interno, a prescindere dai permessi sui file
-chmod +s protetta  # setta setuid bit: i file eseguibili all'interno verranno eseguiti con i permessi del proprietario
-chmod +r protetta  # setta setgid bit: i file eseguibili all'interno verranno eseguiti con i permessi del gruppo proprietario
+
+### Permessi speciali
+```bash
+chmod +t protetta   # imposta sticky bit: (folder) solo l'owner può eliminare i file all'interno, a prescindere dai permessi sui file
+chmod 1777 protetta # UGUALE, ma stà anche assegnando i permessi standard 777. I permessi saranno rwx rwx rwt
+ll protetta         # drwxrwxrwt  => la "t" indica sticky bit + permesso x, altrimenti sarebbe "T"
+
+chmod +s protetta   # imposta set uid bit: i file eseguibili all'interno verranno eseguiti con i permessi del proprietario
+chmod 4777 protetta # UGUALE, ma stà anche assegnando i permessi standard 777. I permessi saranno rws rwx rwx
+ll $(which passwd)  # -rwsr-xr-x  => la "s" indica set uid + permesso x, altrimenti sarebbe "S". Senza set uid non potrei scrivere su quel file di root
+
+chmod +r protetta   # imposta set gid bit: i file eseguibili all'interno verranno eseguiti con i permessi del gruppo proprietario
+chmod 2777 protetta # UGUALE, ma stà anche assegnando i permessi standard 777. I permessi saranno rwx rws rwx
 ```
 
 
@@ -62,6 +73,8 @@ umask -S  # più leggiible: u=rwx,g=rx,o=rx
 umask 777 # lo modifico a 777 per esempio. E' completamenmte insensato, equivale a u=,g=,o=, è solo un esempio
 ```
 > **NOTA**: la maschera è un valore che viene sottratto ai permessi di default.
+- Nuovo file: 666 - 022 = 644
+- Nuova cartella: 777 - 022 = 755
  
 Se voglio modificare i permessi di default dei file devo modificare la maschera, poi creo i file
 ```bash
