@@ -81,6 +81,8 @@ ls -l doc*.rar      # mostra i file che si chiamano docXXXXX.rar
 ls -l doc?.rar      # mostra i file che si chiamano docX.rar (un solo carattere)
 ls -l | grep ^d     # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
+stat .              # simile a ls -l ma con più info (relative specialmente all'inode)
+
 mv testo{,.old}     # mv testo testo.old 
 mv testo.{old,new}  # mv testo.old testo.new
 mv testo{.old,}     # mv testo.old testo

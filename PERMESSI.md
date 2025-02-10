@@ -99,11 +99,19 @@ grep edoardo /etc/gshadow # UGUALE (ma relativo ai gruppi)
 
 ## UTENTI: aggiungi e rimuovi
 ```bash
-adduser pippo        # crea utente "pippo", gruppo "pippo", e cartella "/home/pippo"
-adduser pippo disney # crea utente "pippo", gruppo "disney", e cartella "/home/pippo"
-groups  pippo        # mi dice i gruppi di "pippo"
-deluser pippo, pluto # elimina entrambi gli utenti
-passwd  pippo        # modifica pwd di "pippo"; senza argomento, modifica la pwd dell'utente corrente
+addgroup disney             # crea gruppo "disney"
+delgroup disney             # elimina il gruppo "disney"
+cat /etc/group              # lista tutti i gruppi
+
+adduser pippo               # crea utente "pippo", gruppo "pippo", e cartella "/home/pippo"
+adduser pippo disney        # se l'utente "pippo" e il gruppo "disney" esistono già, aggiunge "pippo" a "disney"
+cat /etc/passwd             # lista tutti gli utenti
+
+groups  pippo               # mi dice i gruppi di "pippo"
+passwd  pippo               # modifica pwd di "pippo"; senza argomento, modifica la pwd dell'utente corrente
+
+deluser pippo marvel        # rimuovo "pippo" dal gruppo "marvel"
+deluser --remove-home pluto # elimina utente + la sua home, che di solito non ci serve più
 ```
 
 
