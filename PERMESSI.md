@@ -82,6 +82,21 @@ umask 000 ; touch file2 file3 # avranno entrambi i permessi 777
 ```
 
 
+## UTENTI: root e sudoers
+```bash
+id          # uid (da 1000 in su; uid=0 è solo per root), gid (idem), gruppi dell'utente in uso (tra cui sudo)
+id list     # UGUALE ma per l'utente "list"
+groups      # gruppi dell'utente in uso (tra cui sudo)
+groups list # UGUALE ma per l'utente "list"
+
+grep edoardo /etc/passwd  # uid, gid, cartella home, shell di default (di ogni utente)
+grep edoardo /etc/group   # gid e nome di tutti i gruppi associati 
+
+grep edoardo /etc/shadow  # hash delle password (di ogni utente). Può leggerlo solo root
+grep edoardo /etc/gshadow # UGUALE (ma relativo ai gruppi)
+```
+
+
 ## UTENTI: aggiungi e rimuovi
 ```bash
 adduser pippo        # crea utente "pippo", gruppo "pippo", e cartella "/home/pippo"
@@ -144,7 +159,7 @@ chmod 660 /home/ronaldo/prova3.txt                 # Solo ronaldo (proprietario)
 
 ## SUDO per impersonare un utente
 ```bash
-su - ronaldo                         # cambio utente a ronaldo (sarò loggato come ronaldo)
+su - ronaldo                         # switch user a ronaldo (sarò loggato come ronaldo)
 sudo -i -u ronaldo                   # UGUALE, se ho accesso root posso impersonalo senza inserire la sua password
 sudo -u ronaldo ls /root             # UGUALE ma posso anche specificare il comando da eseguire
 ```

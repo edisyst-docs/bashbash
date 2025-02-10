@@ -46,15 +46,18 @@ echo $PATH        # dice dove tutto cerca gli eseguibili per which e whereis
 PATH=$PATH:/opt/  # aggiungo /opt/ ai percorsi di $PATH 
 
 ls --help    # helper del comando
-man ls       # helper più dettagliato
+man ls       # helper più dettagliato: è un comando esterno a bash, pertanto ha il man
 info ls      # helper più dettagliato ancora
+help cd      # è una funzionalità di bash, non un comando esterno come ls, pertanto ha l'help
 ```
 
 
 # Shell varie
 ```bash
-echo $SHELL              # /bin/bash è la shell di default
+echo $0                  # bash (è la shell di default)
+echo $SHELL              # /bin/bash è il suo PATH
 grep edoardo /etc/passwd # tra le varie info mi dice anche la shell di default di edoardo
+
 sh                       # apre al volo la shell sh (esiste anche ksh)
 cat /etc/shells          # elenco shell
 chsh -l                  # elenco shell, mi permette anche di cambiare shell
@@ -68,6 +71,7 @@ echo `date`              # stessa cosa, ma è una sintassi vecchia
 
 
 # Comandi base
+SINTASSI: nome_comando [flag_opzionali] [argomenti_obbligatori]
 ```bash
 ls -R cartella      # mostra ricorsivamente tutti i file di tutte le sottocartelle
 ls --color          # colora i file in base al tipo
@@ -464,17 +468,18 @@ sleep 3; echo ciao # attende 3 secondi poi esegue il comando echo
 
 ## Simlink e hardlink
 ```bash
-ln -s file link1      # LINK SIMBOLICO
-ln -s cartella link2  # è un altro file con permessi 777, ma tanto eredita i permessi del file che linka
-ls -l                 # riconosco il link dalla l iniziale
+ln -s file link_s1      # LINK SIMBOLICO: ha sempre permessi 777, ma tanto eredita i permessi del file che punta
+ls -l                   # riconosco il simlink dalla l iniziale
 
-touch pippo
-ls -l                 # vedo che pippo ha 1 nella colonna degli inode
-ln origine link       # HARD LINK. Apparentemente è come un file diverso
+touch origine
+ls -l                 # vedo che origine ha 1 nella colonna degli inode
+ln origine link_h1    # HARD LINK. Apparentemente è come un file diverso
 ls -l                 # hanno entrambi 2 nella colonna degli inode
 ls -i                 # hanno lo stesso numero di inode
 ls -li                # son proprio lo stesso file, tutti i dati coincidono. Se ne modifico uno, modifico anche l'altro
 ```
+- Se sposto il file originale, il simlink non funziona più perchè punta ad un path non più valido
+- Invece l'hardlink funziona ancora perchè punta sempre all'inode del file originale, che tiene traccia degli spostamenti
 
 
 # Gestione pacchetti
