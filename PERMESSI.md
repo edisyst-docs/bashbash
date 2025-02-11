@@ -21,10 +21,10 @@ La modalità numerica usa numeri per rappresentare i permessi. Ogni permesso è 
 chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
 ```
 * Il primo parametro [ugoa] indica a chi devo cambiare i permessi.
-  * u: Utente.  
-  * g: Gruppo.  
-  * o: Altri.  
-  * a: Tutti (utente, gruppo e altri).  
+  * u: (USER)   Utente  
+  * g: (GROUP)  Gruppo 
+  * o: (OTHERS) Altri 
+  * a: (ALL)    Tutti (utente, gruppo e altri).  
 * Il secondo parametro indica se aggiungere (+), rimuovere (-) o impostare (=) i permessi.
   * +: Aggiungi un permesso.  
   * -: Rimuovi un permesso.  
@@ -33,6 +33,8 @@ chmod [u|g|o|a][+|-|=][r|w|x] file_o_directory # SINTASSI
   * r (lettura)
   * w (scrittura)
   * x (esecuzione)
+  * s (set uid/gid bit) => permesso speciale
+  * t (sticky bit)      => permesso speciale
 
 ### Esempi CHMOD
 > **NOTA**: i permessi di default sono 644 per i file e 755 per le cartelle.
@@ -48,6 +50,9 @@ chmod ugo+x file    # aggiunge a USER, GROUP, OTHERS il permesso EXE
 chmod a+x file      # UGUALE   (ALL = USER + GROUP + OTHERS)
 chmod +x file       # UGUALE
 chmod -R o-w cart/  # opera ricorsivamente su tutta la cartella
+
+chmod u=rwxs, g=rw, o=t file # dò anche i bit speciali (NON SONO AL POSTO DELLE x) => rwsrw---T
+chmod u-x,    g+s,  o+x file # diventano rwSrwS--t     
 ```
 
 
@@ -64,6 +69,17 @@ ll $(which passwd)  # -rwsr-xr-x  => la "s" indica set uid + permesso x, altrime
 chmod +r protetta   # imposta set gid bit: i file eseguibili all'interno verranno eseguiti con i permessi del gruppo proprietario
 chmod 2777 protetta # UGUALE, ma stà anche assegnando i permessi standard 777. I permessi saranno rwx rws rwx
 ```
+**Esempio: trovare il codice ottale di (rws)(rw-)(-wt)**
+- (sst) ha come bit 101, ovvero 5
+  - i permessi speciali si mettono al posto della x, e sono maiuscoli se x=0, minuscoli se x=1
+- il resto (i permessi classici) è 763
+- i permessi "totali" sono 5763
+
+**Esempio: trovare il codice ottale di (r-x)(--S)(r-x)**
+- (sst) ha come bit 010, ovvero 2
+- il resto (i permessi classici) è 505
+- i permessi "totali" sono 2505
+
 
 
 ### UMASK per modificare i permessi di default
@@ -107,8 +123,10 @@ adduser pippo               # crea utente "pippo", gruppo "pippo", e cartella "/
 adduser pippo disney        # se l'utente "pippo" e il gruppo "disney" esistono già, aggiunge "pippo" a "disney"
 cat /etc/passwd             # lista tutti gli utenti
 
-groups  pippo               # mi dice i gruppi di "pippo"
-passwd  pippo               # modifica pwd di "pippo"; senza argomento, modifica la pwd dell'utente corrente
+groups    pippo            # mi dice i gruppi di "pippo"
+passwd    pippo            # modifica pwd di "pippo"; senza argomento, modifica la pwd dell'utente corrente
+passwd -d pippo            # elimina la passw di pippo, da ora lui si può loggare senza password
+passwd -e pippo            # faccio scadere la passw di pippo, se la deve modificare
 
 deluser pippo marvel        # rimuovo "pippo" dal gruppo "marvel"
 deluser --remove-home pluto # elimina utente + la sua home, che di solito non ci serve più
@@ -118,9 +136,10 @@ deluser --remove-home pluto # elimina utente + la sua home, che di solito non ci
 ## CHOWN per modificare il proprietario
 ```bash
 chown utente file.txt       # utente diventa il proprietario di file.txt
+chown -R utente /directory/ # si può fare anche per un'intera directory con -R
 chown alice:staff file.txt  # modifico contemporaneamente proprietario e gruppo di file.txt
 chown :gruppo file.txt      # modifico solo il gruppo di file.txt
-chown -R utente /directory/ # si può fare anche per un'intera directory con -R
+chgrp  gruppo file.txt      # UGUALE (comando apposito "change group")
 
 useradd -m messi                 # adduser è UGUALE, ma setta tutte le cose seguenti ai valori di default. Quindi abitualmente userò adduser 
 useradd -m benzema               # useradd permette di specificarle se voglio modificarle dal default

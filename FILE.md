@@ -18,6 +18,7 @@ ls /etc/*.conf                  # mostra tutti i file .conf che sono dentro /etc
 cp /etc/*.conf destinazione     # copia tutti i file .conf che sono dentro /etc dentro destinazione
 cp -i origine destinazione      # UGUALE ma chiede conferma in caso di overwriting
 cp file1 file2                  # fa una copia file1 e la chiama file2
+cp -a file1 file2               # UGUALE ma copia anche i permessi (sennò il file nuovo avrebbe quelli di default)
 cp file1 /percorso/directory/   # copia file1 dentro la cartella /percorso/directory/
 cp -r dir_1 /percorso/dir_2/    # copia la dir_1 dentro la cartella /percorso/dir_2
 
@@ -38,6 +39,18 @@ wc file    # numero di righe, parole, caratteri presenti in file
 wc -l file # numero di righe presenti in file
 wc -w file # numero di parole presenti in file
 wc -c file # numero di caratteri presenti in file.txt
+```
+
+
+## tree, simile a "ls -R" ma stampa un albero dei file/cartelle
+```bash
+tree cartella       # stampa un albero con ogni elemento
+tree -p cartella    # stampa anche i permessi di ogni elemento
+tree -f cartella    # stampa il path relativo di ogni elemento 
+tree -L 1 cartella  # stampa l'albero solo fino a 1 LIVELLO DI SOTTODIRECTORY  
+tree -d cartella    # stampa solo le directory
+
+tree -P "testo*" prova1  # fa anche un "find" sul PATTERN per filtrare i FILENAME
 ```
 
 
@@ -68,7 +81,7 @@ du -sh compresso.tar.gz file1 file2 directory1    # con questo comando posso con
 
 
 ## find: cerca file e cartelle
-SINTASSI: find [percorso] [criteri] [azione]
+> SINTASSI: find [percorso] [criteri] [azione]
 ```bash
 find . -name "long.txt"            # cerca un file chiamato "long.txt" nella cartella corrente
 find / -name config                # cerca file/folder chiamati esattamente "config" in tutto il disco (avrò errori di Permesso Negato)
@@ -106,7 +119,7 @@ locate ".log" # locate è PIU' VELOCE di find: usa un DB indicizzato del file sy
 
 
 ## -exec: esegue un comando su ogni risultato trovato da find
-Sintassi: find [percorso] [criteri] -exec [comando] {} \;
+> Sintassi: find [percorso] [criteri] -exec [comando] {} \;
 - [criteri]: Condizioni per selezionare i file (es. -name, -size, -type, ecc.).
 - {} è il placeholder per il risultato di find
 - \; è il terminatore del comando
@@ -399,7 +412,16 @@ ls -l
 ```
 
 
-## Comando dd (copia e scrittura file)
+## Comando dd (copia e scrittura file/dischi/partizioni)
+> **SINTASSI**: dd [if=input] [of=output] [bs=block_size] [count] [conv]
+> 
+> Quanti byte occupa ciò che voglio copiare? La risposta mi fa dimensionare `bs*count`
+> 
+> Se non specifico `bs` e `count`, ci pensa `dd` a dimensionare in automatico, copiando `input` per intero
+> 
+> Possono capitare dei casi in cui io voglio copiare solo una parte di `input`, per esempio la partition table 
+> di un disco che voglio solo istanziare, ma di cui non voglio copiare tutti i dati
+
 ```bash
 dd if=/path/to/source of=/path/to/destination # copia (bit a bit) file, cartelle, interi volumi (es. CD-ROM)
 echo "ciao ciao mamma guarda" > testo         # creo un file di testo

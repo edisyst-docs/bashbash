@@ -71,7 +71,7 @@ echo `date`              # stessa cosa, ma è una sintassi vecchia
 
 
 # Comandi base
-SINTASSI: nome_comando [flag_opzionali] [argomenti_obbligatori]
+> SINTASSI: nome_comando [flag_opzionali] [argomenti_obbligatori]
 ```bash
 ls -R cartella      # mostra ricorsivamente tutti i file di tutte le sottocartelle
 ls --color          # colora i file in base al tipo
