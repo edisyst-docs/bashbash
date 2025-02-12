@@ -413,7 +413,7 @@ ls -l
 
 
 ## Comando dd (copia e scrittura file/dischi/partizioni)
-> **SINTASSI**: dd [if=input] [of=output] [bs=block_size] [count] [conv]
+> **SINTASSI**: dd [if=input_file] [of=output_file] [bs=block_size] [count] [conv]
 > 
 > Quanti byte occupa ciò che voglio copiare? La risposta mi fa dimensionare `bs*count`
 > 

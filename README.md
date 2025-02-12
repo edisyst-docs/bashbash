@@ -93,6 +93,7 @@ ps -u edoardo       # elenco processi del solo utente "edoardo"
 ps -f               # qualche info in più
 ps -lf              # qualche info in più
 ps -e               # elenco di tutti i processi in esecuzione
+ps -p 1,764         # mostro solo i processi ocn PID=1 e PID=764
 ps aux              # indica anche l'uso di CPU e memoria
 ps aux --sort=-%cpu # UGUALE ma ordinati per uso di CPU
 pgrep snap          # cerca i processi facendo un grep sul nome
@@ -116,7 +117,7 @@ echo ciao ci sono $(ls | wc -w) parole nei files qui dentro # wc = words count
 
 # Alias
 ```bash
-type pwd   # mi dice se è un comando, un alias o un percorso
+type pwd   # mi dice se è un comando di bash, un alias o un percorso
 type apt   # mi dice il suo percorso eseguibile
 type ls    # mi dice il suo alias, perchè ha un alias
 
