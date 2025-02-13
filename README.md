@@ -96,18 +96,25 @@ ps -e               # elenco di tutti i processi in esecuzione
 ps -p 1,764         # mostro solo i processi ocn PID=1 e PID=764
 ps aux              # indica anche l'uso di CPU e memoria
 ps aux --sort=-%cpu # UGUALE ma ordinati per uso di CPU
+ps -o pid,uid,s,pri # mostra i campi specifici: pid,uid,s,pri
 pgrep snap          # cerca i processi facendo un grep sul nome
 ps -ef | grep snap  # UGUALE
 
 (ps;ps)             # per vedere che ci son 2 PID annidati
 { ps;ps; }          # così c'è un solo PID, un'unica sequenza di processi
 
-kill -l            # lista dei segnali che posso mandare
-kill -1 1234       # forza il reload del processo 1234
-kill -9 1234       # termina forzatamente il processo 1234
-kill    1234       # di default manda il segnale 15 (chiede al processo 1234 di terminarsi)
-pkill calc         # termina tutti i processi facendo un grep sul nome
-killall calc       # SIMILE: termina tutti i processi con quel nome esatto
+kill -l              # lista dei segnali che posso mandare
+kill -1 1234         # forza il reload del processo 1234
+
+kill -9 1234         # termina forzatamente il processo con PID=1234. Solo l'owner, root o un sudoer può farlo.
+kill -SIGKILL 1234   # UGUALE (SIGKILL=9)
+kill -KILL    1234   # UGUALE (tutti i segnali si chiamano SIGXXX)
+kill -s KILL  1234   # UGUALE (tutti i segnali si chiamano SIGXXX)
+kill -9 %1           # con questa sintassi gli passo non il PID, ma il JOB_ID
+
+kill    1234         # di default manda il segnale 15 (chiede al processo 1234 di terminarsi)
+pkill calc           # termina tutti i processi facendo un grep sul nome
+killall calc         # SIMILE: termina tutti i processi con quel nome esatto
 
 echo ciao ho $[2024-1981] anni # il carattere $ esegue l'operazione tra le quadre
 echo ciao ci sono $(ls | wc) righe, parole e lettere nei files qui dentro # wc = words count
@@ -425,7 +432,8 @@ tail -n 3 file # mostra le ultime 3  righe del file
 head file      # mostra le prime  10 righe del file
 head -n 3 file # mostra le prime  3  righe del file
 
-cmatrix # inutile, è Matrix
+cmatrix                   # inutile, è Matrix
+systemctl reload apache2  # è il reload di Apanche dopo aver modificato le conf dei sites
 ```
 
 
