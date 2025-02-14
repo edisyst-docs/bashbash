@@ -4,11 +4,10 @@ https://regex101.com/
 https://regexr.com/
 
 Se digito `man regex` vedo il manuale di regex su Linux
-- BRE: BASIC REGULAR EXPRESSION
-- ERE: EXTENDED REGULAR EXPRESSION
 
 Utili da usare con SED e con GREP. Posso far dei test digitando `grep "pattern"` poi lui resta in ascolto di ciò che digito
 
+# BRE: BASIC REGULAR EXPRESSION
 
 ## MODIFICATORI
 - `?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI CARATTERE)
@@ -16,8 +15,7 @@ Utili da usare con SED e con GREP. Posso far dei test digitando `grep "pattern"`
 - `+` => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA)
 - `{2,7}` => DA 2 A 7 OCCORRENZE DELL'ELEMENTO PRECEDENTE
 
-
-## METACARATTERI (caratteri con un significato speciale): [ ] * \( \) \> \< $ ^
+## METACARATTERI (caratteri con un significato speciale): $ ^ . * [ ] \( \) \> \< 
 - `.` => QUALSIASI CARATTERE (A PARTE L'A CAPO)
 - `.*` => QUALSIASI SEQUENZA DI CARATTERI (COMBINO . E *)
 - `[]` => QUALSIASI CARATTERE dentro le []
@@ -56,3 +54,20 @@ cat crontab | grep ')$'      # stampa tutte le righe che finiscono con )
 ```
 
 
+
+# ERE: EXTENDED REGULAR EXPRESSION (BRE estese)
+
+## MODIFICATORI
+- `?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI CARATTERE)
+- `*` => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA, ANCHE VUOTA)
+- `+` => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA)
+- `{2,7}` => DA 2 A 7 OCCORRENZE DELL'ELEMENTO PRECEDENTE
+
+## METACARATTERI (sono diversi e di più): $ ^ . * [ ] ( ) { } \> \< ? | ,
+- `.` => QUALSIASI CARATTERE (A PARTE L'A CAPO)
+- `.*` => QUALSIASI SEQUENZA DI CARATTERI (COMBINO . E *)
+- `[]` => QUALSIASI CARATTERE dentro le []
+- `\<co` => cerca le righe contenenti parole che iniziano per "co"
+- `do\>` => cerca le righe contenenti parole che finiscono per "do"
+- `\<scopo\>` => cerca le righe contenenti l'esatta parola "scopo"
+- `\(` e `\)` le uso unicamente per gestire le precedenze (tipo le formule matematiche)
