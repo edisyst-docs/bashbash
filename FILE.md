@@ -267,9 +267,9 @@ echo "ciao mamma" | sed 's/[a-z]*/(&)/g'    # "(ciao) (mamma)"
 echo "123 abc"    | sed 's/[0-9]*/& &/'     # sostituisce le stringhe numeriche con se stesse due volte: "123 123 abc"
 echo "abc-123"    | sed 's/^[a-z]*//'       # elimina le stringhe di sole lettere all'inizio
 
-echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # con -r supporta le REGEX estese, il + e le () senza escape 
-echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/& &/'   # sed può matchare fino a 9 distinti pattern (qui gliene dò 2 e li trova entrambi) 
-echo "123abc" | sed -r 's/([0-9]+)([a-z]+)/\2\1/'  # stampa stringa2 che matcha pattern2 seguita da stringa1 che matcha pattern1 
+echo "123abc" | sed -E 's/([0-9]+)([a-z]+)/& &/'   # con -E o -r supporta le REGEX estese, il + e le () senza escape 
+echo "123abc" | sed -E 's/([0-9]+)([a-z]+)/& &/'   # sed può matchare fino a 9 distinti pattern (qui gliene dò 2 e li trova entrambi) 
+echo "123abc" | sed -E 's/([0-9]+)([a-z]+)/\2\1/'  # stampa stringa2 che matcha pattern2 seguita da stringa1 che matcha pattern1 
 echo "123abc" | sed 's/\([0-9]*\)\([a-z]*\)/\2\1/' # UGUALE ma senza -r quindi non posso usare le REGEX estese
 echo "abc123" | sed 's/\([a-z]*\).*/\1/'           # identifica le stringhe di sole lettere e stampa solo quelle
 
@@ -439,7 +439,7 @@ cat testo                                    # ora è illeggibile, posso elimina
 ```
 
 
-## Differenze tra file
+## Differenze tra file (anche file binari)
 ```bash
 diff read/simile1.sh read/simile2.sh    # mostra le differenze tra i file
 diff -y read/simile1.sh read/simile2.sh # mostra riga per riga evidenziando le differenze
@@ -447,7 +447,11 @@ diff -i file1 file2                     # ignora le differenze di maiuscole/minu
 diff -w file1 file2                     # ignora gli spazi bianchi nelle differenze
 diff -u file1 file2                     # output più leggibile per i sistemi di controllo versione
 
-cmp file1.bin file2.bin                 # confronta file byte per byte
+cmp file1.bin file2.bin                 # confronta file byte per byte, ma si ferma alla prima differenza
+
+diff file1 file2 > diff.txt             # salva le differenze in un file di testo
+patch file1 diff.txt                    # applica le differenze di diff.txt a file1, rendendolo uguale a file2
+diff file1 file2                        # verifico che ora sono uguali (ho trasformato file1 in file2)
 
 comm read/simile1.sh read/simile2.sh    # 3 colonne: nella terza ci son le righe in comune tra i due file
 ```

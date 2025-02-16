@@ -205,13 +205,25 @@ lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 # Comando GREP
 Cercare specifiche stringhe di testo o regex all'interno di file, cartelle o output di altri comandi
 ```bash
-grep stringa file             # SINTASSI BASE
-cat file | grep stringa       # ALTERNATIVA
+grep 'stringa' file           # SINTASSI BASE
+cat file | grep 'stringa'     # ALTERNATIVA
+grep 'stringa' file1 file2    # può cercare anche in più file contemporaneamente
 
 grep "errore" logfile.txt     # cerca la parola "errore" e restituisce le righe dove la trova
 grep -i "errore" logfile.txt  # UGUALE ma non distingue maiuscole/minuscole, quindi trova anche ERRORE, Errore, ecc.
-grep -c "errore" logfile.txt  # restituisce solo il conteggio delle righe trovate
+grep -n "errore" logfile.txt  # restituisce anche gli indici riga che fanno matching
+cat  -n logfile.txt           # verifico effettivamente che l'indice sia corretto
+grep -c "errore" logfile.txt  # restituisce solo il count delle righe trovate
+
+grep -v "errore" logfile      # grep INVERSO: esclude le righe contenenti "errore"
 grep -r "errore" /var/log/    # cerca ricorsivamente "errore" in tutti i file dentro la cartella /var/log/
+
+grep -w "dei" logfile         # cerca la parola esatta "dei" e non le parole che la contengono
+grep "\<dei\>" logfile        # UGUALE, la regex sarebbe questa
+grep -x "Ciao raga" logfile   # cerca la riga esatta "Ciao raga"
+grep "^Ciao raga$" logfile    # UGUALE, la regex sarebbe questa
+
+grep -f regexfile logfile     # cerca in OR tutte le regex contenute in regexfile dentro logfile
 grep -E '[0-9]{3}' logfile    # -E per accettare anche le regex estese; cerca tutte le sequenze di 3 numeri
 egrep '[0-9]{3}' logfile      # UGUALE
 fgrep [circa] logfile         # cerca esattamente [circa], le [] e i simboli non li interpreta come regex 

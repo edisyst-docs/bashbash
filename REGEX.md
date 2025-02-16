@@ -7,15 +7,16 @@ Se digito `man regex` vedo il manuale di regex su Linux
 
 Utili da usare con SED e con GREP. Posso far dei test digitando `grep "pattern"` poi lui resta in ascolto di ciò che digito
 
+## PUNTATORI
+- `^` => inizio riga
+    - `^W` => cerca tutte le righe che iniziano per W
+- `$` => fine riga
+    - `.$` => cerca tutte le righe che finiscono con un carattere qualsiasi (escluso lo spazio)
+
+
 # BRE: BASIC REGULAR EXPRESSION
 
-## MODIFICATORI
-- `?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI CARATTERE)
-- `*` => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA, ANCHE VUOTA)
-- `+` => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA)
-- `{2,7}` => DA 2 A 7 OCCORRENZE DELL'ELEMENTO PRECEDENTE
-
-## METACARATTERI (caratteri con un significato speciale): $ ^ . * [ ] \( \) \> \< 
+## METACARATTERI (caratteri con un significato speciale): $ ^ . * [ ] \( \) \> \<
 - `.` => QUALSIASI CARATTERE (A PARTE L'A CAPO)
 - `.*` => QUALSIASI SEQUENZA DI CARATTERI (COMBINO . E *)
 - `[]` => QUALSIASI CARATTERE dentro le []
@@ -24,8 +25,12 @@ Utili da usare con SED e con GREP. Posso far dei test digitando `grep "pattern"`
 - `\<scopo\>` => cerca le righe contenenti l'esatta parola "scopo"
 - `\(` e `\)` le uso unicamente per gestire le precedenze (tipo le formule matematiche)
 
+## MODIFICATORI
+- `*` => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA, ANCHE VUOTA)
 
-
+## ESEMPI
+ciao          => matcha unicamente "ciao"
+[Cc]iao       => matcha "ciao" e "Ciao"
 [.aeiou]      => cerca tutte le vocali e il punto
 [0-9]         => cerca tutti i numeri, equivale a [0123456789]
 [a-z]         => cerca tutte le lettere minuscole
@@ -36,16 +41,9 @@ Utili da usare con SED e con GREP. Posso far dei test digitando `grep "pattern"`
 [^L]inux      => cerca tutto tranne la parola "Linux"
 [^0-9]        => cerca tutto tranne i numeri
 [^aeiou ]     => esclude le vocali minuscole, e gli SPAZI (è un carattere anche lo spazio)
-[Cc]iao       => matcha "ciao" e "Ciao"
 
 ([Cc]iao)|(colou*r)  => OR tra due pattern (basta che matchi 1 dei 2)
 
-
-## PUNTATORI
-* ^  => inizio del file
-* ^W => cerca la W se è il primo carattere di tutto il file/testo
-* $  => fine del file
-* .$ => seleziona l'ultimo carattere (qualsiasi) della fine del file
 
 ```shell
 cat crontab | grep '^#'      # stampa tutte le righe che iniziano per #
@@ -56,12 +54,7 @@ cat crontab | grep ')$'      # stampa tutte le righe che finiscono con )
 
 
 # ERE: EXTENDED REGULAR EXPRESSION (BRE estese)
-
-## MODIFICATORI
-- `?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI CARATTERE)
-- `*` => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA, ANCHE VUOTA)
-- `+` => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA)
-- `{2,7}` => DA 2 A 7 OCCORRENZE DELL'ELEMENTO PRECEDENTE
+> NOTA: per usare le ERE devo usare il flag `-E` con `grep` o `sed`
 
 ## METACARATTERI (sono diversi e di più): $ ^ . * [ ] ( ) { } \> \< ? | ,
 - `.` => QUALSIASI CARATTERE (A PARTE L'A CAPO)
@@ -70,4 +63,17 @@ cat crontab | grep ')$'      # stampa tutte le righe che finiscono con )
 - `\<co` => cerca le righe contenenti parole che iniziano per "co"
 - `do\>` => cerca le righe contenenti parole che finiscono per "do"
 - `\<scopo\>` => cerca le righe contenenti l'esatta parola "scopo"
-- `\(` e `\)` le uso unicamente per gestire le precedenze (tipo le formule matematiche)
+- `|` => OR logico. Esempio: `(ciao|hello)` => matcha "ciao" o "hello"
+- 
+- 
+- 
+- 
+- `(` e `)` sempre per gestire le precedenze (come nelle BRE solo che non hanno il backlask davanti)
+
+## MODIFICATORI
+- `?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI CARATTERE)
+- `*` => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA, ANCHE VUOTA)
+- `+` => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA)
+- `{2}`   => ESATTAMENTE 2 OCCORRENZE DELL'ELEMENTO PRECEDENTE
+- `{2,}`  => DA 2 OCCORRENZE DELL'ELEMENTO PRECEDENTE IN SU
+- `{2,7}` => DA 2 A 7 OCCORRENZE DELL'ELEMENTO PRECEDENTE
