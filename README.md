@@ -38,9 +38,9 @@ CTRL+E # vado alla fine  di ciò che ho scritto sulla shell
 # Helpers
 ```bash
 apropos copy # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare il comando che mi serve
-whatis ls    # dice solo cosa fa il comando ls
-which ls     # dice dove si trova l'eseguibile di ls, in quale folder
-whereis  ls  # dice dove si trova  l'eseguibile e il manuale di ls
+whatis ls    # cosa fa il comando ls
+which ls     # dove si trova l'eseguibile di ls, in quale folder
+whereis  ls  # dove si trova l'eseguibile e il manuale di ls
 
 echo $PATH        # dice dove tutto cerca gli eseguibili per which e whereis
 PATH=$PATH:/opt/  # aggiungo /opt/ ai percorsi di $PATH 
@@ -280,7 +280,7 @@ whoami     # restituisce il mio username
 echo $USER # UGUALE
 users      # indica tutti gli utenti connessi
 
-who      # mostra gli utenti loggati sul sistema
+who -a   # mostra gli utenti loggati sul sistema
 w        # mostra gli utenti loggati sul sistema con altre info
 uname -a # info sul sistema operativo
 

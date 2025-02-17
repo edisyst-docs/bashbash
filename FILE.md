@@ -35,10 +35,11 @@ rm -ri directory_non_vuota      # chiede conferma prima di rimuovere ogni file
 shred pippo_01    # sovrascrive in modo illeggibile il file. Meglio che eliminarlo, perchè si potrebbe ripristinare
 shred -u pippo_01 # UGUALE ma elimina pure il file
 
-wc file    # numero di righe, parole, caratteri presenti in file
-wc -l file # numero di righe presenti in file
-wc -w file # numero di parole presenti in file
-wc -c file # numero di caratteri presenti in file.txt
+wc file    # nr. righe, parole, caratteri presenti in file
+wc -l file # nr. righe presenti in file
+wc -w file # nr. parole presenti in file
+wc -c file # nr. byte presenti in file.txt
+wc -m file # nr. caratteri presenti in file.txt
 ```
 
 
@@ -81,18 +82,34 @@ du -sh compresso.tar.gz file1 file2 directory1    # con questo comando posso con
 
 
 ## find: cerca file e cartelle
-> SINTASSI: find [percorso] [criteri] [azione]
+> SINTASSI: find [percorso] [opzioni] [criteri] [azione]
+
+Opzioni:
+- `-maxdepth` per decidere quanto andare in profondità con la ricerca
+- `-regextype posix-basic`
+- `-regextype posix-extended`
+
+Criteri:
+- `-name "file*"` specifica un "wildcard pattern": cerca i file con nome fileXXXXx
+- `-type`: f (regular files), d (directory), l (simlink)
+- `-size`: c (1B), k (1KB), b (512B), M (1MB), G (1GB)
 ```bash
 find . -name "long.txt"            # cerca un file chiamato "long.txt" nella cartella corrente
 find / -name config                # cerca file/folder chiamati esattamente "config" in tutto il disco (avrò errori di Permesso Negato)
 find / -iname config               # UGUALE ma è case insensitive
+find / -user edoardo               # cerca file/folder con owner="edoardo"
+
 find / -name config 2>/dev/null    # redirige l'output 2 (std_error) su dev/null (perchè ho errori di Permesso Negato)
-find / -iname '*.conf' 2>/dev/null # cerca tutti i file .conf dentro il disco
+find / -name '*.conf' 2>/dev/null  # cerca tutti i file .conf dentro il disco
 
+find . -type d,l                   # cerca solo le directory e i simlink
 find . -type f -size +500M         # cerca tutti i file più grandi di 500 MB
-find . -type f -perm 644           # cerca tutti i file con permessi 644.
+find . -type f -perm 644           # cerca tutti i file con permessi 644
 
-find /home/ -iname config -exec ls -ldh {} \;          # cerca file/cartelle chiamate config e fa un ls SU CIASCUBO DI ESSI
+find . -name "test*" -ls           # posso eseguire un ls su tutti gli elementi trovati
+find . -name "test*" -delete       # posso eseguire un rm su tutti gli elementi trovati
+
+find /home/ -iname config -exec ls -ldh {} \;          # cerca file/cartelle chiamate config e fa un ls SU CIASCUNO DI ESSI
 find /home/ -iname config -type f -exec ls -ldh {} \;  # cerca solo file;
 find /home/ -iname config -type d -exec ls -ldh {} \;  # cerca solo le directory
 
@@ -111,10 +128,13 @@ find /etc/ -iname '*' -mtime +365 -exec ls -lhdt {} \;          # questi sono tu
 find /etc/ -iname '*' -mtime +365 -exec ls -lhdt {} \; | wc -l  # così li conto
 find /etc/ -iname '*' -mtime -30  -exec ls -lhdt {} \;          # questi sono tutti i file modificati nell'ultimo mese
 
-find /etc/ -iname '*' -size +4k  # file più grandi  di 4 KB
-find /etc/ -iname '*' -size -1k  # file più piccoli di 1 KB
+find /etc/ -iname '*' -size +4k  # file MAGGIORI di 4 KB
+find /etc/ -iname '*' -size -1k  # file MINORI   di 1 KB
+find /etc/ -iname '*' -size  1k  # file ESATTAMENTE di 1 KB
+find /etc/ -empty '*'            # file vuoti, di esattamente 0 KB
 
-locate ".log" # locate è PIU' VELOCE di find: usa un DB indicizzato del file system, ma può restituire risultati obsoleti se il DB non è aggiornato (aggiorna con updatedb)
+locate ".log" # locate è PIU' VELOCE di find: usa un DB indicizzato del file system, ma può restituire risultati obsoleti se il DB non è aggiornato
+updatedb      # aggoirna il DB di locate
 ```
 
 
@@ -144,23 +164,28 @@ find /home -name "*.tmp" | xargs rm                  # UGUALE ma con xargs
 find /cart -type f -mtime +7 -exec mv {} /cart/bkp/ \;     # sposta i file più vecchi di 7gg in una cartella di backup
 find . -maxdepth 1 -iname "*.txt" -exec cp {} ./backup/ \; # copia i file .txt in una cartella di backup
 find /var/www -type f -perm 644 -exec chmod 600 {} \;      # cerca i file con permessi 644 e modificali in 600
-
 ```
 
 
 ## Stampa file e modifica stampa file
 ```bash
-sort file.txt     # riordina in ordine alfabetico le righe dei file.txt
-sort -r file.txt  # riordina in ordine alfabetico inverso
-sort -R file.txt  # ordine alfabetico RANDOMICO
+sort    file                # ordina alfabeticamente le righe del file
+sort -r file                # ordine alfabetico INVERSO
+sort -R file                # ordine alfabetico RANDOM
+sort -n file                # ordine alfabetico numerico (1,2,3,10,20,23 - altrimenti sarebbe stato 1,10,2,20,23)
 
-sort phonebook                  # ordina alfabeticamente le righe del file in base al primo campo (in base al nome)
-sort phonebook | uniq           # UGUALE, ma elimina dall'output le righe duplicate
-sort phonebook | uniq -d        # ESATTAMENTE OPPOSTO, ora uniq stampa solo le righe duplicate
-sort phonebook -k 2             # ordina alfabeticamente ma in base al secondo campo (in base al cognome)
-du -s /home/edoardo/* | sort -n # ordina le righe per NUMERO
+sort -u file                # ordine alfabetico + elimina i doppioni
+sort    file | uniq         # UGUALE. Nota: uniq da solo elimina i doppioni SOLO SE CONSECUITVI
 
-ls -l | sort -k9 -r             # ordine inverso per i file di "ls -l" (che di default son già  stampati in ordine alfabetico)
+sort phonebook              # ordina alfabeticamente le righe del file in base al primo campo (in base al nome)
+sort phonebook | uniq       # UGUALE, ma elimina dall'output le righe duplicate
+sort phonebook | uniq -d    # ESATTAMENTE OPPOSTO, ora uniq stampa solo le righe duplicate
+sort phonebook -k 2         # ordina alfabeticamente ma in base al secondo campo (in base al cognome)
+
+sort -t ":" -k 2 file       # ordina in base al secondo campo, separando i vari campi di ogni riga riga coi :
+du -s /cartella/* | sort -n # ordina le righe per NUMERO
+
+ls -l | sort -k9 -r         # ordine inverso per i file di "ls -l" (che di default son già  stampati in ordine alfabetico)
 ```
 
 
@@ -202,7 +227,7 @@ cat video* > unito.mp4 # ESCAMOTAGE PER VERIFICARE
 # Tagliare file
 ```bash
 echo "il comando cut serve a ritagliare l'output dai programmi
-il termine cut signigica proprio tagliare
+il termine cut significa proprio tagliare
 da non confondere con cat!
 il comando cat serve invece a concatenare più file" > cut-example.txt
 
@@ -214,6 +239,7 @@ cut -c-12 cut-example.txt   # ritaglia tutte le righe del file e stampa le colon
 cut -d ':' -f 1 /etc/passwd            # usa i : come delimitatore e stampa il 1° campo (field) individuato col delimitatore
 cat /etc/passwd | cut -d':' -f1        # UGUALE 
 cut -d ':' -f 1,7 /etc/passwd          # UGUALE, ma stampa i campi 1 e 7 
+cut -d ':' -f 2-5 /etc/passwd          # UGUALE, ma stampa i campi dal 2 al 5
 cat /etc/passwd | cut -d':' -f1 | sort # UGUALE, ma li ordina anche alfabeticamente 
 
 cut -d':' -f7 /etc/passwd       # stessa cosa ma stampa il 7° campo separato dal :
