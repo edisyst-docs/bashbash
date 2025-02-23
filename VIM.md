@@ -13,6 +13,8 @@ echo $EDITOR                    # editor di default dell'utente => potrebbe esse
 sudo EDITOR="/bin/vim" visudo   # imposto temporaneamente VIM come editor di default
 file /etc/alternatives/editor   # indica il simlink all'editor di default (di solito nano)
 sudo ln -s /usr/bin/vi /etc/alternatives/editor # così imposto VIM come editor di default
+
+find . -name "*.txt" | vim -   # apro VIM con l'output di un comando di cui voglio leggere/manipolare l'output
 ```
 
 
@@ -135,9 +137,11 @@ Per uscire da Vim e salvare. Premo sempre i `:` per entrarci
 - `:X`   (cifra - chiederà una password)
 - `:wq`  (salva ed esci)
 - `:w !sudo tee %`   (salva con sudo, se mi accorgo solo alla fine che non avevo i permessi x salvare)
-- `:read ! sudo blkid /dev/sda` (incolla nel file aperto con VIM l'output el comando blkid... c'è sudo in questo caso specifico sennò non restituisce output)
+- 
+- `:read ! sudo blkid /dev/sda` (incolla nel file aperto con VIM l'output del comando blkid... c'è sudo in questo caso specifico sennò non restituisce output)
 - `:read ! sudo | grep riga`    (incolla nel file aperto con VIM il contenuto del file altro_file greppato per "riga")
-
+- 
+- `:%!sort -R`   (con questa scrittura posso fargli eseguire un qualsiasi comando sul testo aperto)
 
 
 # Visual Mode
