@@ -110,6 +110,9 @@ grep edoardo /etc/group   # gid e nome di tutti i gruppi associati
 
 grep edoardo /etc/shadow  # hash delle password (di ogni utente). Può leggerlo solo root
 grep edoardo /etc/gshadow # UGUALE (ma relativo ai gruppi)
+
+head -c 32 /dev/urandom | base64 # TRICK per creare password random: estrae i primi 32B random e li codifica
+head -c 32 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9' # UGUALE ma usa solo lettere e numeri
 ```
 
 
