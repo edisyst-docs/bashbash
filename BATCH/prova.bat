@@ -1,4 +1,5 @@
 @echo off
+REM @echo off serve per non mostrare ogni comando a video (più pulito)
 REM Questo è un commento
 :: Anche questo è un commento
 
