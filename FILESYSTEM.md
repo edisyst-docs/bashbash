@@ -125,7 +125,8 @@ Contiene i file di config del sistema e gli script di avvio. Questi file sono sp
     * Es: /etc/nginx/nginx.conf ==> file di config di Nginx
 
 ## /home
-Contiene le home directory degli utenti. Ogni utente ha una directory separata con i propri file personali e config. **E preferibile montarla in un
+Contiene le home directory degli utenti. Ogni utente ha una directory separata con i propri file personali e config. 
+**E preferibile montarla in un
 filesystem separato**
 * Esempi:
   * `sudo adduser username` crea un nuovo utente e la sua directory `/home/username/`
@@ -157,13 +158,15 @@ Utilizzata unicamente per i montaggi manuali temporanei. Solo gli admin di siste
   * `/mnt/disk`: montaggio temporaneo di un disco.
 
 ## /opt
-Contiene software/pacchetti opzionali aggiuntivi che non fanno parte della distribuzione standard. Un pacchetto si installa nella cartella /opt/nome-pacchetto
+Contiene software/pacchetti opzionali aggiuntivi che non fanno parte della distribuzione standard, ma sono di terze parti.
+Un pacchetto si installa nella cartella /opt/nome-pacchetto
 * Esempi:
   * /opt/google/chrome: installazione di Google Chrome.
   * /opt/vscode: installazione di Visual Studio Code.
 
 ## /proc
-Un file system virtuale che contiene tutta una serie di variabili interne al kernel (forniscono info sul sistema e sui processi in esecuzione). Fornisce un'interfaccia per queste info sul kernel.
+Un file system virtuale che contiene tutta una serie di variabili interne al kernel (forniscono info sul sistema e sui processi in esecuzione). 
+Fornisce un'interfaccia per queste info sul kernel.
 * Esempi:
   * /proc/cpuinfo: informazioni sulla CPU.
   * /proc/meminfo: informazioni sulla memoria.
@@ -227,7 +230,8 @@ Contiene dati a cui si accede frequentemente per software e librerie di sistema.
   * /usr/share: dati condivisi, come documentazione e configurazioni.
 
 ## /var
-Contiene file variabili come log, spool di stampa e file temporanei utilizzati da vari servizi di sistema. **E preferibile montarla in un
+Contiene file variabili come log, spool di stampa e file temporanei utilizzati da vari servizi di sistema. 
+**E preferibile montarla in un
 filesystem separato**
 * Esempi:
   * /var/log/syslog: file di log di sistema.

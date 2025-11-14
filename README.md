@@ -37,18 +37,20 @@ CTRL+E # vado alla fine  di ciò che ho scritto sulla shell
 
 # Helpers
 ```bash
-apropos copy # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare il comando che mi serve
-whatis ls    # cosa fa il comando ls
-which ls     # dove si trova l'eseguibile di ls, in quale folder
-whereis  ls  # dove si trova l'eseguibile e il manuale di ls
+apropos copy      # cerca in tutti gli helper la parola "copy" per aiutarmi a trovare il comando che mi serve
+whatis ls         # cosa fa il comando ls
+which ls          # dove si trova l'eseguibile di ls, in quale folder
+whereis  ls       # dove si trova l'eseguibile e il manuale di ls
 
 echo $PATH        # dice dove tutto cerca gli eseguibili per which e whereis
 PATH=$PATH:/opt/  # aggiungo /opt/ ai percorsi di $PATH 
 
-ls --help    # helper del comando
-man ls       # helper più dettagliato: è un comando esterno a bash, pertanto ha il man
-info ls      # helper più dettagliato ancora
-help cd      # è una funzionalità di bash, non un comando esterno come ls, pertanto ha l'help
+ls --help         # helper del comando
+man ls            # helper più dettagliato: è un comando esterno a bash, pertanto ha il man
+man -k YAML YML   # cerca in tutti i man le parole YAML oppure YML.
+apropos YAML YML  # Stessa cosa
+info ls           # helper più dettagliato ancora
+help cd           # è una funzionalità di bash, non un comando esterno come ls, pertanto ha l'help
 ```
 
 
