@@ -207,9 +207,11 @@ lss || echo ciao || ls # si và avanti finchè un comando non ha successo
 # Comando GREP
 Cercare specifiche stringhe di testo o regex all'interno di file, cartelle o output di altri comandi
 ```bash
-grep 'stringa' file           # SINTASSI BASE
-cat file | grep 'stringa'     # ALTERNATIVA
-grep 'stringa' file1 file2    # può cercare anche in più file contemporaneamente
+grep 'stringa' file              # SINTASSI BASE
+cat file | grep 'stringa'        # ALTERNATIVA
+grep 'stringa' file1 file2       # può cercare anche in più file contemporaneamente
+grep riga file*                  # cerca la parola 'stringa' in tutti i file che si chiamano file*
+grep -r --include="file*" riga   # UGUALE
 
 grep "errore" logfile.txt     # cerca la parola "errore" e restituisce le righe dove la trova
 grep -i "errore" logfile.txt  # UGUALE ma non distingue maiuscole/minuscole, quindi trova anche ERRORE, Errore, ecc.

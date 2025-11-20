@@ -99,10 +99,14 @@ find / -name config                # cerca file/folder chiamati esattamente "con
 find / -iname config               # UGUALE ma è case insensitive
 find / -user edoardo               # cerca file/folder con owner="edoardo"
 
-find / -name config 2>/dev/null    # redirige l'output 2 (std_error) su dev/null (perchè ho errori di Permesso Negato)
+find / -name config   2>/dev/null  # redirige l'output 2 (std_error) su dev/null (perchè ho errori di Permesso Negato)
 find / -name '*.conf' 2>/dev/null  # cerca tutti i file .conf dentro il disco
 
-find . -type d,l                   # cerca solo le directory e i simlink
+find / -mtime 0 2>/dev/null        # cerca tutti i file modificati oggi
+find / -mtime 1 2>/dev/null        # cerca tutti i file modificati ieri (conteggio a giorni)
+find / -mmin  4 2>/dev/null        # cerca tutti i file modificati esattamente 4 minuti fa (conteggio a minuti)
+
+find . -type d,l,b                 # cerca solo le Directory, i Simlink, e i Binary
 find . -type f -size +500M         # cerca tutti i file più grandi di 500 MB
 find . -type f -perm 644           # cerca tutti i file con permessi 644
 
