@@ -10,6 +10,9 @@
 ```bash
 CTRL+L # pulisce la shell, shortcut del comando clear
 
+CTRL++ # aumenta (temporaneamente) la dimensione del font
+CTRL+- # riduce  (temporaneamente) la dimensione del font
+
 CTRL+C # interrompe l'esecuzione di un comando
 CTRL+Z # metto in pausa un processo lasciandolo in background. Es: esco da VIM col file non salvato
 
@@ -18,7 +21,7 @@ CTRL+D # esco dalla shell (sottoshell se stò impersonando un altro utente). Equ
 CTRL+SHIFT+C  # copia 
 CTRL+SHIFT+V  # incolla
 
-CTRL+R # reverse-search, x cercare i comandi nella history (lo premo anche più volte)
+CTRL+R # ricerca comandi nella history (scrivo qualcosa da cercare, tipo stat, poi premo altre volte CTRL+R per scorrere le altre occorrenze)
 
 CTRL+P # history: indietro di un comando
 CTRL+N # history: avanti   di un comando
@@ -84,6 +87,7 @@ ls -l doc?.rar      # mostra i file che si chiamano docX.rar (un solo carattere)
 ls -l | grep ^d     # mostra solo le directory: è un trucco perchè con ls -l le directory iniziano per "d"
 
 stat .              # simile a ls -l ma con più info (relative specialmente all'inode)
+stat -c '%U' .      # mi dice solo chi è l'owner della cartella
 
 mv testo{,.old}     # mv testo testo.old 
 mv testo.{old,new}  # mv testo.old testo.new
@@ -217,7 +221,7 @@ grep "errore" logfile.txt     # cerca la parola "errore" e restituisce le righe 
 grep -i "errore" logfile.txt  # UGUALE ma non distingue maiuscole/minuscole, quindi trova anche ERRORE, Errore, ecc.
 grep -n "errore" logfile.txt  # restituisce anche gli indici riga che fanno matching
 cat  -n logfile.txt           # verifico effettivamente che l'indice sia corretto
-grep -c "errore" logfile.txt  # restituisce solo il count delle righe trovate
+grep -c "errore" logfile.txt  # restituisce solo il count delle righe trovate (con almeno 1 match per riga)
 
 grep -v "errore" logfile      # grep INVERSO: esclude le righe contenenti "errore"
 grep -r "errore" /var/log/    # cerca ricorsivamente "errore" in tutti i file dentro la cartella /var/log/
