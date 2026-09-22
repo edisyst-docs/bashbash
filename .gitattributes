@@ -1,0 +1,18 @@
+# Normalizzazione line ending: il repo tiene LF, il working tree si adatta al SO.
+* text=auto eol=lf
+
+# Gli script Unix devono restare LF anche su Windows, altrimenti il CR finisce
+# nello shebang e l'interprete non viene trovato.
+*.sh       text eol=lf
+*.bash     text eol=lf
+*.md       text eol=lf
+*.mermaid  text eol=lf
+
+# Gli script Windows vogliono CRLF: cmd.exe non gestisce bene i file LF.
+*.bat      text eol=crlf
+*.cmd      text eol=crlf
+*.ps1      text eol=crlf
+
+*.pdf      binary
+*.png      binary
+*.jpg      binary
