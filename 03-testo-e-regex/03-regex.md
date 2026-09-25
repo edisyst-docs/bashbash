@@ -18,7 +18,8 @@ Si distinguono in BRE (BASIC REGULAR EXPRESSION) e ERE (EXTENDED REGULAR EXPRESS
 - `^` => inizio riga
     - `^W` => cerca tutte le righe che iniziano per W
 - `$` => fine riga
-    - `.$` => cerca tutte le righe che finiscono con un carattere qualsiasi (escluso lo spazio)
+    - `.$` => cerca tutte le righe non vuote (l'ultimo carattere può essere qualsiasi, spazio compreso)
+    - `^$` => cerca le righe vuote
 
 ## METACARATTERI (caratteri con un significato speciale)
 - `.` => QUALSIASI CARATTERE (A PARTE IL NEWLINE)
@@ -39,12 +40,12 @@ Si distinguono in BRE (BASIC REGULAR EXPRESSION) e ERE (EXTENDED REGULAR EXPRESS
 # BRE: BASIC REGULAR EXPRESSION
 
 ## METACARATTERI: $ ^ . * [ ] \( \) \> \<
-- `\(` e `\)` le uso unicamente per gestire le precedenze (tipo le formule matematiche)
+- `\(` e `\)` raggruppano: gestiscono le precedenze (tipo le formule matematiche) e creano i gruppi di cattura richiamabili con `\1`, `\2`
 - `\|` => OR logico. Esempio: `\(ciao\|hello\)` => matcha "ciao" o "hello"
 
 ## MODIFICATORI
-- `\?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI CARATTERE)
-- `*`  => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (QUALSIASI STRINGA, ANCHE VUOTA)
+- `\?` => 0,1 OCCORRENZE DELL'ELEMENTO PRECEDENTE (cioè l'elemento è OPZIONALE)
+- `*`  => 0,N OCCORRENZE DELL'ELEMENTO PRECEDENTE (anche nessuna: `a*` matcha anche la stringa vuota)
 - `\+` => 1,N OCCORRENZE DELL'ELEMENTO PRECEDENTE
 - 
 - `\{2\}`   => ESATTAMENTE 2 OCCORRENZE DELL'ELEMENTO PRECEDENTE
@@ -57,15 +58,15 @@ ciao          => matcha unicamente "ciao"
 [.aeiou]      => cerca tutte le vocali e il punto
 [0-9]         => cerca tutti i numeri, equivale a [0123456789]
 [a-z]         => cerca tutte le lettere minuscole
-[a-z] | [A-Z] => cerca tutte le lettere minuscole o maiuscole
-[A-Z] [a-z]+  => cerca tutte le parole che iniziano per una MAIUSCOLA
-[A-Z] [a-z]*  => così prenderebbe anche le SIGLE tutte maiuscole
-[^e]          => cerca tutto tranne la lettera "e"
-[^L]inux      => cerca tutto tranne la parola "Linux"
-[^0-9]        => cerca tutto tranne i numeri
-[^aeiou ]     => esclude le vocali minuscole, e gli SPAZI (è un carattere anche lo spazio)
+[a-zA-Z]      => cerca tutte le lettere minuscole o maiuscole (gli intervalli si affiancano nella stessa [])
+[A-Z][a-z]\+  => cerca le parole che iniziano per una MAIUSCOLA seguita da almeno una minuscola ("Roma", non "ROMA")
+[A-Z][a-z]*   => UGUALE ma accetta anche una maiuscola da sola ("A"); le SIGLE come "ROMA" matchano comunque sulla "R" iniziale
+[^e]          => un carattere qualsiasi tranne la lettera "e"
+[^L]inux      => un carattere diverso da L seguito da "inux": matcha "linux", "Xinux", NON "Linux" (e non una riga col solo "inux")
+[^0-9]        => un carattere qualsiasi tranne i numeri
+[^aeiou ]     => un carattere che non è una vocale minuscola né uno SPAZIO (anche lo spazio è un carattere)
 
-([Cc]iao)|(colou*r)  => OR tra due pattern (basta che matchi 1 dei 2)
+\([Cc]iao\)\|\(colou\?r\)  => OR tra due pattern (basta che matchi 1 dei 2): "ciao", "Ciao", "color", "colour"
 
 ```bash
 cat crontab | grep '^#'      # stampa tutte le righe che iniziano per #

@@ -92,4 +92,28 @@ sed 's/unix/linux/g' geek.txt       # sostituisce ogni "unix" con "linux" nel te
 sed 's/unix/linux/g' geek.txt > aaa # ora l'output non lo stampa ma lo scrive in aaa
 ```
 
+## Esempi pratici
+```bash
+sed -i.bak -E 's/^(APP_DEBUG=).*/\1false/' .env                # cambia il valore di una chiave nel .env, tenendo un backup .env.bak
+sed -i -E 's/^#?(PermitRootLogin).*/\1 no/' /etc/ssh/sshd_config # decommenta (se serve) e imposta una direttiva di config
+
+sed -i 's/\r$//' script.sh                                    # converte i fine riga da CRLF (Windows) a LF: come dos2unix
+sed -i '/^[[:space:]]*$/d' file                               # elimina le righe vuote o fatte solo di spazi/tab
+sed -i 's/[[:space:]]*$//' file                               # elimina gli spazi in coda a ogni riga
+sed -n '$p' file                                              # stampa solo l'ultima riga
+sed -n '10{p;q}' file                                         # stampa solo la riga 10 ed esce subito (veloce su file enormi)
+
+echo "scadenza 2026-09-25" | sed -E 's|([0-9]{4})-([0-9]{2})-([0-9]{2})|\3/\2/\1|' # data ISO => gg/mm/aaaa (uso | come separatore per non fare l'escape di /)
+sed '/^# BEGIN app/,/^# END app/d' /etc/hosts                  # rimuove un blocco delimitato da due marcatori
+sed -n '/^\[2026-09-25 10:/,/^\[2026-09-25 11:/p' laravel.log  # estrae un intervallo di log (include anche la prima riga delle 11)
+sed -E 's/("password":\s*")[^"]*/\1*****/g' log.json           # maschera le password in un log JSON prima di condividerlo
+```
+
+Sostituzione su tutti i file di un progetto, con anteprima:
+```bash
+grep -rl --exclude-dir=.git 'OldClass' .                             # 1. quali file verrebbero toccati
+grep -rl --exclude-dir=.git 'OldClass' . | xargs sed -i 's/\bOldClass\b/NewClass/g' # 2. sostituzione (\b = confine di parola)
+git diff --stat                                                      # 3. controllo il risultato
+```
+
 Vedi anche: [03-regex.md](03-regex.md) per la sintassi dei pattern.

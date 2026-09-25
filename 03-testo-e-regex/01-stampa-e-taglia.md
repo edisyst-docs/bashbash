@@ -61,6 +61,41 @@ awk -F ';' '{print $1}' file.csv    # stampa la prima colonna di un file CSV (no
 awk -F\;   '{print $1}' file.csv    # UGUALE, si può scrivere anche così
 ```
 
+### awk avanzato
+`awk` è un piccolo linguaggio: `condizione { azione }` applicato a ogni riga.
+Variabili utili: `$0` riga intera, `$1..$N` campi, `NF` numero di campi, `NR` numero di riga,
+`FS`/`OFS` separatore in input/output. `BEGIN {}` gira prima della prima riga, `END {}` dopo l'ultima.
+```bash
+awk '{print $NF}' file                                   # stampa l'ULTIMO campo di ogni riga
+awk 'NR==10, NR==20' file                                # stampa dalla riga 10 alla 20
+awk 'length($0) > 120' file                              # righe più lunghe di 120 caratteri
+awk '!visto[$0]++' file                                  # elimina i duplicati MANTENENDO l'ordine originale (sort -u invece riordina)
+awk -F: '$3 >= 1000 && $7 !~ /(nologin|false)$/ {print $1, $6}' /etc/passwd # utenti "umani": uid >= 1000 e shell di login vera
+awk -F, 'NR>1 {tot+=$2*$3; n++} END {printf "totale: %.2f  media: %.2f\n", tot, tot/n}' vendite.csv # CSV: salta l'intestazione, somma qta*prezzo e fa la media
+awk -F, 'BEGIN {OFS=";"} {$1=$1; print}' file.csv        # converte un CSV da virgole a punto e virgola ($1=$1 forza la ricostruzione della riga con OFS)
+awk -F, 'NR==FNR {chiavi[$1]; next} $1 in chiavi' ids.txt dati.csv # "JOIN": righe di dati.csv il cui primo campo compare in ids.txt
+                                                                    # NR==FNR è vero solo mentre legge il primo file
+```
+
+Analisi di un access log di nginx/apache (formato combined: `$1` IP, `$7` URL, `$9` status HTTP):
+```bash
+awk '{ip[$1]++} END {for (i in ip) print ip[i], i}' access.log | sort -rn | head -10 # i 10 IP che fanno più richieste
+awk '{print $9}' access.log | sort | uniq -c | sort -rn                            # quante risposte per ogni status HTTP
+awk '$9 ~ /^5/ {print $7}' access.log | sort | uniq -c | sort -rn | head           # URL che generano più errori 5xx
+awk '{byte+=$10} END {printf "%.1f MB\n", byte/1024/1024}' access.log               # traffico totale servito
+```
+
+Log di Laravel in una finestra di tempo (le righe iniziano con `[2026-09-25 10:15:00]`):
+```bash
+awk '$0 >= "[2026-09-25 10:00" && $0 < "[2026-09-25 11:00"' storage/logs/laravel.log # confronto tra stringhe: funziona perché la data è in formato ordinabile
+```
+
+### column: impaginare in tabella
+```bash
+column -t -s, vendite.csv        # allinea un CSV in colonne leggibili
+mount | column -t                # allinea l'output di un comando
+```
+
 ## tr: tradurre ed eliminare caratteri
 ```bash
 tr  a-z A-Z        # se digito "cane" mi scrive "CANE"
