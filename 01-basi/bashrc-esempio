@@ -1,3 +1,57 @@
 alias x="echo ciao;ls;ls;echo hello"
 # attenzione: prima e dopo il segno ‘=‘ non devono comparire spazi
 # di solito in questo file ci sono le variabili d'ambiente e i miei alias
+
+# --- alias di uso quotidiano ---
+alias ll='ls -alFh'                     # lista dettagliata con dimensioni leggibili
+alias ..='cd ..'
+alias ...='cd ../..'
+alias grep='grep --color=auto'
+alias df='df -h'
+alias ports='ss -tulpn'                 # porte in ascolto e processi che le usano
+alias myip='curl -s https://ifconfig.me; echo' # IP pubblico
+alias art='php artisan'                 # Laravel: "art migrate" al posto di "php artisan migrate"
+
+# --- history ---
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoreboth:erasedups
+HISTTIMEFORMAT='%F %T  '
+shopt -s histappend
+
+# --- funzioni: a differenza degli alias accettano argomenti in qualunque posizione ---
+
+# crea una cartella ed entra subito dentro
+mkcd() {
+    mkdir -p -- "$1" && cd -- "$1"
+}
+
+# estrae qualunque archivio in base all'estensione
+estrai() {
+    [[ -f "$1" ]] || { echo "estrai: '$1' non è un file" >&2; return 1; }
+    case "$1" in
+        *.tar.gz|*.tgz)   tar -xzf "$1" ;;
+        *.tar.bz2|*.tbz2) tar -xjf "$1" ;;
+        *.tar.xz)         tar -xJf "$1" ;;
+        *.tar)            tar -xf  "$1" ;;
+        *.gz)             gunzip   "$1" ;;
+        *.zip)            unzip    "$1" ;;
+        *.7z)             7z x     "$1" ;;
+        *)                echo "estrai: formato di '$1' non supportato" >&2; return 1 ;;
+    esac
+}
+
+# copia di sicurezza di un file con data e ora nel nome, prima di modificarlo
+bak() {
+    cp -a -- "$1" "$1.$(date +%Y%m%d-%H%M%S).bak"
+}
+
+# cerca ricorsivamente una stringa nei file, escludendo le cartelle pesanti
+cerca() {
+    grep -rn --color=auto --exclude-dir={.git,vendor,node_modules} -- "$1" "${2:-.}"
+}
+
+# le N cartelle più grandi dentro un percorso (default: cartella corrente, 10 risultati)
+pesanti() {
+    du -h --max-depth=1 "${1:-.}" 2>/dev/null | sort -hr | head -n "${2:-10}"
+}

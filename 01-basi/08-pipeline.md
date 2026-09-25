@@ -42,3 +42,29 @@ echo {1..9} | xargs -n4  # processa i parametri 4 alla volta e ne fa un echo
 find /etc/ -iname '*.conf' | xargs tar -czvf configs.tar.gz  # scrive tutto in un archivio compresso tar
 tar -tf configs.tar.gz | wc -l                               # conto quante righe sono, cioè quanti file
 ```
+
+### xargs avanzato
+```bash
+find . -name '*.log' -print0 | xargs -0 -r gzip # -print0/-0 separano con il carattere NUL: gestisce nomi con spazi e a capo
+                                                # -r non esegue gzip se find non trova niente
+echo a b c | xargs -I{} echo "file: {}.txt"     # -I{} sceglie il placeholder: il comando viene lanciato una volta per elemento
+cat urls.txt | xargs -n1 -P8 curl -s -o /dev/null -w '%{http_code} %{url_effective}\n' # 8 curl in parallelo (-P8): status HTTP di una lista di URL
+```
+
+## Exit status di una pipeline
+Di default l'exit status di una pipeline è quello dell'**ultimo** comando: gli errori a metà si perdono.
+```bash
+false | true ; echo $?          # 0: il fallimento di false viene nascosto
+set -o pipefail                 # da ora la pipeline fallisce se fallisce UN QUALSIASI comando
+false | true ; echo $?          # 1
+ls /nonesiste | wc -l ; echo "${PIPESTATUS[@]}" # PIPESTATUS contiene l'exit status di ogni comando della pipeline: "2 0"
+```
+
+## Esempi pratici
+```bash
+ps aux --sort=-%mem | head -6                              # i 5 processi che occupano più memoria (+ intestazione)
+cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn        # quante utenze usano ciascuna shell
+ls -1 | sed 's/.*\.//' | sort | uniq -c | sort -rn         # quanti file per estensione nella cartella corrente
+tail -f /var/log/nginx/access.log | grep --line-buffered ' 500 ' | tee errori500.log # segue il log in diretta, filtra i 500 e li salva
+                                                                                     # --line-buffered: senza, grep bufferizza e tee riceve le righe in ritardo
+```

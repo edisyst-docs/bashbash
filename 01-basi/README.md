@@ -11,7 +11,8 @@ La shell interattiva: come muoversi, come trovare i comandi, come concatenarli.
 | 05 | [alias](05-alias.md) | `alias`, `type`, `unalias` |
 | 06 | [history](06-history.md) | `history`, `!!`, `!$`, `!101`, `fc` |
 | 07 | [concatenazioni](07-concatenazioni.md) | `&&`, `\|\|`, `;`, raggruppamento con `{}` e `()` |
-| 08 | [pipeline](08-pipeline.md) | `\|`, `\|&`, `xargs`, `cat` |
+| 08 | [pipeline](08-pipeline.md) | `\|`, `\|&`, `xargs`, `cat`, `pipefail` |
+| 09 | [file di avvio](09-file-di-avvio.md) | `.bashrc`, `.profile`, shell di login e non-login, `PATH`, `PS1` |
 
 **Materiale**: [bashrc-esempio](bashrc-esempio) — esempio di `.bashrc` con alias e variabili personali.
 
