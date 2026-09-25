@@ -44,7 +44,7 @@
 │   ├── utmp
 │   └── systemd/
 ├── sbin
-│   ├── ifconfig
+│   ├── ip
 │   ├── reboot
 │   └── shutdown
 ├── srv
@@ -96,6 +96,9 @@ Contiene i binari essenziali per l'uso del sistema, necessari sia per l'utente n
   * rm: rimuove file e directory.
   * bash: shell Bourne Again Shell.
 
+> **NOTA (usrmerge)**: nelle installazioni recenti (Ubuntu dal 19.04, Debian dal 10, obbligatorio dal 12) `/bin`, `/sbin`
+> e `/lib` non sono più cartelle vere ma link simbolici a `/usr/bin`, `/usr/sbin` e `/usr/lib`. Verifica con `ls -ld /bin /sbin /lib`.
+
 ## /boot
 Contiene i file necessari per l'avvio del sistema (immagini del kernel, i file del bootloader, ramdisk).
 * Esempi:
@@ -141,6 +144,8 @@ Contiene le librerie essenziali condivise, utilizzate dai binari presenti in `/b
   * ld-linux.so.2: loader delle librerie dinamiche.
 * Sottodirectory:
   * modules/: moduli del kernel.
+
+> **NOTA**: anche `/lib` oggi è un link simbolico a `/usr/lib`, vedi la nota su usrmerge in [/bin](#bin).
 
 ## /media
 Contiene i punti di montaggio per i dispositivi rimovibili montati automaticamente: CD-ROM, USB, floppy, ecc.
@@ -191,7 +196,7 @@ Contiene file temporanei (dati di run-time volatili) che descrivono lo stato del
 ## /sbin
 Contiene i binari essenziali (anche in modalità provvisoria) per l'admin del sistema. Questi comandi sono usati di solito dall'utente root
 * Esempi:
-  * ifconfig: configurazione delle interfacce di rete
+  * ip: configurazione delle interfacce di rete (il vecchio `ifconfig` del pacchetto net-tools è deprecato e non più installato di default)
   * reboot: riavvio del sistema
   * shutdown: spegnimento del sistema
 

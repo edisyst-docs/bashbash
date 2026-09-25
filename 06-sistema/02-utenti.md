@@ -70,3 +70,32 @@ Devo essere già loggato come root.
 runuser -l ronaldo -c '<comando>'                     # SIMILE a "su", si usa in script o ambienti non interattivi (non richiede la password)
 runuser -l ronaldo -c 'tar -czf /backup.tar.gz /dati' # il file backup.tar.gz avrà come owner ronaldo
 ```
+
+## Esempi pratici
+```bash
+sudo -l                              # cosa posso fare con sudo su questa macchina
+sudo usermod -L pippo                # BLOCCA l'account (mette un ! davanti all'hash in /etc/shadow)
+sudo usermod -U pippo                # lo sblocca
+sudo chage -l pippo                  # scadenze della password di pippo
+sudo chage -M 90 -W 7 pippo          # la password scade ogni 90 giorni, avviso 7 giorni prima
+sudo usermod -s /usr/sbin/nologin pippo # utente che non può fare login interattivo (es. utenze di servizio)
+getent passwd pippo                  # legge l'utente da TUTTE le fonti configurate (file locali, LDAP...), non solo /etc/passwd
+lastb | head                         # ultimi tentativi di login FALLITI (serve root): utile per vedere attacchi brute force
+```
+
+### Creare un utente di deploy con chiave SSH e sudo limitato
+```bash
+sudo adduser --disabled-password --gecos "" deploy     # utente senza password: entrerà solo con la chiave SSH
+sudo usermod -aG www-data deploy                       # nel gruppo del web server
+
+sudo install -d -m 700 -o deploy -g deploy /home/deploy/.ssh           # crea la cartella con permessi e owner in un colpo solo
+echo "ssh-ed25519 AAAA... pc-ufficio" | sudo tee -a /home/deploy/.ssh/authorized_keys
+sudo chmod 600 /home/deploy/.ssh/authorized_keys
+sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys
+
+# può riavviare SOLO php-fpm e nginx con sudo, senza password
+echo 'deploy ALL=(root) NOPASSWD: /usr/bin/systemctl reload php8.3-fpm, /usr/bin/systemctl reload nginx' \
+    | sudo tee /etc/sudoers.d/deploy
+sudo chmod 440 /etc/sudoers.d/deploy
+sudo visudo -cf /etc/sudoers.d/deploy                  # CONTROLLA la sintassi: un sudoers rotto può bloccare sudo per tutti
+```
