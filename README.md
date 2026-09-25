@@ -19,6 +19,7 @@ Come muoversi nel terminale, trovare i comandi, concatenarli.
 6. [history](01-basi/06-history.md) — `history`, `!!`, `!$`, `fc`
 7. [concatenazioni](01-basi/07-concatenazioni.md) — `&&`, `||`, `;`, `{}`, `()`
 8. [pipeline](01-basi/08-pipeline.md) — `|`, `|&`, `xargs`, `cat`
+9. [file di avvio](01-basi/09-file-di-avvio.md) — `.bashrc`, `.profile`, login e non-login, `PATH`, `PS1`
 
 ### [02-file-e-permessi/](02-file-e-permessi/) — operare sui file
 Creare, cercare, trasferire file e decidere chi può farlo.
@@ -51,32 +52,47 @@ Gli strumenti che userai dentro ogni script.
 ### [05-scripting/](05-scripting/) — scrivere script bash
 Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso numero.
 
-1. [basi scripting](05-scripting/01-basi-scripting.md) — i 4 modi di lanciare uno script
+1. [basi scripting](05-scripting/01-basi-scripting.md) — i 4 modi di lanciare uno script, scheletro di script robusto
 2. [variabili](05-scripting/02-variabili.md) — `declare`, `export`, `unset`
-3. [parametri](05-scripting/03-parametri.md) — `$0`, `$1`, `$#`, `$@`, `$?`
+3. [parametri](05-scripting/03-parametri.md) — `$0`, `$1`, `$#`, `$@`, `$?`, parsing opzioni, `getopts`
 4. [condizioni](05-scripting/04-condizioni.md) — `test`, `if`, `case`
 5. [cicli](05-scripting/05-cicli.md) — `while`, `until`, `for`, `select`
 6. [array](05-scripting/06-array.md) — indicizzati e associativi
 7. [input e read](05-scripting/07-input-read.md) — `read` e `IFS`
 8. [espansioni](05-scripting/08-espansioni.md) — le 9 espansioni, nel loro ordine
 9. [altro interprete](05-scripting/09-altro-interprete.md) — shebang
+10. [quoting](05-scripting/10-quoting.md) — apici singoli, doppi, `$'...'`, `printf`
+11. [funzioni](05-scripting/11-funzioni.md) — argomenti, valori di ritorno, `local`, librerie
+12. [trap e debug](05-scripting/12-trap-e-debug.md) — `trap`, `set -Eeuo pipefail`, `bash -x`, `shellcheck`
 
 ### [06-sistema/](06-sistema/) — amministrazione della macchina
 1. [filesystem](06-sistema/01-filesystem.md) — la struttura di Debian/Ubuntu, cartella per cartella
 2. [utenti](06-sistema/02-utenti.md) — `id`, `adduser`, `passwd`, `su`, `sudo`, `runuser`
-3. [pacchetti apt](06-sistema/03-pacchetti-apt.md) — `apt`, `apt-get`, `apt-cache`
-4. [dischi](06-sistema/04-dischi.md) — `mount`, `lsblk`, `blkid`, `fstab`
+3. [pacchetti apt](06-sistema/03-pacchetti-apt.md) — `apt`, `apt-get`, `apt-cache`, `dpkg`, `apt-mark`
+4. [dischi](06-sistema/04-dischi.md) — `mount`, `lsblk`, `blkid`, `fstab`, swap
 5. [data e ora](06-sistema/05-data-e-ora.md) — `date`, `cal`, `uptime`, timezone
-6. [rete e host](06-sistema/06-rete-e-host.md) — `hostname`, `uname`, `ping`
-7. [servizi](06-sistema/07-servizi.md) — `systemctl`, `shutdown`, `wall`, `ldd`
+6. [rete e host](06-sistema/06-rete-e-host.md) — `hostname`, `ip`, `ss`, `dig`, `curl`, diagnostica di rete
+7. [servizi](06-sistema/07-servizi.md) — `systemctl`, `journalctl`, unit e timer systemd, `shutdown`
 8. [tmux](06-sistema/08-tmux.md) — sessioni, finestre, pane
-9. [crontab](06-sistema/09-crontab.md) — schedulare comandi ricorrenti
+9. [crontab](06-sistema/09-crontab.md) — schedulare comandi ricorrenti, backup con rotazione
 10. [logrotate](06-sistema/10-logrotate/) — rotazione dei log, con script e configurazione
 
 ### [07-windows/](07-windows/) — batch e PowerShell
 1. [batch](07-windows/01-batch.md) — sintassi `.bat`, con esempi completi
 2. [powershell](07-windows/02-powershell.md) — cmdlet per servizi, processi, rete
 3. [esempi .bat](07-windows/03-esempi/) — script funzionanti: backup, clone Laravel, pulizia, menu
+4. [powershell scripting](07-windows/04-powershell-scripting.md) — variabili, condizioni, cicli, funzioni con `param()`, errori
+5. [WSL e winget](07-windows/05-wsl-e-winget.md) — gestione di WSL, interoperabilità, configurazione, `winget`
+
+### [08-remoto-e-sicurezza/](08-remoto-e-sicurezza/) — server remoti
+1. [ssh](08-remoto-e-sicurezza/01-ssh.md) — chiavi, `~/.ssh/config`, `scp`, tunnel, multiplexing
+2. [firewall e hardening](08-remoto-e-sicurezza/02-firewall-e-hardening.md) — `ufw`, sshd, `fail2ban`, aggiornamenti automatici
+
+### [09-strumenti/](09-strumenti/) — CLI di uso quotidiano
+1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale
+2. [git](09-strumenti/02-git.md) — storia, `stash`, `reflog`, `bisect`, hook
+3. [docker](09-strumenti/03-docker.md) — container, `docker compose`, pulizia, backup
+4. [mysql](09-strumenti/04-mysql.md) — `mysql`, `mysqldump`, ripristino, diagnostica
 
 ## Supporto (fuori dal percorso)
 
