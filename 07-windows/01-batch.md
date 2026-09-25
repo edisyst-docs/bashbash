@@ -174,3 +174,98 @@ echo Deploy completato.
 pause
 ```
 
+# Esempi avanzati
+
+
+## Data nel formato AAAA-MM-GG indipendente dalla lingua di Windows
+`%date:~6,4%` dipende dal formato regionale: su un PC in inglese estrae i caratteri sbagliati.
+Chiedere la data a PowerShell funziona ovunque (`wmic` è deprecato e rimosso nelle versioni recenti di Windows 11).
+```batch
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd_HHmm"') do set OGGI=%%i
+echo %OGGI%
+```
+
+
+## Backup con robocopy, log e controllo dell'esito
+`robocopy` è molto più robusto di `xcopy`: riprende, fa il mirror, esclude cartelle, scrive un log.
+```batch
+@echo off
+setlocal
+set SRC=C:\laragon\www\progetto
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set OGGI=%%i
+set DEST=D:\backup\progetto_%OGGI%
+
+REM /MIR   copia l'albero e rimuove dalla destinazione ciò che non esiste più nella sorgente
+REM /XD    cartelle da escludere, /XF file da escludere
+REM /R /W  tentativi e secondi di attesa in caso di file bloccato (il default è 1 milione di tentativi!)
+REM /NP    niente percentuale nel log, /TEE scrive sia a video che nel log
+robocopy "%SRC%" "%DEST%" /MIR /XD node_modules vendor .git /XF *.log /R:2 /W:5 /NP /TEE /LOG+:"D:\backup\backup.log"
+
+REM robocopy NON segue la convenzione 0 = ok: fino a 7 è successo, da 8 in su errore
+if %ERRORLEVEL% GEQ 8 (
+    echo ERRORE nel backup, codice %ERRORLEVEL%
+    exit /b 1
+)
+echo Backup completato in %DEST%
+```
+
+
+## Verificare di avere i privilegi di amministratore
+```batch
+net session >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo Questo script va eseguito come amministratore.
+    pause
+    exit /b 1
+)
+```
+
+
+## Variabili dentro i cicli: delayed expansion
+Dentro un blocco `( )` le `%VAR%` vengono espanse una sola volta, PRIMA di eseguire il blocco.
+Per leggere il valore aggiornato a ogni giro servono `EnableDelayedExpansion` e i punti esclamativi.
+```batch
+@echo off
+setlocal EnableDelayedExpansion
+set CONTA=0
+for %%F in (*.log) do (
+    set /a CONTA+=1
+    echo !CONTA! - %%F
+)
+echo Totale file: %CONTA%
+```
+
+
+## for /f: leggere file e output di comandi
+```batch
+REM legge un CSV "nome;email" saltando l'intestazione
+for /f "skip=1 tokens=1,2 delims=;" %%a in (utenti.csv) do (
+    echo Utente %%a con email %%b
+)
+
+REM termina il processo che occupa la porta 8000 (es. php artisan serve rimasto appeso)
+REM dentro l'apice singolo le pipe vanno protette con ^
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr :8000 ^| findstr LISTENING') do taskkill /PID %%p /F
+```
+
+
+## Eliminare file più vecchi di N giorni
+```batch
+REM tutti i .log in C:\logs e sottocartelle, modificati più di 30 giorni fa
+forfiles /p "C:\logs" /s /m *.log /d -30 /c "cmd /c del @path"
+```
+
+
+## Funzioni con parametri
+```batch
+@echo off
+call :log "Inizio"
+call :log "Fine"
+exit /b
+
+:log
+REM %~1 = primo parametro senza virgolette
+echo [%date% %time%] %~1
+echo [%date% %time%] %~1 >> script.log
+exit /b
+```

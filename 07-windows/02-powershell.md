@@ -65,3 +65,73 @@ slmgr /dlv # versione Window, eccetera
 
 Get-Help Copy-Item # help per esempio di "copia file"
 ```
+
+
+## Equivalenti dei comandi Linux
+
+```shell
+Get-ChildItem -Recurse -Filter *.log                         # find . -name "*.log"
+Select-String -Path .\*.log -Pattern "ERROR"                 # grep ERROR *.log
+Get-ChildItem -Recurse -Include *.php | Select-String "dd\(" # grep -r "dd(" --include=*.php
+Get-Content .\laravel.log -Tail 50 -Wait                     # tail -n 50 -f
+Get-Content .\file.txt | Measure-Object -Line                # wc -l
+Get-Process | Sort-Object WS -Descending | Select-Object -First 10 Name, Id, @{n='MB';e={[math]::Round($_.WS/1MB)}} # ps aux --sort=-%mem | head
+Stop-Process -Name php -Force                                # pkill php
+Get-Command git                                              # which git
+$env:PATH -split ';'                                         # echo $PATH, una cartella per riga
+```
+
+
+## Esempi pratici
+
+```shell
+# i 20 file più grandi dentro una cartella, con la dimensione in MB
+Get-ChildItem C:\laragon\www -Recurse -File -ErrorAction SilentlyContinue |
+    Sort-Object Length -Descending |
+    Select-Object -First 20 FullName, @{n='MB';e={[math]::Round($_.Length/1MB,1)}}
+
+# dimensione di ogni sottocartella (come du -sh *)
+Get-ChildItem C:\laragon\www -Directory | ForEach-Object {
+    $mb = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB
+    [pscustomobject]@{ Cartella = $_.Name; MB = [math]::Round($mb, 1) }
+} | Sort-Object MB -Descending
+```
+
+```shell
+# quale processo occupa la porta 8000, e poi lo termina
+Get-NetTCPConnection -LocalPort 8000 -State Listen | Select-Object OwningProcess, @{n='Nome';e={(Get-Process -Id $_.OwningProcess).Name}}
+Get-NetTCPConnection -LocalPort 8000 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+
+# un servizio web risponde? (come curl -I)
+Invoke-WebRequest https://example.com -Method Head -UseBasicParsing | Select-Object StatusCode
+
+# la porta 3306 di un server è raggiungibile? (come nc -zv)
+Test-NetConnection db.interno -Port 3306 -InformationLevel Quiet   # restituisce solo True/False
+```
+
+```shell
+# backup zip datato di un progetto, escludendo vendor e node_modules
+$oggi = Get-Date -Format 'yyyy-MM-dd'
+$src  = 'C:\laragon\www\progetto'
+$file = Get-ChildItem $src -Recurse -File | Where-Object { $_.FullName -notmatch '\\(vendor|node_modules|\.git)\\' }
+Compress-Archive -Path $file.FullName -DestinationPath "D:\backup\progetto_$oggi.zip" -CompressionLevel Optimal
+# NB: Compress-Archive con un elenco di file li mette tutti nella radice dello zip. Per mantenere le cartelle
+# conviene tar, incluso in Windows 10/11: tar -czf progetto.tar.gz --exclude=vendor --exclude=node_modules progetto
+
+# eliminare i log più vecchi di 30 giorni (-WhatIf simula, toglierlo per eseguire davvero)
+Get-ChildItem C:\logs -Recurse -Filter *.log | Where-Object LastWriteTime -lt (Get-Date).AddDays(-30) | Remove-Item -WhatIf
+```
+
+```shell
+# attività pianificata: esegue uno script ogni giorno alle 02:00 (serve PowerShell come amministratore)
+$azione  = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -File C:\script\backup.ps1'
+$trigger = New-ScheduledTaskTrigger -Daily -At 2am
+Register-ScheduledTask -TaskName 'BackupNotturno' -Action $azione -Trigger $trigger -User 'SYSTEM' -RunLevel Highest
+Get-ScheduledTask -TaskName 'BackupNotturno' | Get-ScheduledTaskInfo  # ultima e prossima esecuzione, esito
+```
+
+```shell
+# eventi di errore del sistema nelle ultime 24 ore (Get-EventLog è deprecato, Get-WinEvent è il sostituto)
+Get-WinEvent -FilterHashtable @{ LogName = 'System'; Level = 2; StartTime = (Get-Date).AddDays(-1) } |
+    Select-Object TimeCreated, ProviderName, Message -First 20
+```
