@@ -52,4 +52,41 @@ lsof -i              # tutte le connessioni di rete aperte
 lsof -i :80          # connessioni di rete per una porta specifica
 ```
 
+## Esempi pratici
+```bash
+ps -eo pid,ppid,user,%cpu,%mem,etime,cmd --sort=-%mem | head -11 # top 10 per memoria, con da quanto tempo girano (etime)
+ps -o etimes= -p 1234                  # da quanti SECONDI gira il processo 1234 (il "=" toglie l'intestazione, comodo negli script)
+ps -o rss= -p 1234 | awk '{printf "%.1f MB\n", $1/1024}' # memoria residente del processo in MB
+pgrep -af 'artisan queue:work'         # -f cerca nell'intera riga di comando, -a la stampa: vedo tutti i worker Laravel attivi
+pkill -f 'artisan queue:work'          # li termina tutti (poi supervisor/systemd li fa ripartire con il codice nuovo)
+pkill -u mario                         # termina tutti i processi dell'utente mario
+kill -0 1234 && echo "vivo"            # il segnale 0 non fa niente: serve solo a sapere se il processo esiste
+
+timeout 30s ./script_lento.sh          # lo termina se dopo 30 secondi non ha finito (exit status 124)
+timeout -k 5s 30s ./script_lento.sh    # UGUALE, ma se ignora il SIGTERM dopo altri 5 secondi manda SIGKILL
+
+lsof -iTCP -sTCP:LISTEN -P -n          # porte TCP in ascolto e processo che le usa (-P -n: niente risoluzione di porte e nomi, più veloce)
+lsof +L1                               # file ELIMINATI ma ancora aperti: il classico "df dice disco pieno ma du non trova niente"
+fuser -v 8000/tcp                      # chi occupa la porta 8000
+fuser -k 8000/tcp                      # UGUALE ma lo termina (es. un "php artisan serve" rimasto appeso)
+```
+
+### Fermare un processo con garbo
+Prima si chiede di terminare (TERM), si aspetta, e solo se non basta si forza (KILL).
+Il processo così ha tempo di chiudere file e connessioni.
+```bash
+ferma() {
+    local pid=$1 attesa=${2:-10}              # secondo argomento opzionale: secondi di attesa, default 10
+    kill -TERM "$pid" 2>/dev/null || return 0 # se il processo non esiste già più, ho finito
+    for (( i=0; i<attesa; i++ )); do
+        kill -0 "$pid" 2>/dev/null || return 0 # terminato da solo
+        sleep 1
+    done
+    echo "PID $pid ancora vivo dopo ${attesa}s, invio SIGKILL" >&2
+    kill -KILL "$pid"
+}
+
+ferma 1234 15
+```
+
 Vedi anche: [02-jobs.md](02-jobs.md) per i job ID, [03-top-htop.md](03-top-htop.md) per il monitoraggio interattivo.
