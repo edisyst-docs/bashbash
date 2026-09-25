@@ -9,7 +9,7 @@
 # se non ci sono argomenti stampo il messaggio di usage
 if [ $# -eq 0 ]; then
     echo "ERRORE: usa: `basename $0` 'file'" 1>&2
-    exit -1
+    exit 1 # gli exit status vanno da 0 a 255: "exit -1" diventerebbe 255
 fi
 # controllo se il file in ingresso e' un file regolare
 if [ ! -f $1 ]; then

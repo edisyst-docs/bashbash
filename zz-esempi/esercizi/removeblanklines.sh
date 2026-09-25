@@ -5,17 +5,17 @@
 # se non ci sono argomenti stampo il messaggio di usage
 if [ $#  -eq 0 ]; then
     echo "ERRORE: usa: `basename $0` lista-di-file" 1>&2
-    exit -1
+    exit 1 # gli exit status vanno da 0 a 255: "exit -1" diventerebbe 255
 fi
 # per ogni argomento
-for file in $@; do
+for file in "$@"; do
     # controllo che sia un file regolare
-    if [ ! -f $file ]; then
+    if [ ! -f "$file" ]; then
 	echo "ERRORE, il file $file non esiste o non è un file regolare" 1>&2
 	exit 1
     fi
     # controllo che sia scrivibile
-    if [ ! -w $file ]; then
+    if [ ! -w "$file" ]; then
 	echo "ERRORE, il file $file non e' scrivibile" 1>&2
 	exit 2
     fi
@@ -23,9 +23,8 @@ for file in $@; do
     # rimuovo le linee bianche
     # ^ rappresenta l'inizio della linea
     # $ rappresenta la fine della linea
-    $(sed -i '/^$/d' $file)
-
-    if [ $? -ne 0 ]; then
+    # NB: niente $( ) attorno a sed, altrimenti la shell eseguirebbe come comando l'output di sed
+    if ! sed -i '/^$/d' "$file"; then
 	echo "ERRORE nella rimozione delle linee vuote nel file $file" 1>&2
 	exit 3
     fi
