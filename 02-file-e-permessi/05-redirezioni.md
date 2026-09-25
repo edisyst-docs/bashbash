@@ -80,4 +80,46 @@ echo "prima riga" >> file.txt # scrivo "prima riga" dentro file.txt (creandolo s
 cd /dev/fd ; ls -l            # elenco dei file descriptor aperti dal processo corrente
 ```
 
+## Esempi pratici
+```bash
+: > /var/log/app.log             # SVUOTA il file senza eliminarlo: il processo che lo tiene aperto continua a scriverci
+                                 # con "rm" invece lo spazio su disco non viene liberato finché il processo non lo chiude
+
+sudo tee /etc/app.conf > /dev/null << 'EOF'   # scrivere in un file di root: "sudo cat > file" non funziona, la redirezione la fa la mia shell
+chiave=valore
+EOF
+# > /dev/null evita che tee ristampi tutto a video. NB: dentro l'here-doc niente commenti, finirebbero nel file
+
+cat << 'EOF' > deploy.sh         # delimitatore tra apici: NESSUNA espansione, $HOME e $(date) restano scritti così
+echo "deploy fatto da $USER il $(date)"
+EOF
+
+if true; then
+	cat <<- EOF                  # con <<- vengono rimossi i TAB iniziali (non gli spazi): posso indentare l'here-doc nel codice
+	testo indentato nel sorgente ma non nell'output
+	EOF
+fi
+
+{ echo "== $(date) =="; df -h; free -h; } >> report.txt  # redirigo l'output di un intero blocco di comandi in un colpo solo
+
+find / -name '*.conf' 2> >(grep -v 'Permission denied' >&2) # filtra solo lo stderr: nasconde i "Permission denied" ma lascia gli altri errori
+```
+
+### Loggare tutto l'output di uno script
+Da mettere in cima allo script: da quella riga in poi stdout e stderr vanno sia a video che nel log.
+```bash
+exec > >(tee -a /var/log/mio_script.log) 2>&1
+```
+
+### Leggere un file riga per riga con un file descriptor dedicato
+```bash
+exec 3< elenco_server.txt           # apro il file in lettura sul descriptor 3
+while read -r server <&3; do        # leggo da 3: lo stdin (0) resta libero per ssh o read interattivi
+    ssh "$server" uptime
+done
+exec 3<&-                           # chiudo il descriptor
+```
+Senza il descriptor dedicato `ssh` dentro il ciclo si "mangerebbe" le righe rimanenti del file,
+perché leggerebbe anche lui dallo stesso stdin (in alternativa: `ssh -n`).
+
 Vedi anche: [../01-basi/08-pipeline.md](../01-basi/08-pipeline.md) per `|` e `|&`, e [06-dd.md](06-dd.md) per la copia a basso livello.

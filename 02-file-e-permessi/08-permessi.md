@@ -102,4 +102,30 @@ Se voglio modificare i permessi di default dei file devo modificare la maschera,
 umask 000 ; touch file2 file3 # avranno entrambi i permessi 666 (i file non ricevono mai la x dalla umask)
 ```
 
+## Esempi pratici
+```bash
+stat -c '%a %U:%G %n' *                  # permessi in ottale, owner, gruppo e nome di ogni file: più leggibile di ls -l per i controlli
+namei -l /var/www/app/storage/logs/laravel.log # mostra owner e permessi di OGNI cartella del percorso: trova quale blocca l'accesso
+
+find /var/www -perm -o+w -type f         # file scrivibili da chiunque (others): da correggere
+find / -xdev -perm -4000 -type f 2>/dev/null # tutti gli eseguibili con setuid: controllo di sicurezza periodico
+
+chmod 600 ~/.ssh/id_ed25519 ~/.ssh/config    # ssh rifiuta chiavi private leggibili da altri
+chmod 700 ~/.ssh
+chmod 640 .env && chown deploy:www-data .env # .env leggibile dal web server ma non da tutti
+
+chmod -R u=rwX,g=rX,o= progetto/         # X maiuscola: dà l'esecuzione solo alle cartelle (e ai file già eseguibili)
+                                         # così con un solo comando cartelle 750 e file 640
+```
+
+### ACL: permessi a un utente specifico
+Quando owner/gruppo/altri non bastano (es. dare accesso a un utente senza cambiare gruppo).
+```bash
+setfacl -m u:mario:rwx /srv/progetto             # mario ha rwx su quella cartella, senza toccare owner e gruppo
+setfacl -d -m u:mario:rwx /srv/progetto          # -d (default): anche i file creati DOPO dentro la cartella ereditano la regola
+getfacl /srv/progetto                            # mostra tutte le ACL. In ls -l compare un "+" dopo i permessi
+setfacl -x u:mario /srv/progetto                 # rimuove la regola di mario
+setfacl -R -m g:www-data:rwX storage/            # alternativa comune per le cartelle scrivibili di Laravel
+```
+
 Vedi anche: [09-proprietari.md](09-proprietari.md) per cambiare owner e gruppo di un file.

@@ -9,7 +9,7 @@
 
 **Criteri**
 - `-name "file*"` specifica un "wildcard pattern": cerca i file con nome fileXXXXX
-- `-type`: f (regular file), d (directory), l (simlink)
+- `-type`: f (regular file), d (directory), l (simlink), b (block device), c (character device), p (named pipe), s (socket)
 - `-size`: c (1B), k (1KB), b (512B), M (1MB), G (1GB)
 
 ## Cercare per nome e proprietario
@@ -37,7 +37,8 @@ find /etc/ -iname '*' -mtime -30  -exec ls -lhdt {} \;         # tutti i file mo
 
 ## Cercare per tipo, dimensione e permessi
 ```bash
-find . -type d,l,b         # cerca solo le Directory, i Simlink e i Binary
+find . -type d,l           # cerca solo le Directory e i Simlink (GNU find accetta più tipi separati da virgola)
+find /dev -type b          # b = block device (dischi e partizioni, es. /dev/sda1), c = character device (es. /dev/tty)
 find . -type f -size +500M # cerca tutti i file più grandi di 500 MB
 find . -type f -perm 644   # cerca tutti i file con permessi 644
 
@@ -105,6 +106,35 @@ find /cart -type f -mtime +7 -exec mv {} /cart/bkp/ \;     # sposta i file più 
 find . -maxdepth 1 -iname "*.txt" -exec cp {} ./backup/ \; # copia i file .txt in una cartella di backup
 find /var/www -type f -perm 644 -exec chmod 600 {} \;      # cerca i file con permessi 644 e li modifica in 600
 ```
+
+## Esempi pratici
+```bash
+find . -path ./vendor -prune -o -path ./node_modules -prune -o -type f -name '*.php' -print # esclude intere cartelle: -prune non ci entra proprio
+                                                                                            # il -print finale è obbligatorio, altrimenti stampa anche le cartelle escluse
+find . -type f -printf '%s\t%p\n' | sort -rn | head -10                 # i 10 file più grandi (-printf: %s = byte, %p = percorso)
+find . -type f -newer composer.lock                                    # file modificati DOPO composer.lock (confronto con un file di riferimento)
+find . -type f -newermt '2026-09-01' ! -newermt '2026-09-15'           # file modificati tra il 1 e il 15 settembre
+find . -type f -exec md5sum {} + | sort | uniq -w32 -D                 # file DUPLICATI: stesso hash (i primi 32 caratteri della riga)
+find . -type d -empty -delete                                          # elimina tutte le cartelle vuote
+find . -type f -name '*.php' -exec grep -l 'env(' {} +                 # file PHP che contengono "env(" (-l stampa solo il nome del file)
+find . -type f -name '*.txt' -exec sed -i 's/vecchio/nuovo/g' {} +     # sostituzione di massa su tutti i .txt
+find . -type f -name '*.sh' ! -perm -u+x                               # script .sh senza permesso di esecuzione per l'owner
+find / -xdev -type f -size +1G 2>/dev/null                             # file oltre 1 GB senza uscire dal filesystem corrente (-xdev salta /proc, mount di rete, ecc.)
+find /var/log -type f -name '*.log' -mtime +30 -print -delete          # elimina i log più vecchi di 30 giorni stampando cosa elimina
+```
+
+Permessi standard di un progetto Laravel (cartelle 755, file 644, `storage` e `cache` scrivibili dal gruppo del web server):
+```bash
+cd /var/www/app
+sudo chown -R deploy:www-data .                                           # owner l'utente di deploy, gruppo il web server
+find . -type d -exec chmod 755 {} +                                       # tutte le cartelle 755
+find . -type f -exec chmod 644 {} +                                       # tutti i file 644
+find storage bootstrap/cache -type d -exec chmod 775 {} +                 # il gruppo può scrivere in storage e cache
+find storage bootstrap/cache -type f -exec chmod 664 {} +
+chmod +x artisan                                                          # artisan deve restare eseguibile
+```
+> **ATTENZIONE**: `-delete` e `-exec rm` non chiedono conferma. Lanciare sempre prima lo stesso
+> `find` senza l'azione (o con `-print`) per vedere cosa verrebbe toccato.
 
 ## locate: alternativa più veloce
 ```bash

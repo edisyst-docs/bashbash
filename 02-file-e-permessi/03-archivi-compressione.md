@@ -33,3 +33,35 @@ tar -tf  compresso.tar.gz                  # è come fare "ls -l" ma dentro un a
 
 du -sh compresso.tar.gz file1 directory1   # confronto quanto occupano tutti quegli elementi
 ```
+
+## Esempi pratici
+```bash
+tar -czf progetto_$(date +%F).tar.gz --exclude='vendor' --exclude='node_modules' --exclude='.git' progetto/ # backup datato di un progetto senza le cartelle rigenerabili
+
+tar -tzf backup.tar.gz | grep '\.env$'                  # cerco un file dentro l'archivio senza estrarlo
+tar -xzf backup.tar.gz progetto/.env                    # estraggo SOLO quel file (percorso esatto come mostrato da -t)
+tar -xzf backup.tar.gz --wildcards '*.sql'              # estraggo solo i file che corrispondono al pattern
+tar -xzf backup.tar.gz --strip-components=1 -C /tmp/x   # estraggo togliendo la prima cartella del percorso (progetto/app/... => app/...)
+
+gzip -t backup.tar.gz && echo "archivio integro"        # verifica l'integrità senza estrarre
+```
+
+### Archivi in streaming (senza file temporanei)
+Con `-f -` tar scrive su stdout o legge da stdin, quindi si può mettere in pipe.
+```bash
+tar -czf - /var/www/app | ssh user@backup 'cat > /backup/app_$(date +%F).tar.gz' # comprime in locale e scrive direttamente sul server remoto
+ssh user@server 'tar -czf - -C /var/www app' | tar -xzf - -C ./restore           # il contrario: scarica e scompatta al volo
+
+tar -czf - dati/ | split -b 100M - dati.tar.gz.part_  # archivio spezzato in pezzi da 100 MB (es. limiti di upload)
+cat dati.tar.gz.part_* | tar -xzf -                   # ricompone ed estrae
+
+find /var/log/app -name '*.log' -mtime +7 -print0 | tar -czf log_vecchi.tar.gz --null -T - --remove-files # archivia i log più vecchi di 7 giorni e li rimuove
+                                                                                                         # -T - legge l'elenco dei file da stdin, --null perché separati da NUL
+```
+
+### zip (per chi deve aprirli su Windows)
+```bash
+zip -r progetto.zip progetto/ -x 'progetto/vendor/*' 'progetto/.git/*' # zip ricorsivo escludendo cartelle
+unzip -l progetto.zip                                                  # elenca il contenuto
+unzip progetto.zip -d /tmp/estratto                                    # estrae in una cartella specifica
+```
