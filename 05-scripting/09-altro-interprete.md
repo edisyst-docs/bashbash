@@ -7,7 +7,8 @@ Non deve per forza essere bash.
 #!/usr/bin/bash          # bash
 #!/usr/bin/env bash      # bash, cercandolo nel $PATH (più portabile)
 #!/bin/sh                # sh
-#!/c/Python311/python    # python
+#!/c/Python311/python    # python, ma questo percorso esiste solo su Git Bash per Windows
+#!/usr/bin/env python3   # python in modo portabile: su Linux è questa la forma da usare
 ```
 
 ```bash

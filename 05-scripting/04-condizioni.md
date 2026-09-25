@@ -56,4 +56,35 @@ case $variabile in
 esac
 ```
 
+## Esempi pratici
+```bash
+[[ $EUID -eq 0 ]] || { echo "va lanciato come root" >&2; exit 1; }       # lo script richiede root
+[[ $1 =~ ^[0-9]+$ ]] || { echo "'$1' non è un numero intero" >&2; exit 1; } # validazione con regex
+[[ -z "${1:-}" ]] && { echo "manca il parametro" >&2; exit 1; }          # ${1:-} evita l'errore con set -u
+if (( $(df --output=pcent / | tail -1 | tr -dc '0-9') > 90 )); then     # (( )) per i confronti numerici: niente -gt
+    echo "disco / oltre il 90%"
+fi
+if ! command -v jq >/dev/null; then                                     # ! nega l'exit status del comando
+    sudo apt-get install -y jq
+fi
+if systemctl is-active --quiet nginx; then echo "nginx su"; fi          # molti comandi hanno un'opzione "quiet" pensata per gli if
+
+[[ "backup_2026-09-25.tar.gz" =~ ([0-9]{4})-([0-9]{2})-([0-9]{2}) ]] && echo "anno ${BASH_REMATCH[1]}, giorno ${BASH_REMATCH[3]}" # gruppi di cattura
+```
+> **NOTA**: dentro `[[ ]]` la regex a destra di `=~` va scritta **senza apici**. Tra apici
+> diventa una stringa letterale. Se è complessa, conviene metterla in una variabile: `[[ $x =~ $re ]]`.
+
+### case con pattern multipli
+```bash
+case "${1,,}" in                         # ${1,,} = primo argomento in minuscolo: accetta Start, START, ecc.
+    start|avvia)   systemctl start app ;;
+    stop|ferma)    systemctl stop app ;;
+    restart)       systemctl restart app ;;
+    *.tar.gz|*.tgz) tar -xzf "$1" ;;      # i pattern sono glob, non regex
+    [0-9]*)        echo "inizia con una cifra" ;;
+    "")            echo "argomento mancante" ;;
+    *)             echo "uso: $0 {start|stop|restart}"; exit 1 ;;
+esac
+```
+
 Esempi eseguibili: [04-condizioni1.sh](04-condizioni1.sh), [04-condizioni2.sh](04-condizioni2.sh).

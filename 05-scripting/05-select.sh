@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PS3="Scegli un'opzione: "
-#dirs=$(ls -d ../zz_esempi/*/)
+#dirs=$(ls -d ../zz-sandbox/zz_esempi/*/)
 #select vardir in $dirs;
 #do
 #  if [[ -e $vardir  &&  -d $vardir  &&  -x $vardir ]];

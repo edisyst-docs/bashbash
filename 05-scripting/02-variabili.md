@@ -49,4 +49,25 @@ echo $ + TAB # premendo TAB dopo il $ la shell mostra l'elenco di tutte le varia
 env          # mostra i valori di molte variabili d'ambiente
 ```
 
+## Esempi pratici
+```bash
+: "${DB_HOST:=127.0.0.1}"               # valore di default se la variabile d'ambiente non è definita
+: "${DB_PORT:=3306}"                    # ":" è il comando nullo: serve solo a far avvenire l'espansione
+: "${DB_PASSWORD:?DB_PASSWORD mancante}" # se non è definita, lo script si ferma con questo messaggio
+DB_HOST=10.0.0.5 ./backup.sh             # passo una variabile d'ambiente SOLO a quel comando, senza esportarla
+
+readonly VERSIONE="1.4.2"               # UGUALE a declare -r
+declare -i contatore=0; contatore+=5    # con -i il += è una somma, non una concatenazione di stringhe
+declare -l minuscolo="CIAO"; echo $minuscolo # -l converte sempre in minuscolo ("ciao"), -u in maiuscolo
+
+conta() {
+    local n=0                           # local: la variabile esiste solo dentro la funzione, non sporca lo script
+    n=$(ls | wc -l)
+    echo "$n"
+}
+
+set -a; source .env; set +a             # carica un file .env esportando tutte le variabili (set -a = allexport)
+declare -p DB_HOST                      # mostra come è dichiarata una variabile, attributi compresi: ottimo per il debug
+```
+
 Vedi anche: [03-parametri.md](03-parametri.md) per i parametri posizionali e gli altri parametri speciali.

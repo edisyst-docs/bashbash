@@ -35,6 +35,40 @@ a=""; echo ${a:=nuovoValore}        # se $a è vuota assegna e usa il nuovo valo
 a="stringa"; echo ${a:3}            # OFFSET: stampa "inga"
 ```
 
+### Manipolare stringhe senza comandi esterni
+Più veloce di `sed`, `basename`, `cut` dentro un ciclo, perché non lancia processi.
+```bash
+f="/var/www/app/storage/logs/laravel-2026-09-25.log"
+
+echo "${#f}"             # 48: lunghezza della stringa
+echo "${f##*/}"          # laravel-2026-09-25.log   => come basename: toglie dall'INIZIO il match più LUNGO di "*/"
+echo "${f%/*}"           # /var/www/app/storage/logs => come dirname: toglie dalla FINE il match più CORTO di "/*"
+echo "${f%.*}"           # .../laravel-2026-09-25     => toglie l'estensione
+echo "${f##*.}"          # log                        => solo l'estensione
+echo "${f#/var/www/}"    # app/storage/logs/...       => toglie un prefisso fisso
+```
+> **Promemoria**: `#` toglie da sinistra (sulla tastiera USA il # sta a sinistra del $),
+> `%` da destra. Singolo = match più corto, doppio = match più lungo.
+
+```bash
+n="Mario Rossi"
+echo "${n^^}"            # MARIO ROSSI: tutto maiuscolo
+echo "${n,,}"            # mario rossi: tutto minuscolo
+m="mario"; echo "${m^}"  # Mario: solo la prima lettera maiuscola
+echo "${n/Mario/Luigi}"  # Luigi Rossi: sostituisce la prima occorrenza
+echo "${n// /_}"         # Mario_Rossi: sostituisce TUTTE le occorrenze (utile per nomi file)
+echo "${n:0:5}"          # Mario: sottostringa (offset 0, lunghezza 5)
+echo "${n: -5}"          # Rossi: gli ultimi 5 caratteri (spazio prima del - obbligatorio)
+echo "${X:?non definita}" # se X è vuota o non definita, stampa l'errore ed esce dallo script
+```
+
+Esempio: rinominare in blocco i file sostituendo gli spazi con underscore.
+```bash
+for f in *\ *; do
+    mv -- "$f" "${f// /_}"
+done
+```
+
 ## 4) Arithmetic expansion
 *Le double quotes NON la inibiscono.*
 ```bash
@@ -63,3 +97,5 @@ diff <(ls dir1) <(ls dir2)  # ogni <( ) diventa un file temporaneo con l'output 
 
 ## 9) Quote removal
 Ultimo passo: la shell rimuove gli apici che non derivano da un'espansione.
+
+Vedi anche: [10-quoting.md](10-quoting.md) per come le virgolette decidono quali espansioni avvengono.
