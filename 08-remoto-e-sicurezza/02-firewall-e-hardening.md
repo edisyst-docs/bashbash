@@ -22,6 +22,9 @@ sudo ufw enable                   # attiva il firewall (e lo riattiva al riavvio
 sudo ufw allow from 203.0.113.50 to any port 3306 proto tcp # MySQL raggiungibile SOLO da un IP specifico
 sudo ufw allow from 10.0.0.0/24                             # tutta la rete interna
 sudo ufw deny from 198.51.100.7                             # blocca un IP
+sudo ufw allow http                                         # UGUALE a "allow 80/tcp": i nomi dei servizi vengono da /etc/services
+sudo ufw allow 5000:6000/tcp                                # un intervallo di porte (con gli intervalli il protocollo è obbligatorio)
+sudo ufw allow in on eth0 to any port 80                    # solo il traffico che entra da quell'interfaccia (es. la rete interna)
 sudo ufw limit OpenSSH                                      # rate limit: blocca un IP che apre più di 6 connessioni in 30 secondi
 sudo ufw status numbered                                    # regole numerate...
 sudo ufw delete 3                                           # ...per eliminarle per numero

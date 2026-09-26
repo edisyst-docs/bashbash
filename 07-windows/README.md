@@ -10,5 +10,6 @@ Scripting sul lato Windows: batch e PowerShell.
 | 03 | [esempi/](03-esempi/) | Script `.bat` funzionanti: backup, clone Laravel, pulizia, menu interattivi |
 | 04 | [powershell scripting](04-powershell-scripting.md) | Il linguaggio: variabili, operatori, `if`/`switch`, cicli, funzioni con `param()`, `try`/`catch` |
 | 05 | [WSL e winget](05-wsl-e-winget.md) | Gestione di WSL, file e interoperabilità Windows/Linux, `wsl.conf`, `winget` |
+| 06 | [CMD rete e sistema](06-cmd-rete-e-sistema.md) | `ipconfig`, `tracert`, `pathping`, `netstat`, `route`, `arp`, `netsh`, `tasklist`/`taskkill`, `net`, `systeminfo`, `clip` |
 
 Area precedente: [../06-sistema/](../06-sistema/) · Prossima: [../08-remoto-e-sicurezza/](../08-remoto-e-sicurezza/)

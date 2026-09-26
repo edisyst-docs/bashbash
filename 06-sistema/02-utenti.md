@@ -36,6 +36,8 @@ cat /etc/group  # lista tutti i gruppi
 
 adduser pippo        # crea utente "pippo", gruppo "pippo" e cartella "/home/pippo"
 adduser pippo disney # se l'utente "pippo" e il gruppo "disney" esistono già, aggiunge "pippo" a "disney"
+adduser --home /home/utente_custom luca  # crea luca con una home diversa da quella di default (/home/luca)
+adduser --ingroup amministratori edoardo # crea edoardo con "amministratori" come gruppo primario, invece di un gruppo "edoardo"
 cat /etc/passwd      # lista tutti gli utenti
 
 deluser pippo marvel        # rimuovo "pippo" dal gruppo "marvel"

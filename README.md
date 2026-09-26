@@ -83,21 +83,31 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 3. [esempi .bat](07-windows/03-esempi/) — script funzionanti: backup, clone Laravel, pulizia, menu
 4. [powershell scripting](07-windows/04-powershell-scripting.md) — variabili, condizioni, cicli, funzioni con `param()`, errori
 5. [WSL e winget](07-windows/05-wsl-e-winget.md) — gestione di WSL, interoperabilità, configurazione, `winget`
+6. [CMD rete e sistema](07-windows/06-cmd-rete-e-sistema.md) — `ipconfig`, `tracert`, `netstat`, `netsh`, `tasklist`, `net`, `systeminfo`
 
 ### [08-remoto-e-sicurezza/](08-remoto-e-sicurezza/) — server remoti
-1. [ssh](08-remoto-e-sicurezza/01-ssh.md) — chiavi, `~/.ssh/config`, `scp`, tunnel, multiplexing
+1. [ssh](08-remoto-e-sicurezza/01-ssh.md) — chiavi, `~/.ssh/config`, `scp`, `sftp`, tunnel, multiplexing, WinSCP
 2. [firewall e hardening](08-remoto-e-sicurezza/02-firewall-e-hardening.md) — `ufw`, sshd, `fail2ban`, aggiornamenti automatici
+3. [gpg](08-remoto-e-sicurezza/03-gpg.md) — cifrare e firmare file, chiavi pubbliche e private
 
 ### [09-strumenti/](09-strumenti/) — CLI di uso quotidiano
-1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale
+1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale, download con `wget`
 2. [git](09-strumenti/02-git.md) — storia, `stash`, `reflog`, `bisect`, hook
 3. [docker](09-strumenti/03-docker.md) — container, `docker compose`, pulizia, backup
 4. [mysql](09-strumenti/04-mysql.md) — `mysql`, `mysqldump`, ripristino, diagnostica
+5. [terraform](09-strumenti/05-terraform/) — infrastruttura come codice, con esempi Docker e AWS
+
+### [10-rete-e-web/](10-rete-e-web/) — reti e web server
+1. [indirizzi e configurazione](10-rete-e-web/01-indirizzi-e-configurazione.md) — CIDR e subnet, `ip addr`/`ip route`, netplan, da `ifconfig` a `ip`
+2. [diagnostica](10-rete-e-web/02-diagnostica.md) — `traceroute`, `mtr`, `dig +trace`, `whois`, `tcpdump`, `nc`, `nmap`
+3. [namespace](10-rete-e-web/03-namespace.md) — laboratorio: più host su una sola macchina con `ip netns`
+4. [apache e nginx](10-rete-e-web/04-apache-nginx.md) — siti, moduli, virtual host, Laravel con PHP-FPM, reverse proxy
+5. [load balancer](10-rete-e-web/05-load-balancer/) — laboratorio Docker con HAProxy, Nginx, Caddy, Envoy, Traefik
 
 ## Supporto (fuori dal percorso)
 
 - **[zz-esempi/](zz-esempi/)** — script completi e funzionanti: la [rubrica](zz-esempi/rubrica/) interattiva e gli [esercizi](zz-esempi/esercizi/) di scripting
-- **[zz-risorse/](zz-risorse/)** — [link utili](zz-risorse/link-utili.md), [sintassi Mermaid](zz-risorse/mermaid.md) e i PDF di riferimento
+- **[zz-risorse/](zz-risorse/)** — [link utili](zz-risorse/link-utili.md), [sintassi Mermaid](zz-risorse/mermaid.md), PDF e cheat sheet di riferimento
 - **[zz-sandbox/](zz-sandbox/)** — file usa-e-getta su cui lanciare i comandi degli esempi. Si possono sporcare liberamente
 
 ## Ambiente di test Ubuntu
@@ -128,7 +138,7 @@ docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 docker run --rm -it -v "$(pwd):/kb" -w /kb/zz-sandbox bashbash
 ```
 
-> **Limitazioni:** `systemctl`, `ufw` (come firewall attivo), `mount` di partizioni e `fail2ban` richiedono init/privilegio che non funzionano in container standard. Per il resto la KB funziona normalmente.
+> **Limitazioni:** `systemctl`, `ufw` (come firewall attivo), `mount` di partizioni, `fail2ban` e `ip netns` richiedono init/privilegio che non funzionano in container standard. Per il resto la KB funziona normalmente.
 
 ## Trovare un comando
 Se non ricordi in che file sta un comando:

@@ -13,10 +13,20 @@ systemctl disable --now apache2    # il contrario
 systemctl is-active nginx          # stampa active/inactive: comodo negli script (con --quiet dà solo l'exit status)
 systemctl is-enabled nginx         # partirà al boot?
 systemctl --failed                 # servizi andati in errore
-systemctl list-units --type=service --state=running # servizi in esecuzione
+systemctl list-units               # tutte le unit attive: servizi, socket, mount point, timer (systemd le chiama UNITÀ)
+systemctl list-units --type=service --state=running # solo i servizi in esecuzione
+systemctl list-unit-files --type=service --state=enabled # i servizi che partono al boot
 systemctl cat nginx                # mostra il file di unit (e gli eventuali override)
 sudo systemctl edit nginx          # crea un override senza toccare il file originale del pacchetto
 sudo systemctl daemon-reload       # obbligatorio dopo aver creato o modificato un file .service
+```
+
+### service: il comando di prima di systemd
+Si trova ancora in guide e script vecchi. Su un sistema con systemd passa la richiesta a `systemctl`.
+```bash
+service apache2 restart            # UGUALE a systemctl restart apache2 (attenzione: prima il servizio, poi l'azione)
+service apache2 status
+service --status-all               # tutti i servizi con script in /etc/init.d: [ + ] attivo, [ - ] fermo
 ```
 
 ## journalctl: i log di systemd
@@ -99,6 +109,9 @@ shutdown    now # UGUALE
 shutdown  20:40 # spegne alle 20:40
 shutdown -h +10 # spegne fra 10 min
 shutdown -c     # annulla lo spegnimento programmato
+
+systemctl reboot   # riavvia subito (UGUALE a shutdown -r now)
+systemctl poweroff # spegne subito
 ```
 
 ## Messaggi agli altri utenti

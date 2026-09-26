@@ -1,6 +1,7 @@
-# curl e jq: API e JSON da terminale
+# curl, wget e jq: API, download e JSON da terminale
 
 `curl` fa richieste HTTP, `jq` legge e trasforma JSON. Insieme bastano per testare e automatizzare quasi ogni API.
+`wget` è specializzato nello scaricare file, anche interi siti.
 
 ## curl
 ```bash
@@ -24,6 +25,8 @@ curl -X POST https://api.example.com/users \
      -H "Authorization: Bearer $TOKEN" \
      -d '{"name":"Mario","email":"mario@example.com"}'  # POST con body JSON
 
+curl -d 'nome=Mario&citta=Roma' https://example.com/form # POST come un form HTML (-d implica POST e Content-Type application/x-www-form-urlencoded)
+curl --data-urlencode 'q=caffè & latte' https://example.com/cerca # UGUALE ma codifica i caratteri speciali nel valore
 curl --json '{"name":"Mario"}' https://api.example.com/users # UGUALE, più corto: imposta da solo Content-Type e Accept (curl >= 7.82)
 curl -d @payload.json -H 'Content-Type: application/json' https://api.example.com/users # body letto da file (la @)
 curl -X PUT  ... ; curl -X PATCH ... ; curl -X DELETE https://api.example.com/users/5  # altri metodi
@@ -42,6 +45,22 @@ curl -sS -o /dev/null -w 'dns:%{time_namelookup} connessione:%{time_connect} tls
 curl -v https://example.com 2>&1 | grep -E '^\* (SSL|subject|expire)' # dettagli del certificato
 curl --resolve example.com:443:10.0.0.5 https://example.com # forza l'IP: test di un server nuovo prima di cambiare il DNS
 curl -H 'Host: sito.it' http://10.0.0.5/                # UGUALE in HTTP semplice: chiedo quel virtual host a quell'IP
+```
+
+## wget
+Rispetto a curl: salva su file di default, riprende i download, scarica ricorsivamente. Non serve per le API.
+```bash
+wget https://example.com/file.zip                   # scarica nella cartella corrente con il nome remoto
+wget -O nuovo_nome.zip https://example.com/file.zip # scarica con un altro nome (-O - scrive su stdout, come curl)
+wget -P /destinazione https://example.com/file.zip  # nella cartella indicata
+wget -c https://example.com/grande.iso              # riprende un download interrotto
+wget -b https://example.com/grande.iso              # in background: l'avanzamento finisce in wget-log
+wget -q --show-progress https://example.com/file.zip # niente output tranne la barra di avanzamento
+wget -i lista_url.txt                               # scarica tutti gli URL elencati nel file, uno per riga
+wget --user=utente --ask-password https://example.com/file.zip # Basic Auth, chiedendo la password (non resta nella history)
+wget --no-check-certificate https://example.com/file.zip # ignora i certificati non validi: solo per test su server propri
+wget -r -np https://example.com/docs/               # scarica ricorsivamente; -np non risale alla cartella padre
+wget -m -k -p https://example.com                   # mirror del sito navigabile offline: -k converte i link, -p scarica anche CSS e immagini
 ```
 
 ## jq

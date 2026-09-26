@@ -1,0 +1,14 @@
+# Traefik: configurazione dinamica (rotte e servizi). Traefik la rilegge da solo quando cambia.
+http:
+  routers:
+    tutto:
+      rule: "PathPrefix(`/`)"
+      entryPoints: [web]
+      service: haproxy
+
+  services:
+    haproxy:
+      loadBalancer:
+        servers:
+          - url: "http://haproxy:80"
+          # - url: "http://haproxy2:80"

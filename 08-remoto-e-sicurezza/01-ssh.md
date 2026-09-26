@@ -18,6 +18,7 @@ Al posto della password: una chiave **privata** resta sul mio PC, la **pubblica*
 ```bash
 ssh-keygen -t ed25519 -C "edoardo@pc-ufficio"   # genera la coppia: ~/.ssh/id_ed25519 (privata) e ~/.ssh/id_ed25519.pub (pubblica)
                                                 # -C è solo un commento per riconoscerla; la passphrase è FORTEMENTE consigliata
+ssh-keygen -t rsa -b 4096 -C "$(whoami)@$(hostname)" # RSA a 4096 bit: solo per server o programmi vecchi che non supportano ed25519
 ssh-copy-id utente@server                       # copia la chiave pubblica in ~/.ssh/authorized_keys del server
 ssh-copy-id -i ~/.ssh/id_ed25519.pub -p 2222 utente@server # UGUALE, scegliendo chiave e porta
 
@@ -30,6 +31,17 @@ ssh-keygen -R server                            # rimuove il server da known_hos
 ```
 > **ATTENZIONE**: la chiave privata non va mai copiata su un server, allegata o messa in un repository.
 > Permessi obbligatori: `~/.ssh` 700, chiave privata 600. Con permessi più larghi ssh la rifiuta.
+
+### I file dentro ~/.ssh
+| File | Dove sta | Contenuto |
+|---|---|---|
+| `id_ed25519` (o `id_rsa`) | client | la mia chiave **privata**: non esce mai dal mio PC |
+| `id_ed25519.pub` | client | la mia chiave **pubblica**: la do ai server a cui voglio accedere |
+| `authorized_keys` | server | le chiavi pubbliche autorizzate a entrare **come questo utente**, una per riga |
+| `known_hosts` | client | l'impronta dei server già visitati: se cambia, ssh avvisa (possibile attacco man-in-the-middle o server reinstallato) |
+| `config` | client | alias e impostazioni per ogni server (sotto) |
+
+Con una chiave protetta da passphrase, al collegamento ssh chiede la passphrase della **chiave**, non la password dell'utente sul server.
 
 ## ssh-agent: inserire la passphrase una volta sola
 ```bash
@@ -82,7 +94,28 @@ scp file.txt utente@server:/tmp/              # da locale a remoto
 scp utente@server:/var/log/app.log .          # da remoto a locale
 scp -r cartella/ utente@server:/tmp/          # cartella intera
 scp -P 2222 file.txt utente@server:/tmp/      # porta: -P MAIUSCOLA (in ssh è -p minuscola)
-sftp utente@server                            # sessione interattiva: ls, cd, get, put, lcd, lls
+```
+
+### sftp: sessione interattiva
+Stesso canale cifrato di ssh, ma con una shell dedicata al trasferimento di file.
+```bash
+sftp utente@server                # si collega; accetta anche gli alias di ~/.ssh/config
+sftp -P 2222 utente@server        # porta diversa (-P maiuscola, come scp)
+```
+```
+sftp> ls / cd / pwd / mkdir       sul server
+sftp> lls / lcd / lpwd            sul PC locale (prefisso l)
+sftp> get file                    scarica dal server alla cartella locale corrente
+sftp> get file nome_locale        scarica rinominando
+sftp> get -r cartella             scarica una cartella intera
+sftp> put file                    carica sul server
+sftp> put file nome_remoto        carica rinominando
+sftp> mget *.log                  scarica più file (caratteri jolly)
+sftp> mput *.sql                  carica più file
+sftp> rename vecchio nuovo        rinomina sul server
+sftp> rm file                     elimina sul server
+sftp> chmod 644 file              cambia i permessi sul server
+sftp> exit                        oppure quit, o CTRL+D
 ```
 Per cartelle grandi o copie ripetute meglio `rsync`, che trasferisce solo le differenze:
 vedi [../02-file-e-permessi/07-diff-e-rsync.md](../02-file-e-permessi/07-diff-e-rsync.md).
@@ -124,5 +157,29 @@ Host *
 ssh -O check produzione           # la connessione master è attiva?
 ssh -O exit produzione            # la chiude
 ```
+
+## Da Windows: PuTTYgen e WinSCP
+Windows 10/11 ha già il client OpenSSH: `ssh`, `scp`, `sftp` e `ssh-keygen` funzionano in PowerShell con la stessa
+sintassi, e le chiavi stanno in `C:\Users\nome\.ssh\`. PuTTY e WinSCP invece usano un loro formato di chiave, `.ppk`.
+
+**Convertire la chiave**: PuTTYgen (eseguibile, non si installa) > *Load* > seleziono la chiave privata OpenSSH
+(es. `id_ed25519` o la `.key` scaricata dal provider della VPS) > *Save private key* > `chiave.ppk`.
+Le versioni recenti di WinSCP sanno anche caricare direttamente la chiave OpenSSH e propongono loro la conversione.
+
+**WinSCP > Nuova connessione**:
+- Protocollo: `SFTP`
+- Host: `server.example.com`, porta `22`
+- Utente: `ubuntu`, password vuota
+- *Avanzate > SSH > Autenticazione > File chiave privata*: la `.ppk`
+
+### Entrare con WinSCP con i permessi di root
+Sulle VPS si entra con un utente sudoer (es. `ubuntu`) e il login di root è disattivato. Per modificare da WinSCP
+i file di sistema si può far girare il server SFTP con sudo:
+*Avanzate > Ambiente > SFTP > Server SFTP*: `sudo /usr/lib/openssh/sftp-server`
+
+Funziona solo se l'utente ha sudo **senza password** (sulle immagini cloud di Ubuntu `ubuntu` ce l'ha di default).
+> **ATTENZIONE**: in questo modo ogni trascinamento in WinSCP avviene come root: si possono sovrascrivere file di
+> sistema e i file caricati diventano di proprietà di root (poi il web server non riesce a scriverci).
+> Usarlo solo per le modifiche puntuali, non come modalità di lavoro abituale.
 
 Vedi anche: [02-firewall-e-hardening.md](02-firewall-e-hardening.md) per mettere in sicurezza il server SSH.

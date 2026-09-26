@@ -25,4 +25,5 @@
 ## Manuali offline
 I PDF sono in questa stessa cartella:
 - [linux/](linux/) — cheat sheet di comandi base e di networking
+- [sicurezza/](sicurezza/) — cheat sheet di Kali Linux: nmap, netcat, enumerazione di servizi. Strumenti da usare solo su sistemi propri o con autorizzazione
 - [scripting/](scripting/) — dispense di scripting e la *Advanced Bash-Scripting Guide*

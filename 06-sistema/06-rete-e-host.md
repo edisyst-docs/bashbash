@@ -67,4 +67,5 @@ sudo systemctl status nginx              # 6. il servizio è attivo?
 sudo tail -50 /var/log/nginx/error.log   # 7. cosa dice il log
 ```
 
-Vedi anche: [../04-processi/01-ps-e-kill.md](../04-processi/01-ps-e-kill.md) per `lsof -i`, che elenca le connessioni di rete aperte.
+Vedi anche: [../04-processi/01-ps-e-kill.md](../04-processi/01-ps-e-kill.md) per `lsof -i`, che elenca le connessioni di rete aperte;
+[../10-rete-e-web/](../10-rete-e-web/) per subnet, configurazione di `ip`, `traceroute`, `tcpdump`, `nmap` e web server.

@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
     # rete
     curl wget jq \
     iproute2 net-tools iputils-ping dnsutils \
-    openssh-client \
+    traceroute mtr-tiny whois iftop tcpdump nmap netcat-openbsd ipcalc \
+    openssh-client gnupg \
     # sistema e terminale
     sudo adduser cron logrotate tmux \
     # git e docker CLI

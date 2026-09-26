@@ -1,1 +1,7 @@
 .idea
+
+# Terraform: provider scaricati e stato (contiene dati sensibili)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan

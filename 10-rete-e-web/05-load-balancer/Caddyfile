@@ -1,0 +1,5 @@
+# Caddy come bilanciatore primario.
+# NB: "reverse_proxy / haproxy:80" sarebbe SBAGLIATO: il matcher "/" in Caddy corrisponde solo al percorso "/" esatto.
+:80 {
+    reverse_proxy haproxy:80
+}
