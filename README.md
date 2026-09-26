@@ -100,6 +100,36 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 - **[zz-risorse/](zz-risorse/)** — [link utili](zz-risorse/link-utili.md), [sintassi Mermaid](zz-risorse/mermaid.md) e i PDF di riferimento
 - **[zz-sandbox/](zz-sandbox/)** — file usa-e-getta su cui lanciare i comandi degli esempi. Si possono sporcare liberamente
 
+## Ambiente di test Ubuntu
+
+Per provare i comandi senza toccare la macchina host, c'è un `Dockerfile` con Ubuntu 24.04 e tutti gli strumenti della KB.
+
+**Build (una tantum):**
+```bash
+docker build -t bashbash .
+```
+
+**Avviare una shell:**
+```bash
+# monta la KB in /kb, entra come root
+docker run --rm -it -v "$(pwd):/kb" bashbash
+
+# oppure come utente tester (password: tester) — utile per testare permessi e sudo
+docker run --rm -it -v "$(pwd):/kb" bashbash su - tester
+```
+
+**Eseguire un singolo comando:**
+```bash
+docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
+```
+
+**Usare la sandbox:**
+```bash
+docker run --rm -it -v "$(pwd):/kb" -w /kb/zz-sandbox bashbash
+```
+
+> **Limitazioni:** `systemctl`, `ufw` (come firewall attivo), `mount` di partizioni e `fail2ban` richiedono init/privilegio che non funzionano in container standard. Per il resto la KB funziona normalmente.
+
 ## Trovare un comando
 Se non ricordi in che file sta un comando:
 ```bash
