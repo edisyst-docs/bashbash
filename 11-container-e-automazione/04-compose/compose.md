@@ -69,6 +69,43 @@ Per rieseguirli bisogna cancellare il volume: `docker compose down -v`.
 > **NOTA**: durante l'inizializzazione MySQL gira un server temporaneo senza rete. Un healthcheck con `-h localhost`
 > usa il socket e risulta "sano" troppo presto; con `-h 127.0.0.1` passa da TCP e aspetta il server vero.
 
+### Ancore YAML
+Evitano di ripetere la stessa configurazione per più servizi:
+```yaml
+x-base: &base                          # ancora (nome scelto dall'utente; x- è convenzione per estensioni compose)
+  restart: unless-stopped
+  logging:
+    driver: "json-file"
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  app:
+    <<: *base                          # merge: incolla tutto il blocco &base
+    image: mia-app:1.0
+
+  worker:
+    <<: *base                          # stesso blocco riusato
+    image: mia-app:1.0
+    command: php artisan queue:work
+```
+
+### File di override
+Il secondo file sovrascrive o aggiunge campi del primo; utile per differenziare sviluppo e produzione:
+```yaml
+# compose.override.yaml (caricato in automatico da compose up se esiste accanto a compose.yaml)
+services:
+  app:
+    ports: ["8080:80"]                 # porta esposta in sviluppo
+    volumes:
+      - .:/var/www/html                # bind mount del codice in sviluppo
+    environment:
+      APP_DEBUG: "true"
+```
+```bash
+docker compose up -d                  # usa compose.yaml + compose.override.yaml in automatico
+docker compose -f compose.yaml -f compose.prod.yaml up -d  # produzione: secondo file esplicito
+```
+
 ## I comandi
 Vanno lanciati nella cartella del `compose.yaml` (o con `-f percorso`).
 ```bash

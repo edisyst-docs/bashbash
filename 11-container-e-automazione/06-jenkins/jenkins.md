@@ -206,6 +206,18 @@ mappa.each { k, v -> echo "${k}: ${v}" }
 def somma(a, b) { a + b }   // l'ultima espressione è il valore di ritorno
 ```
 
+### Gate di approvazione manuale
+```groovy
+stage('Deploy in produzione') {
+    steps {
+        input message: 'Sei sicuro di voler deployare in prod?',
+              ok: 'Procedi',
+              submitter: 'admin,ops'   // solo questi utenti Jenkins possono sbloccare
+        sh 'make deploy-prod'
+    }
+}
+```
+
 ### Elementi avanzati
 ```groovy
 options {

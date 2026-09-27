@@ -172,6 +172,24 @@ private_key_file   = ~/.ssh/ansible_key
         chdir: /var/www/mio-sito
       tags: deploy                      # esegui solo con --tags deploy
 
+    - name: Controlla se il servizio risponde
+      ansible.builtin.uri:
+        url: http://localhost/health
+        return_content: yes
+      register: health_check            # salva la risposta nella variabile health_check
+
+    - name: Stampa il codice HTTP ottenuto
+      ansible.builtin.debug:
+        msg: "Risposta: {{ health_check.status }}"
+
+    - name: Deploy del virtualhost da template Jinja2
+      ansible.builtin.template:
+        src: templates/vhost.conf.j2    # file locale sul controller (estensione .j2 per convenzione)
+        dest: /etc/apache2/sites-available/mio-sito.conf
+        owner: root
+        mode: "0644"
+      notify: Riavvia Apache
+
     - name: Task condizionale
       ansible.builtin.apt:
         name: python3-pymysql
@@ -257,6 +275,43 @@ I file vengono caricati automaticamente se si trovano accanto all'inventory.
 ```bash
 ansible-doc copy           # documentazione completa del modulo
 ansible-doc -l             # lista di tutti i moduli disponibili
+```
+
+### Template Jinja2
+Il modulo `template` copia un file `.j2` rendendo le espressioni Jinja2 con le variabili dell'host:
+```jinja2
+{# templates/vhost.conf.j2 #}
+<VirtualHost *:{{ http_port }}>
+    ServerName {{ inventory_hostname }}
+    DocumentRoot /var/www/{{ site_name }}
+    ErrorLog /var/log/apache2/{{ site_name }}-error.log
+    {% if ssl_enabled %}
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/{{ site_name }}.crt
+    {% endif %}
+</VirtualHost>
+```
+`{{ variabile }}` — sostituisce; `{% if %} ... {% endif %}` — condizionale; `{% for x in lista %}` — ciclo.
+
+## Ansible Vault
+Cifra file con segreti (password, chiavi, token) che possono stare in git senza problemi.
+```bash
+ansible-vault create group_vars/all/secrets.yml   # crea un file cifrato, chiede la password del vault
+ansible-vault edit group_vars/all/secrets.yml     # apre in $EDITOR e salva cifrato
+ansible-vault encrypt file.yml                    # cifra un file in chiaro esistente
+ansible-vault decrypt file.yml                    # decifra (da non committare)
+ansible-vault view file.yml                       # mostra il contenuto senza decifrate su disco
+
+# eseguire un playbook che usa file vault: chiede la password
+ansible-playbook -i inventory.yml playbook.yml --ask-vault-pass
+
+# oppure la password in un file (non committare il file)
+ansible-playbook -i inventory.yml playbook.yml --vault-password-file ~/.vault_pass
+```
+Nel playbook le variabili vault si usano come qualsiasi altra:
+```yaml
+vars_files:
+  - group_vars/all/secrets.yml   # file cifrato: viene decifrato in memoria a runtime
 ```
 
 ## Laboratorio Docker

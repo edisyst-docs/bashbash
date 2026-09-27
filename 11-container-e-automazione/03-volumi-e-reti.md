@@ -23,6 +23,9 @@ docker run -d -v dati:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=x mysql:8.0 # il DB 
 docker run -d -v "$PWD":/usr/share/nginx/html:ro -p 8080:80 nginx       # bind mount in sola lettura (:ro)
 docker run -d -v "$PWD/nginx.conf":/etc/nginx/nginx.conf:ro nginx       # si può montare anche un singolo file
 docker run --rm --volumes-from db -v "$PWD":/backup alpine tar czf /backup/db.tgz /var/lib/mysql # monta gli stessi volumi di "db"
+docker run --rm --tmpfs /tmp:rw,size=64m app                     # tmpfs da 64 MB in RAM (sparisce allo stop)
+docker run -d --mount type=bind,source="$PWD",target=/app,readonly nginx # forma --mount (più esplicita di -v)
+docker run -d --mount type=volume,source=dati,target=/var/lib/mysql mysql:8.0
 ```
 Con un bind mount le modifiche fatte sul PC si vedono subito nel container e viceversa: con Nginx che serve la cartella corrente,
 basta modificare `index.html` e ricaricare il browser.

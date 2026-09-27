@@ -28,6 +28,7 @@ docker swarm join --token SWMTKN-1-... 192.168.0.18:2377 # sul nuovo nodo: entra
 docker node ls                                     # (manager) nodi, ruolo, stato
 docker node inspect --pretty node2                 # dettagli di un nodo
 docker node update --availability drain node2      # svuota un nodo (per manutenzione): le repliche migrano
+docker node update --availability active node2    # rimette il nodo in servizio dopo la manutenzione
 docker swarm leave                                 # (worker) esce dal cluster; su un manager serve --force
 ```
 Porte da aprire tra i nodi: `2377/tcp` (gestione), `7946/tcp+udp` (comunicazione fra nodi), `4789/udp` (rete overlay).
@@ -43,7 +44,12 @@ docker service logs -f web                         # log di tutte le repliche in
 docker service scale web=5                         # scala a 5 repliche
 docker service update --replicas 5 web             # UGUALE
 docker service update --image nginx:1.27-alpine web # aggiornamento a rotazione alla nuova versione
-docker service rollback web                        # torna alla versione precedente
+docker service update \
+    --update-delay 10s \
+    --update-parallelism 1 \
+    --update-failure-action rollback \
+    --image nginx:1.27-alpine web               # aggiornamento con pausa e rollback automatico in caso di errore
+docker service rollback web                        # torna alla versione precedente manualmente
 docker service rm web
 docker ps                                          # sul singolo nodo: solo i container che girano lì
 ```
@@ -58,6 +64,20 @@ Una rete `overlay` attraversa tutti i nodi: i container dei servizi collegati si
 docker network create -d overlay backend
 docker service create --name app --network backend --replicas 4 alpine sleep 1d
 docker network inspect backend
+```
+
+### Vincoli di posizionamento
+Controllano su quali nodi viene schedulato un servizio. Si basano sulle **label** dei nodi.
+```bash
+docker node update --label-add tipo=db node3      # aggiunge una label a un nodo
+docker service create \
+    --name db \
+    --constraint node.labels.tipo==db \
+    --replicas 1 mysql:8.0                         # solo sul nodo con quella label
+docker service create \
+    --name web \
+    --constraint node.role==worker \
+    --replicas 3 nginx                             # solo sui worker (non sul manager)
 ```
 
 ## Stack: compose in swarm
