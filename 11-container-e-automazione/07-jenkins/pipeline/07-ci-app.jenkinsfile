@@ -1,0 +1,73 @@
+// CI di un'applicazione Flask: test in un container Python, report JUnit, immagine Docker, smoke test.
+pipeline {
+    agent any
+
+    environment {
+        IMMAGINE = "kb-app:${env.BUILD_NUMBER}"        // un tag per build: si sa sempre cosa è stato provato
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()                      // un build alla volta: usano lo stesso nome di container
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // In un progetto vero qui c'è "checkout scm": il Jenkinsfile sta nel repository dell'applicazione.
+                // Nel laboratorio il codice è montato nel controller in /lab/app: lo copio nel workspace.
+                sh 'rm -rf app && cp -r /lab/app app && ls app'
+            }
+        }
+        stage('Test') {
+            agent {
+                docker {
+                    image 'python:3.13-slim'
+                    reuseNode true                     // stesso nodo e stesso workspace dello stage precedente
+                }
+            }
+            steps {
+                dir('app') {
+                    // un virtualenv fuori dal workspace; i suoi programmi si chiamano con il percorso, senza activate
+                    sh '''
+                        python -m venv /tmp/venv
+                        /tmp/venv/bin/pip install --quiet --no-cache-dir -r requirements.txt pytest
+                        /tmp/venv/bin/pytest --junitxml=report.xml
+                    '''
+                }
+            }
+            post {
+                always { junit 'app/report.xml' }      // risultati e storico dei test nella pagina del job
+            }
+        }
+        stage('Immagine') {
+            steps {
+                script {
+                    def immagine = docker.build(env.IMMAGINE, 'app')   // docker build -t kb-app:N app
+                    immagine.tag('latest')                             // anche kb-app:latest
+                }
+            }
+        }
+        stage('Smoke test') {
+            steps {
+                // il container gira nel demone docker:dind: le sue porte si raggiungono all'host "docker"
+                sh '''
+                    docker rm -f kb-app-test 2>/dev/null || true
+                    docker run -d --name kb-app-test -p 5000:5000 "$IMMAGINE"
+                    for i in $(seq 1 30); do curl -fsS http://docker:5000/health && break; sleep 1; done
+                    curl -fsS http://docker:5000/ | tee risposta.txt
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker rm -f kb-app-test || true'
+            archiveArtifacts artifacts: 'risposta.txt', allowEmptyArchive: true
+        }
+        success {
+            echo "Immagine pronta: ${env.IMMAGINE}"
+        }
+    }
+}

@@ -1,0 +1,7 @@
+# Valori per la release "prod": solo quello che cambia rispetto a sito/values.yaml
+#   helm install prod ./sito -f values-prod.yaml
+repliche: 3
+titolo: Produzione
+colore: "#c53030"
+service:
+  nodePort: 30085

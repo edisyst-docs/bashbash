@@ -148,5 +148,5 @@ docker compose exec -T app php artisan migrate --force
 | [mysql-phpmyadmin/](mysql-phpmyadmin/) | MySQL, phpMyAdmin | database popolato al primo avvio da `init/` |
 | [postgres/](postgres/) | PostgreSQL, pgAdmin | import automatico, esercizi SQL da lanciare con `psql` |
 
-Altri esempi completi: [../07-ansible/laboratorio/](../07-ansible/laboratorio/) (master Ansible + due server),
-[../06-jenkins/](../06-jenkins/) (Jenkins con agenti), [../../10-rete-e-web/05-load-balancer/](../../10-rete-e-web/05-load-balancer/) (profili, ancore YAML).
+Altri esempi completi: [../08-ansible/laboratorio/](../08-ansible/laboratorio/) (master Ansible + due server),
+[../07-jenkins/](../07-jenkins/) (Jenkins con Docker in Docker e agenti), [../../10-rete-e-web/05-load-balancer/](../../10-rete-e-web/05-load-balancer/) (profili, ancore YAML).

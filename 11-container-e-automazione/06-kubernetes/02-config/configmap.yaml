@@ -1,0 +1,35 @@
+# Due ConfigMap: una con valori singoli (diventano variabili d'ambiente), una con file interi (diventano file).
+# Tenerle separate evita che i file finiscano anche fra le variabili d'ambiente con envFrom.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sito-env
+data:
+  AMBIENTE: sviluppo
+  LINGUA: it
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sito-file
+data:
+  index.html: |
+    <!doctype html>
+    <meta charset="utf-8">
+    <title>02-config</title>
+    <h1>Pagina servita da una ConfigMap</h1>
+    <p>Modifica questo testo in configmap.yaml, rilancia kubectl apply e ricarica la pagina fra un minuto circa.</p>
+  # Template di nginx: all'avvio del container l'immagine ufficiale sostituisce ${AMBIENTE} e ${LINGUA}
+  # con le variabili d'ambiente e scrive il risultato in /etc/nginx/conf.d/default.conf.
+  # $hostname non è una variabile d'ambiente: resta com'è e la risolve nginx (il nome del Pod).
+  default.conf.template: |
+    server {
+        listen 80;
+        location / {
+            root /usr/share/nginx/html;
+        }
+        location /info {
+            default_type text/plain;
+            return 200 "ambiente: ${AMBIENTE}\nlingua: ${LINGUA}\npod: $hostname\n";
+        }
+    }

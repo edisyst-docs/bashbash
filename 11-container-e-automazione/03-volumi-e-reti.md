@@ -43,8 +43,9 @@ docker exec c1 ls /test                                   # primo.txt secondo.tx
 docker volume ls                                          # un solo volume
 docker rm -f c1 c2 && docker volume rm volumeuno
 ```
-Stessa cosa con Jenkins: due container che montano lo stesso `jenkins_home` vedono la stessa installazione,
-gli stessi job e la stessa password (vedi [06-jenkins/](06-jenkins/)).
+Stessa cosa con Jenkins: un secondo container che monta lo stesso `jenkins_home` vede la stessa installazione,
+gli stessi job e la stessa password (vedi [07-jenkins/](07-jenkins/)). Va bene per sostituire un container con un altro,
+non per tenerli accesi insieme: due Jenkins sugli stessi file si sovrascrivono a vicenda la configurazione.
 
 ## Reti
 ```bash

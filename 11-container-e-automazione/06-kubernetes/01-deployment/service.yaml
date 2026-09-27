@@ -1,0 +1,13 @@
+# Un indirizzo stabile davanti ai Pod con la label app=web, che nascono e muoiono con IP sempre diversi.
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  type: NodePort                       # ClusterIP (il default, solo interno) + una porta aperta su ogni nodo
+  selector:
+    app: web                           # a quali Pod inoltrare: la stessa label del Deployment
+  ports:
+    - port: 80                         # porta del Service dentro il cluster: http://web
+      targetPort: 80                   # porta del container
+      nodePort: 30080                  # porta sui nodi (30000-32767): kind-cluster.yaml la porta su localhost:30080

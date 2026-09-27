@@ -1,0 +1,71 @@
+# nginx configurato solo da ConfigMap e Secret: l'immagine è quella ufficiale, senza modifiche.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sito
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sito
+  template:
+    metadata:
+      labels:
+        app: sito
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:              # senza, il Pod riceve traffico prima che nginx sia partito
+            httpGet:
+              path: /info
+              port: 80
+            periodSeconds: 2
+          envFrom:
+            - configMapRef:
+                name: sito-env         # TUTTE le chiavi di sito-env diventano variabili d'ambiente
+          env:
+            - name: DB_PASSWORD        # UNA chiave del Secret, come variabile d'ambiente
+              valueFrom:
+                secretKeyRef:
+                  name: sito-secret
+                  key: DB_PASSWORD
+          volumeMounts:
+            - name: pagine
+              mountPath: /usr/share/nginx/html   # la cartella conterrà solo index.html
+            - name: template
+              mountPath: /etc/nginx/templates
+            - name: segreti
+              mountPath: /etc/segreti            # il Secret come file: /etc/segreti/DB_PASSWORD
+              readOnly: true
+      volumes:
+        - name: pagine
+          configMap:
+            name: sito-file
+            items:                     # solo alcune chiavi, ognuna con il nome di file scelto
+              - key: index.html
+                path: index.html
+        - name: template
+          configMap:
+            name: sito-file
+            items:
+              - key: default.conf.template
+                path: default.conf.template
+        - name: segreti
+          secret:
+            secretName: sito-secret
+            defaultMode: 0400          # permessi dei file: lettura solo per il proprietario
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sito
+spec:
+  type: NodePort
+  selector:
+    app: sito
+  ports:
+    - port: 80
+      nodePort: 30081                  # http://localhost:30081 (targetPort omesso = uguale a port)

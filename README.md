@@ -94,7 +94,6 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale, download con `wget`
 2. [git](09-strumenti/02-git.md) — storia, `stash`, `reflog`, `bisect`, hook
 3. [mysql](09-strumenti/03-mysql.md) — `mysql`, `mysqldump`, ripristino, diagnostica
-4. [terraform](09-strumenti/04-terraform/) — infrastruttura come codice, con esempi Docker e AWS
 
 ### [10-rete-e-web/](10-rete-e-web/) — reti e web server
 1. [indirizzi e configurazione](10-rete-e-web/01-indirizzi-e-configurazione.md) — CIDR e subnet, `ip addr`/`ip route`, netplan, da `ifconfig` a `ip`
@@ -103,14 +102,16 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 4. [apache e nginx](10-rete-e-web/04-apache-nginx.md) — siti, moduli, virtual host, Laravel con PHP-FPM, reverse proxy, HTTPS con `certbot`
 5. [load balancer](10-rete-e-web/05-load-balancer/) — laboratorio Docker con HAProxy, Nginx, Caddy, Envoy, Traefik
 
-### [11-container-e-automazione/](11-container-e-automazione/) — Docker, compose, CI/CD e Ansible
+### [11-container-e-automazione/](11-container-e-automazione/) — container, orchestrazione, CI/CD e infrastruttura come codice
 1. [docker](11-container-e-automazione/01-docker.md) — CLI: `run`, `exec`, `logs`, immagini, pulizia, porte, policy riavvio
 2. [dockerfile](11-container-e-automazione/02-dockerfile/) — istruzioni, layer, cache, multi-stage; esempi nginx / python / flask / node
 3. [volumi e reti](11-container-e-automazione/03-volumi-e-reti.md) — volumi, bind mount, bridge, host, DNS interno, NAT
 4. [compose](11-container-e-automazione/04-compose/) — `compose.yaml`, healthcheck, init DB; lab php+mysql, phpmyadmin, postgres
 5. [swarm](11-container-e-automazione/05-swarm/) — cluster, servizi, repliche, aggiornamenti a rotazione, stack
-6. [jenkins](11-container-e-automazione/06-jenkins/) — compose con agenti, Jenkinsfile, Groovy, pipeline CI/CD
-7. [ansible](11-container-e-automazione/07-ansible/) — inventory, playbook, moduli; laboratorio Docker master→slave
+6. [kubernetes](11-container-e-automazione/06-kubernetes/) — cluster locale con kind, `kubectl`, Deployment, Service, ConfigMap, storage, probe, autoscaling, Ingress e Gateway, Helm; 7 laboratori
+7. [jenkins](11-container-e-automazione/07-jenkins/) — laboratorio configurato da codice, Jenkinsfile Declarative, 9 pipeline di esempio, API REST e CLI
+8. [ansible](11-container-e-automazione/08-ansible/) — inventory, playbook, moduli; laboratorio Docker master→slave
+9. [terraform](11-container-e-automazione/09-terraform/) — infrastruttura come codice: HCL, moduli, stato, import; esempi Docker, AWS, Kubernetes
 
 ## Supporto (fuori dal percorso)
 

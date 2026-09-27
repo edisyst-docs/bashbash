@@ -1,0 +1,44 @@
+// Lavoro distribuito sugli agenti. Richiede il profilo "agenti":
+//   ./agenti.sh && docker compose --profile agenti up -d
+// Senza agenti il build resta in coda ("Waiting for next available executor") e dopo 5 minuti si arrende.
+pipeline {
+    agent none
+
+    options {
+        timeout(time: 5, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Prepara') {
+            agent { label 'agent1' }                   // un nodo preciso
+            steps {
+                sh 'echo "preparato su $NODE_NAME ($(hostname))" > preparato.txt'
+                stash name: 'preparato', includes: 'preparato.txt'   // i file viaggiano fra nodi con stash/unstash
+            }
+        }
+        stage('In parallelo sugli agenti') {
+            parallel {
+                stage('agent2') {
+                    agent { label 'agent2' }
+                    steps {
+                        unstash 'preparato'
+                        sh 'cat preparato.txt; echo "eseguito su $NODE_NAME ($(hostname))"'
+                    }
+                }
+                stage('agent3') {
+                    agent { label 'agent3' }
+                    steps {
+                        unstash 'preparato'
+                        sh 'cat preparato.txt; echo "eseguito su $NODE_NAME ($(hostname))"'
+                    }
+                }
+                stage('Uno qualsiasi') {
+                    agent { label 'linux' }            // qualunque nodo con la label "linux": lo sceglie Jenkins
+                    steps {
+                        sh 'echo "scelto $NODE_NAME"'
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,41 @@
+// Stage dentro container: gli strumenti arrivano dall'immagine e non vanno installati su Jenkins.
+// Richiede il plugin Docker Pipeline e un demone Docker raggiungibile (qui il servizio docker:dind).
+pipeline {
+    agent none
+
+    stages {
+        stage('Python') {
+            agent {
+                docker { image 'python:3.13-alpine' }  // Jenkins avvia il container, ci esegue gli step, poi lo elimina
+            }
+            steps {
+                sh 'python --version'
+                sh 'id; pwd'                           // stesso utente di Jenkins (uid 1000), workspace montato
+            }
+        }
+        stage('Node') {
+            agent {
+                docker {
+                    image 'node:22-alpine'
+                    args '-e HOME=/tmp'                // opzioni aggiunte a docker run: npm vuole una home scrivibile
+                }
+            }
+            steps {
+                sh 'node --version && npm --version'
+            }
+        }
+        stage('Container dentro uno stage') {
+            agent any
+            steps {
+                writeFile file: 'dati.txt', text: 'scritto sul controller\n'
+                script {
+                    // docker.image().inside: un container per un pezzo di stage, sullo stesso workspace
+                    docker.image('alpine:3').inside {
+                        sh 'cat dati.txt && echo "letto dentro Alpine $(cat /etc/alpine-release)"'
+                    }
+                }
+            }
+            post { cleanup { cleanWs() } }
+        }
+    }
+}

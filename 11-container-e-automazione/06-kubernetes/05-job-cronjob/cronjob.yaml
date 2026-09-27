@@ -1,0 +1,33 @@
+# Un CronJob crea un Job a intervalli regolari, con la sintassi di crontab (vedi 06-sistema/09-crontab.md).
+# Qui: ogni minuto controlla che il sito del laboratorio 01 risponda.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: controllo-sito
+spec:
+  schedule: "* * * * *"                # minuto ora giorno mese giorno-della-settimana
+  timeZone: Europe/Rome                # senza, l'orario è quello del control plane (di solito UTC)
+  concurrencyPolicy: Forbid            # se il giro precedente sta ancora girando, salta questo
+  successfulJobsHistoryLimit: 3        # Job riusciti da conservare (con i loro log)
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1                  # un solo nuovo tentativo in caso di errore
+      activeDeadlineSeconds: 50        # un controllo non può durare più di 50 secondi
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: controllo
+              image: bash:5
+              command: ["bash", "/script/controllo.sh"]
+              env:
+                - name: URL            # nome completo del Service: <servizio>.<namespace>.svc.cluster.local
+                  value: http://web.default.svc.cluster.local
+              volumeMounts:
+                - name: script
+                  mountPath: /script
+          volumes:
+            - name: script
+              configMap:
+                name: script

@@ -1,0 +1,69 @@
+# Jenkins Configuration as Code: tutta la configurazione del laboratorio, letta all'avvio.
+# Dopo una modifica: Manage Jenkins > Configuration as Code > Reload existing configuration (o riavviare il container).
+# ${VARIABILE:-default} viene dalle variabili d'ambiente del container (compose.yaml).
+jenkins:
+  systemMessage: "Laboratorio Jenkins della KB: configurato da casc.yaml"
+  numExecutors: 4                        # esecutori sul controller: comodo in laboratorio, in produzione 0 (solo agenti)
+  mode: NORMAL
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          name: Amministratore
+          password: ${JENKINS_ADMIN_PASSWORD:-admin}
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  # tre agenti "inbound": sono loro a collegarsi al controller (via WebSocket sulla 8080).
+  # Il secret di ciascuno lo genera Jenkins: agenti.sh lo legge e lo scrive in .env
+  nodes:
+    - permanent:
+        name: agent1
+        labelString: "linux agent1"
+        remoteFS: /home/jenkins/agent
+        numExecutors: 2
+        launcher:
+          inbound:
+            webSocket: true
+    - permanent:
+        name: agent2
+        labelString: "linux agent2"
+        remoteFS: /home/jenkins/agent
+        numExecutors: 2
+        launcher:
+          inbound:
+            webSocket: true
+    - permanent:
+        name: agent3
+        labelString: "linux agent3"
+        remoteFS: /home/jenkins/agent
+        numExecutors: 2
+        launcher:
+          inbound:
+            webSocket: true
+
+# credenziali di esempio per pipeline/05-credenziali.jenkinsfile: finte, ma trattate come vere
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: token-demo
+              secret: token-finto-1234567890
+              description: "Secret text di esempio"
+          - usernamePassword:
+              scope: GLOBAL
+              id: login-demo
+              username: utente-demo
+              password: password-finta
+              description: "Utente e password di esempio"
+
+unclassified:
+  location:
+    url: http://localhost:8080/
+
+# i job: uno per ogni file pipeline/*.jenkinsfile
+jobs:
+  - file: /lab/pipeline/jobs.groovy

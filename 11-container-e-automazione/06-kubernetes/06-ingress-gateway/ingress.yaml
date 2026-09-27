@@ -1,0 +1,35 @@
+# Ingress: UN punto di ingresso HTTP che smista le richieste ai Service in base al percorso o al nome host.
+# Serve un Ingress controller che lo realizzi: qui cloud-provider-kind (IngressClass di default).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: colori
+spec:
+  ingressClassName: cloud-provider-kind
+  rules:
+    - http:                            # nessun host: vale per qualunque nome
+        paths:
+          - path: /blu                 # /blu, /blu/, /blu/qualcosa...
+            pathType: Prefix
+            backend:
+              service:
+                name: blu
+                port:
+                  number: 80
+          - path: /verde
+            pathType: Prefix
+            backend:
+              service:
+                name: verde
+                port:
+                  number: 80
+    - host: verde.example.com          # per nome host: la richiesta deve avere "Host: verde.example.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: verde
+                port:
+                  number: 80

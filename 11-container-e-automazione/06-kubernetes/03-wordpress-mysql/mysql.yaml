@@ -1,0 +1,69 @@
+# MySQL come StatefulSet: nome stabile (mysql-0) e un volume persistente che lo segue a ogni riavvio.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  clusterIP: None                      # headless: "mysql" risolve direttamente l'IP del Pod, senza bilanciamento
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql                   # il Service headless che dà ai Pod il nome mysql-0.mysql
+  replicas: 1                          # UNA: due repliche sarebbero due database separati, non un cluster
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.4             # LTS; la 8.0 è fuori supporto da aprile 2026
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credenziali # Kustomize lo riscrive nel nome generato, con il suffisso
+                  key: root-password
+            - name: MYSQL_DATABASE     # database e utente creati al primo avvio, solo se il volume è vuoto
+              value: wordpress
+            - name: MYSQL_USER
+              value: wordpress
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credenziali
+                  key: password
+          ports:
+            - containerPort: 3306
+          readinessProbe:              # via TCP: durante l'inizializzazione MySQL gira senza rete
+            exec:
+              command: ["mysqladmin", "ping", "-h", "127.0.0.1"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: dati
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:                # un PersistentVolumeClaim per ogni replica: dati-mysql-0
+    - metadata:
+        name: dati
+      spec:
+        accessModes: ["ReadWriteOnce"] # montabile in scrittura da un solo nodo alla volta
+        resources:
+          requests:
+            storage: 1Gi

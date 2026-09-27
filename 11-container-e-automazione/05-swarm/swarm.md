@@ -14,7 +14,8 @@ Esempio: un sito con frontend e backend. Studiando il traffico so che servono N 
 Se uno si ferma, lo swarm se ne accorge e ne ricrea uno, senza intervento manuale.
 
 Swarm è semplice e incluso in docker; per cluster grandi lo standard di fatto è **Kubernetes**, con gli stessi concetti
-(nodi, servizi, repliche) e molte più opzioni.
+(nodi, servizi, repliche) e molte più opzioni: vedi [../06-kubernetes/](../06-kubernetes/), dove lo stack WordPress qui
+sotto è rifatto come laboratorio.
 
 ## Il cluster
 Si prova anche su una sola macchina (Docker Desktop): un nodo manager che fa anche da worker.
@@ -102,4 +103,5 @@ docker service ps serv-jenk                        # 5 repliche distribuite sui 
 ```
 Da ogni nodo `http://IP-del-nodo:8003` risponde Jenkins. Però ogni replica ha il suo `jenkins_home`: la configurazione fatta
 su una non si vede sulle altre, e le richieste finiscono a turno su repliche diverse. Un'applicazione con stato
-va replicata solo con uno storage condiviso (vedi [../06-jenkins/](../06-jenkins/) per Jenkins con agenti).
+va replicata solo con uno storage condiviso, e non tutte lo permettono: Jenkins no, cresce aggiungendo agenti
+(vedi [../07-jenkins/](../07-jenkins/)).

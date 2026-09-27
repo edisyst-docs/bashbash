@@ -1,0 +1,30 @@
+// Rilascio con approvazione manuale: la pipeline si ferma finché qualcuno non risponde (o scade il tempo).
+pipeline {
+    agent none                                         // nessun esecutore occupato mentre si aspetta la risposta
+
+    stages {
+        stage('Build') {
+            agent any
+            steps {
+                echo 'costruisco e provo la versione'
+            }
+        }
+        stage('Rilascio in produzione') {
+            options {
+                timeout(time: 10, unit: 'MINUTES')    // senza risposta entro 10 minuti: build ABORTED
+            }
+            input {                                    // la domanda arriva prima di occupare un esecutore
+                message 'Rilasciare in produzione?'
+                ok 'Rilascia'
+                submitter 'admin'                      // chi può rispondere (utenti o gruppi, separati da virgola)
+                parameters {
+                    choice(name: 'FINESTRA', choices: ['subito', 'stanotte'], description: 'Quando')
+                }
+            }
+            agent any
+            steps {
+                echo "Rilascio ${FINESTRA}, approvato"
+            }
+        }
+    }
+}

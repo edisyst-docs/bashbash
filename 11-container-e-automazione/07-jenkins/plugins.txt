@@ -1,0 +1,21 @@
+# Plugin installati nell'immagine da jenkins-plugin-cli (uno per riga; con ":versione" si fissa la versione).
+# Le dipendenze arrivano da sole.
+
+# configurazione come codice (casc.yaml) e job creati da script (pipeline/jobs.groovy)
+configuration-as-code
+job-dsl
+
+# Pipeline: sintassi Declarative, step di base, visualizzazione degli stage
+workflow-aggregator
+pipeline-stage-view
+pipeline-graph-view
+
+# checkout da git, agent { docker }, credenziali negli step, report dei test
+git
+docker-workflow
+credentials-binding
+junit
+
+# comodità: orario nel log, pulizia del workspace
+timestamper
+ws-cleanup

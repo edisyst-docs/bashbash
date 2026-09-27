@@ -1,0 +1,27 @@
+# Generato da Terraform con templatefile(): modificare il template, non il file nel container
+global
+    log stdout format raw local0
+
+defaults
+    log global
+    mode http
+    option httplog
+    timeout connect 2s
+    timeout client  30s
+    timeout server  30s
+
+frontend http_front
+    bind *:80
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+%{ for nome in server ~}
+    server ${nome} ${nome}:80 check
+%{ endfor ~}
+
+listen stats
+    bind *:8404
+    stats enable
+    stats uri /stats
+    stats refresh 10s

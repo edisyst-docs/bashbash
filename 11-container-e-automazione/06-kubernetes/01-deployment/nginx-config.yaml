@@ -1,0 +1,15 @@
+# Configurazione di nginx: ogni risposta dice quale Pod l'ha servita e con quale versione di nginx.
+# Serve a rendere visibili il bilanciamento e gli aggiornamenti; le ConfigMap sono spiegate in ../02-config/.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-nginx
+data:
+  default.conf: |
+    server {
+        listen 80;
+        location / {
+            default_type text/plain;
+            return 200 "pod $hostname - nginx $nginx_version\n";
+        }
+    }

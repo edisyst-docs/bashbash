@@ -1,0 +1,20 @@
+# Cluster kind per i laboratori: un control-plane e due worker, ognuno è un container Docker.
+#   kind create cluster --config kind-cluster.yaml     -> contesto kubectl "kind-lab"
+#   kind delete cluster --name lab
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: lab
+nodes:
+  - role: control-plane
+    # porte del PC -> porte del nodo: i Service NodePort dei laboratori diventano raggiungibili su localhost.
+    # Basta mapparle su un nodo solo: kube-proxy inoltra le richieste ai Pod, su qualunque nodo stiano.
+    extraPortMappings:
+      - { containerPort: 30080, hostPort: 30080, listenAddress: "127.0.0.1" } # 01-deployment
+      - { containerPort: 30081, hostPort: 30081, listenAddress: "127.0.0.1" } # 02-config
+      - { containerPort: 30082, hostPort: 30082, listenAddress: "127.0.0.1" } # 03-wordpress-mysql
+      - { containerPort: 30083, hostPort: 30083, listenAddress: "127.0.0.1" } # 04-app-propria
+      - { containerPort: 30084, hostPort: 30084, listenAddress: "127.0.0.1" } # 07-helm, release dev
+      - { containerPort: 30085, hostPort: 30085, listenAddress: "127.0.0.1" } # 07-helm, release prod
+      - { containerPort: 30086, hostPort: 30086, listenAddress: "127.0.0.1" } # ../09-terraform/06-kubernetes
+  - role: worker
+  - role: worker

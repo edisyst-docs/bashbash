@@ -1,0 +1,32 @@
+# Kustomize, integrato in kubectl: unisce i file, mette tutto nel namespace e genera i Secret.
+#   kubectl apply -k .        -> http://localhost:30082
+#   kubectl delete -k .       ATTENZIONE: elimina anche il namespace, e con lui il volume del database
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: wordpress                   # tutte le risorse finiscono in questo namespace
+resources:
+  - namespace.yaml
+  - mysql.yaml
+  - wordpress.yaml
+# I Secret generati prendono un suffisso calcolato dal contenuto (db-credenziali-7h2f9...) e Kustomize
+# aggiorna i riferimenti nei manifest: se cambia una password cambia il nome, e i Pod ripartono da soli.
+# Password in chiaro qui solo perché è un laboratorio: in un progetto vero si usa "envs: [file.env]"
+# con il file .env fuori da git.
+secretGenerator:
+  - name: db-credenziali
+    literals:
+      - root-password=rootpassword
+      - password=wordpress
+  # Le chiavi con cui WordPress firma i cookie di login. Se non gliele si passa, ogni replica se ne genera
+  # di casuali: il login fatto su una replica non vale sull'altra e si viene sbattuti fuori a caso.
+  # Valori veri: https://api.wordpress.org/secret-key/1.1/salt/
+  - name: wordpress-chiavi
+    literals:
+      - WORDPRESS_AUTH_KEY=lab-auth-key-da-cambiare
+      - WORDPRESS_SECURE_AUTH_KEY=lab-secure-auth-key-da-cambiare
+      - WORDPRESS_LOGGED_IN_KEY=lab-logged-in-key-da-cambiare
+      - WORDPRESS_NONCE_KEY=lab-nonce-key-da-cambiare
+      - WORDPRESS_AUTH_SALT=lab-auth-salt-da-cambiare
+      - WORDPRESS_SECURE_AUTH_SALT=lab-secure-auth-salt-da-cambiare
+      - WORDPRESS_LOGGED_IN_SALT=lab-logged-in-salt-da-cambiare
+      - WORDPRESS_NONCE_SALT=lab-nonce-salt-da-cambiare

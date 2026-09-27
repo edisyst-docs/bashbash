@@ -1,0 +1,68 @@
+# Due applicazioni, "blu" e "verde": traefik/whoami risponde con il proprio nome, il Pod
+# e gli header della richiesta (utile per vedere cosa aggiunge il proxy davanti).
+# Entrambe hanno un Service ClusterIP: dall'esterno si raggiungono solo passando da Ingress o Gateway.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blu
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blu
+  template:
+    metadata:
+      labels:
+        app: blu
+    spec:
+      containers:
+        - name: whoami
+          image: traefik/whoami:v1.12
+          env:
+            - name: WHOAMI_NAME
+              value: blu
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blu
+spec:
+  selector:
+    app: blu
+  ports:
+    - port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: verde
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: verde
+  template:
+    metadata:
+      labels:
+        app: verde
+    spec:
+      containers:
+        - name: whoami
+          image: traefik/whoami:v1.12
+          env:
+            - name: WHOAMI_NAME
+              value: verde
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: verde
+spec:
+  selector:
+    app: verde
+  ports:
+    - port: 80

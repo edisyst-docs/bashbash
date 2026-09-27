@@ -1,0 +1,65 @@
+// Gestire gli errori: retry, timeout, catchError, unstable, error, e i blocchi post che reagiscono all'esito.
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ESITO', choices: ['successo', 'instabile', 'fallimento'], description: 'Come deve finire il build')
+    }
+
+    stages {
+        stage('Retry') {
+            steps {
+                // fino a 3 tentativi: il contatore in un file fa fallire i primi due
+                retry(3) {
+                    sh '''
+                        n=$(cat tentativi 2>/dev/null || echo 0)
+                        n=$((n + 1)); echo "$n" > tentativi
+                        echo "tentativo $n"
+                        [ "$n" -ge 3 ]
+                    '''
+                }
+            }
+        }
+        stage('Timeout') {
+            steps {
+                timeout(time: 10, unit: 'SECONDS') {       // se il blocco dura di più viene interrotto
+                    sh 'sleep 2 && echo "finito entro il tempo"'
+                }
+            }
+        }
+        stage('Errore tollerato') {
+            steps {
+                // lo step fallisce ma il build prosegue: lo stage diventa UNSTABLE, il build resta SUCCESS
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'echo "questo comando fallisce"; exit 1'
+                }
+            }
+        }
+        stage('Esito scelto') {
+            steps {
+                script {
+                    if (params.ESITO == 'instabile') {
+                        unstable('test falliti (per finta)')   // build UNSTABLE (giallo), si prosegue
+                    } else if (params.ESITO == 'fallimento') {
+                        error('errore voluto')                  // build FAILURE (rosso), gli stage dopo non girano
+                    }
+                }
+            }
+        }
+        stage('Dopo') {
+            steps {
+                echo 'arrivo qui solo se lo stage precedente non è fallito'
+            }
+        }
+    }
+
+    post {
+        always   { echo "esito: ${currentBuild.currentResult}" }
+        success  { echo 'post success' }
+        unstable { echo 'post unstable' }
+        failure  { echo 'post failure: qui si manda la mail o il messaggio in chat' }
+        changed  { echo 'post changed: esito diverso dal build precedente' }
+        fixed    { echo 'post fixed: il precedente era fallito o instabile, questo no' }
+        cleanup  { cleanWs() }                         // sempre, per ultimo
+    }
+}
