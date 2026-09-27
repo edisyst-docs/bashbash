@@ -1,0 +1,42 @@
+# Jenkins controller + tre agenti
+#   docker compose up -d --build                       -> http://localhost:8080
+#   docker compose exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+# Gli agenti partono solo dopo averli creati nella UI e messo i loro secret in .env (vedi jenkins.md):
+#   docker compose --profile agenti up -d
+services:
+  jenkins:
+    build: .
+    ports:
+      - "8080:8080"                              # interfaccia web
+      - "50000:50000"                            # connessione degli agenti inbound
+    volumes:
+      - jenkins_home:/var/jenkins_home           # configurazione, job, plugin, storico build
+      - /var/run/docker.sock:/var/run/docker.sock # ATTENZIONE: chi controlla Jenkins controlla il docker dell'host
+    user: root                                   # per poter usare docker.sock senza sistemare i gruppi
+
+  agent1: &agente
+    image: jenkins/inbound-agent:latest-jdk21
+    profiles: [agenti]
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: agent1
+      JENKINS_SECRET: ${AGENT1_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"                 # passa dalla porta 8080, non serve la 50000
+    depends_on: [jenkins]
+  agent2:
+    <<: *agente
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: agent2
+      JENKINS_SECRET: ${AGENT2_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"
+  agent3:
+    <<: *agente
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: agent3
+      JENKINS_SECRET: ${AGENT3_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"
+
+volumes:
+  jenkins_home:

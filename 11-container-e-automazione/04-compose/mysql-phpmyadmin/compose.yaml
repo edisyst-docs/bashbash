@@ -1,0 +1,28 @@
+# MySQL già popolato + phpMyAdmin
+#   docker compose up -d               -> http://localhost:8888  (root / mysqlroot)
+# Gli script in ./init vengono eseguiti in ordine alfabetico al PRIMO avvio, cioè solo se il volume del DB è vuoto.
+# Per rieseguirli: docker compose down -v && docker compose up -d
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlroot
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d:ro   # .sql, .sql.gz e .sh eseguiti dall'entrypoint dell'immagine
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8888:80"
+    environment:
+      PMA_HOST: db                              # il nome del servizio MySQL
+
+volumes:
+  db_data:

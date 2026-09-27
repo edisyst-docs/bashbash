@@ -1,0 +1,10 @@
+{
+  "name": "mio-node-api",
+  "version": "1.0.0",
+  "description": "API minimale con Node ed Express",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,11 @@
+---
+- hosts: slaves
+  tasks:
+    #    - name: Prova PING
+    #      ping:
+    - name: Ensure Python is installed
+      apt:
+        name: python3
+        state: present
+    - name: Test command
+      command: echo "Hello from {{ inventory_hostname }}"

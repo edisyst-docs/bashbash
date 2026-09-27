@@ -5,3 +5,6 @@
 *.tfstate
 *.tfstate.*
 *.tfplan
+ansible/
+docker/
+docker-compose/

@@ -12,4 +12,4 @@ I comandi di rete di base (`ip -br a`, `ss`, `dig +short`, `curl -I`) sono in [.
 | 04 | [apache e nginx](04-apache-nginx.md) | Siti e moduli, verifica e reload, virtual host, Laravel con PHP-FPM, reverse proxy, HTTPS con `certbot` |
 | 05 | [load balancer](05-load-balancer/) | Laboratorio Docker: HAProxy dietro HAProxy, Nginx, Caddy, Envoy o Traefik |
 
-Area precedente: [../09-strumenti/](../09-strumenti/) · Torna all'[indice](../README.md)
+Area precedente: [../09-strumenti/](../09-strumenti/) · Prossima: [../11-container-e-automazione/](../11-container-e-automazione/)

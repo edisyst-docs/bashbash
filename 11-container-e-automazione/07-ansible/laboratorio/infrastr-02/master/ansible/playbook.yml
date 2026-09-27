@@ -1,0 +1,198 @@
+---
+- hosts: slave1
+  vars:
+    laravel_root_dir: "/var/www/manuali"
+
+  become: true
+
+  tasks:
+    - name: Test connessione Ansible
+      ping:
+
+    - name: Aggiornare pacchetti
+      apt:
+        update_cache: yes
+
+    # TEST:
+    # ansible all -m shell -a "git --version"
+    - name: Installare Git
+      apt:
+        name: git
+        state: present
+
+    - name: Installare Apache
+      apt:
+        name: apache2
+        state: present
+
+    # TEST:
+    # ansible all -m shell -a "systemctl status apache2"
+    - name: Avviare Apache2
+      shell: service apache2 start
+
+    # TEST:
+    # ansible all -m shell -a "mysql --version"
+    - name: Installare MySQL
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Avviare MySQL
+      shell: service mysql start
+
+    - name: Installare pacchetti richiesti per repository PPA
+      apt:
+        name: software-properties-common
+        state: present
+
+    - name: Aggiungere repository PHP
+      shell: add-apt-repository -y ppa:ondrej/php && apt-get update
+
+    # TEST:
+    # ansible all -m shell -a "php -v"
+    - name: Installare PHP 8.0
+      apt:
+#        name: php8.0
+        name:
+          - php8.0-cli
+          - php8.0-curl
+          - php8.0-fpm
+          - php8.0-intl
+          - php8.0-mysql
+          - php8.0-xml
+          - php8.0-zip
+        state: present
+
+    # TEST:
+    # ansible all -m shell -a "composer --version"
+    - name: Download Composer
+      script: ./scripts/install_composer.sh
+
+    - name: Spostare eseguibile di Composer
+      become: true
+      command: "mv composer.phar /usr/local/bin/composer"
+
+    - name: Settaggio permessi Composer
+      become: true
+      file:
+        path: /usr/local/bin/composer
+        mode: "a+x"
+
+    - name: Creare la directory del progetto Symfony
+      file:
+        path: "{{ laravel_root_dir }}"
+        state: directory
+        owner: edoardo
+        group: edoardo
+        mode: "0755"
+
+
+#    - name: Aggiungere directory come sicura per Git (safe.directory)
+#      become: yes
+#      become_user: edoardo
+#      shell: git config --global --add safe.directory {{ laravel_root_dir }}
+#      environment:
+#        HOME: "/home/edoardo"
+#      tags:
+#        - test
+
+
+#    # TEST:
+#    # ansible all -m shell -a "ls /var/www/symfony"
+    - name: Clonare repository Symfony
+      become_user: edoardo
+      git:
+        repo: 'https://github.com/edisyst/manualsss.git'
+        dest: "{{ laravel_root_dir }}"
+        version: master
+        update: no  # NON aggiornare se esiste già
+      tags:
+        - test
+
+    - name: Impostare permessi
+      file:
+        path: "{{ laravel_root_dir }}"
+        owner: www-data
+        group: www-data
+        mode: "0755"
+        recurse: yes
+
+    - name: Creare VirtualHost per Symfony
+      copy:
+        dest: /etc/apache2/sites-available/symfony.conf
+        content: |
+            <VirtualHost *:80>
+                ServerName localhost
+                DocumentRoot {{ laravel_root_dir }}/public
+                
+                <Directory {{ laravel_root_dir }}/public>
+                    AllowOverride All
+                    Require all granted
+                </Directory>
+                
+                ErrorLog ${APACHE_LOG_DIR}/error.log
+                CustomLog ${APACHE_LOG_DIR}/access.log combined
+            </VirtualHost>
+
+#    - name: Abilitare VirtualHost e riscrittura mod_rewrite
+#      shell: a2ensite symfony.conf && a2enmod rewrite && systemctl restart apache2
+
+    - name: Installare le dipendenze PHP con Composer
+      command: composer install --no-dev --optimize-autoloader
+      args:
+        chdir: "{{ laravel_root_dir }}"
+
+    - name: Copiare .env.example in .env
+      command: cp "{{ laravel_root_dir }}/.env.example" "{{ laravel_root_dir }}/.env"
+      args:
+        creates: "{{ laravel_root_dir }}/.env"
+
+    - name: Generare la chiave dell'app Laravel
+      become: yes
+      command: php artisan key:generate
+      args:
+        chdir: "{{ laravel_root_dir }}"
+
+    - name: Settare permessi storage e bootstrap/cache
+      become: yes
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0775'
+        owner: edoardo
+        group: www-data
+        recurse: yes
+      loop:
+        - "{{ laravel_root_dir }}/storage"
+        - "{{ laravel_root_dir }}/bootstrap/cache"
+
+###################################################################################
+
+#    - name: Modificare la configurazione di Doctrine
+#      lineinfile:
+#        path: "{{ laravel_root_dir }}/config/packages/doctrine.yaml"
+#        regexp: '^url: '
+#        line: 'url: '%env(DATABASE_URL)%'
+
+
+
+
+
+
+
+
+
+
+
+
+
+#    - name: Avviare il server Symfony
+#      command: "php bin/console server:run 0.0.0.0:8000"
+#      args:
+#        chdir: "{{ laravel_root_dir }}"
+#
+#    - name: Abilitare il sito Symfony in Apache
+#      command: a2ensite symfony
+#
+#    - name: Riavviare Apache
+#      shell: apachectl restart
