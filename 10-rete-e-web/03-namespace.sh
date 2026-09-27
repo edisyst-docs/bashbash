@@ -18,6 +18,10 @@ RETE=192.168.100
 [[ $EUID -eq 0 ]] || { echo "serve root: sudo $0 ${1:-}" >&2; exit 1; }
 
 up() {
+    if ip link show "$BRIDGE" &> /dev/null; then
+        echo "il laboratorio esiste già: prima sudo $0 down" >&2
+        exit 1
+    fi
     ip link add "$BRIDGE" type bridge                      # lo switch virtuale, nel namespace principale
     ip link set "$BRIDGE" up
 
@@ -47,9 +51,13 @@ test_rete() {
 }
 
 down() {
-    local h
-    for h in "${HOSTS[@]}"; do
-        ip netns del "$h" 2> /dev/null || true             # eliminando il namespace si elimina anche la veth che contiene (e quindi la coppia)
+    local i
+    for (( i = 1; i <= ${#HOSTS[@]}; i++ )); do
+        # eliminando un capo del cavo sparisce subito anche l'altro. Eliminando solo il namespace la veth verrebbe
+        # distrutta anche lei, ma in ritardo (il kernel lo fa in background): un "up" subito dopo troverebbe
+        # ancora br_veth_N e fallirebbe con "File exists"
+        ip link del "br_veth_$i" 2> /dev/null || true
+        ip netns del "${HOSTS[i-1]}" 2> /dev/null || true
     done
     ip link del "$BRIDGE" 2> /dev/null || true
     echo "laboratorio rimosso"

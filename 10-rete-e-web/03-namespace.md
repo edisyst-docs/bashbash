@@ -59,6 +59,7 @@ sudo ip netns exec host_1 nmap -sn 192.168.100.0/24    # ping scan DALL'INTERNO 
 ```
 Ora si possono provare tutti i comandi di [02-diagnostica.md](02-diagnostica.md). Per esempio un server e un client:
 ```bash
+sudo -v                                               # chiede subito la password: un sudo in background non può chiederla
 sudo ip netns exec host_2 python3 -m http.server 8000 & # un web server dentro host_2
 sudo ip netns exec host_1 curl -s 192.168.100.2:8000 | head -5 # host_1 lo raggiunge
 sudo ip netns exec host_2 ss -tlnp                     # dentro host_2 si vede la porta 8000 in ascolto...

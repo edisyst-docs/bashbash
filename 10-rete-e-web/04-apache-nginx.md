@@ -44,8 +44,8 @@ a2query -s                        # siti abilitati
 Esempio: file `/etc/apache2/sites-available/mio_sito.conf`
 ```apache
 <VirtualHost *:80>
-    ServerName mio_sito.com
-    ServerAlias www.mio_sito.com
+    ServerName miosito.com
+    ServerAlias www.miosito.com
     DocumentRoot /var/www/mio_sito/public
 
     <Directory /var/www/mio_sito/public>
@@ -91,7 +91,7 @@ File `/etc/nginx/sites-available/mio_sito`:
 ```nginx
 server {
     listen 80;
-    server_name mio_sito.com www.mio_sito.com;
+    server_name miosito.com www.miosito.com;
     root /var/www/mio_sito;
     index index.html;
 
@@ -145,6 +145,22 @@ server {
 Senza gli header `X-Forwarded-*` l'applicazione vede tutte le richieste arrivare da `127.0.0.1`.
 In Laravel vanno accettati configurando i trusted proxies.
 
+## HTTPS con Let's Encrypt
+`certbot` ottiene un certificato gratuito e modifica da solo la configurazione del sito. Servono un dominio che
+punta già al server (record A) e la porta 80 aperta: Let's Encrypt verifica il dominio chiamando
+`http://dominio/.well-known/acme-challenge/...`.
+```bash
+sudo apt install certbot python3-certbot-nginx   # per Apache: python3-certbot-apache
+sudo certbot --nginx -d miosito.com -d www.miosito.com   # certificato + blocco "listen 443 ssl" + redirect da http a https
+sudo certbot --apache -d miosito.com                      # UGUALE per Apache
+sudo certbot certificates                        # certificati installati, domini e scadenza
+sudo certbot renew --dry-run                     # prova il rinnovo: i certificati durano 90 giorni, li rinnova un timer di systemd
+systemctl list-timers | grep certbot             # il timer del rinnovo automatico
+```
+I file finiscono in `/etc/letsencrypt/live/miosito.com/` (`fullchain.pem` e `privkey.pem`).
+Il nome nel certificato deve coincidere con `server_name`/`ServerName`: per questo i nomi di dominio non possono
+contenere `_` (sono ammessi lettere, cifre e `-`).
+
 ## Esempi pratici
 ```bash
 sudo tail -f /var/log/nginx/access.log /var/log/nginx/error.log   # entrambi i log in tempo reale
@@ -156,7 +172,7 @@ awk '$9 ~ /^5/ {print $7}' /var/log/nginx/access.log | sort | uniq -c | sort -rn
 awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head
 
 # prima di cambiare il DNS: il nuovo server risponde per quel dominio?
-curl -I -H 'Host: mio_sito.com' http://203.0.113.10/
+curl -I -H 'Host: miosito.com' http://203.0.113.10/
 
 # chi è in ascolto su 80 e 443 (se nginx non parte: "Address already in use", spesso c'è apache2 attivo)
 sudo ss -tlnp | grep -E ':(80|443)\b'

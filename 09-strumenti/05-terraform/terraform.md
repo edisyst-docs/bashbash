@@ -71,14 +71,15 @@ resource "aws_instance" "app_server" {       # una risorsa da creare: tipo e nom
 
 data "aws_ami" "ubuntu" { ... }              # una cosa che esiste già e che leggo soltanto
 
-variable "region" { default = "eu-south-1" } # un parametro
+variable "region" { default = "eu-central-1" } # un parametro
 output "ip" { value = aws_instance.app_server.public_ip } # un valore restituito
 ```
 Terraform ricava l'ordine di creazione dai riferimenti tra risorse: se il container usa `docker_image.nginx.image_id`,
 crea prima l'immagine.
 
 Precedenza delle variabili, dalla più debole alla più forte: `default` in `variables.tf` < variabili d'ambiente
-`TF_VAR_nome` < `terraform.tfvars` < `-var-file` < `-var`.
+`TF_VAR_nome` < `terraform.tfvars` < file `*.auto.tfvars` < `-var` e `-var-file` sulla riga di comando
+(fra questi due vince l'ultimo scritto).
 
 ## Esempi in questa cartella
 ### [docker-nginx/](docker-nginx/): gratis e in locale
@@ -93,15 +94,21 @@ terraform destroy                 # lo elimina
 Provare a cambiare `external = 8000` in `8001` e rilanciare `terraform plan`: mostra che il container va ricreato (`-/+`).
 
 ### [aws-ec2/](aws-ec2/): un server su AWS
-Un'istanza EC2 Ubuntu. Serve un account AWS con le credenziali configurate (`aws configure`).
+Un'istanza EC2 Ubuntu raggiungibile in SSH: oltre all'istanza, Terraform crea
+- `aws_key_pair`: carica su AWS la mia chiave pubblica (`~/.ssh/id_ed25519.pub`, vedi [../../08-remoto-e-sicurezza/01-ssh.md](../../08-remoto-e-sicurezza/01-ssh.md))
+- `aws_security_group`: il firewall dell'istanza, che apre la 22. Senza, AWS blocca tutto il traffico in ingresso
+
+Serve un account AWS con le credenziali configurate (`aws configure`). La regione di default è Francoforte
+(`eu-central-1`): Milano (`eu-south-1`) è una regione *opt-in*, da attivare prima nella console dell'account.
 > **ATTENZIONE**: le risorse cloud si pagano finché esistono. Dopo la prova: `terraform destroy`.
 
 ```bash
 cd aws-ec2
 terraform init
 terraform plan                    # nessun costo: mostra solo cosa creerebbe
-terraform apply
+terraform apply -var "ssh_allowed_cidr=$(curl -s ifconfig.me)/32" # SSH aperto solo al mio IP
 terraform output instance_public_ip
+ssh ubuntu@$(terraform output -raw instance_public_ip) # l'utente delle immagini Ubuntu è "ubuntu"
 terraform destroy
 ```
 `terraform.tfvars` sovrascrive i default di `variables.tf`, che vengono usati in `main.tf` come `var.nome`:

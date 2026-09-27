@@ -9,3 +9,8 @@ output "instance_public_ip" {
   description = "IP pubblico dell'istanza EC2"
   value       = aws_instance.app_server.public_ip
 }
+
+output "ssh" {
+  description = "Comando per collegarsi all'istanza"
+  value       = "ssh ubuntu@${aws_instance.app_server.public_ip}"
+}

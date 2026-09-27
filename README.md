@@ -101,7 +101,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 1. [indirizzi e configurazione](10-rete-e-web/01-indirizzi-e-configurazione.md) — CIDR e subnet, `ip addr`/`ip route`, netplan, da `ifconfig` a `ip`
 2. [diagnostica](10-rete-e-web/02-diagnostica.md) — `traceroute`, `mtr`, `dig +trace`, `whois`, `tcpdump`, `nc`, `nmap`
 3. [namespace](10-rete-e-web/03-namespace.md) — laboratorio: più host su una sola macchina con `ip netns`
-4. [apache e nginx](10-rete-e-web/04-apache-nginx.md) — siti, moduli, virtual host, Laravel con PHP-FPM, reverse proxy
+4. [apache e nginx](10-rete-e-web/04-apache-nginx.md) — siti, moduli, virtual host, Laravel con PHP-FPM, reverse proxy, HTTPS con `certbot`
 5. [load balancer](10-rete-e-web/05-load-balancer/) — laboratorio Docker con HAProxy, Nginx, Caddy, Envoy, Traefik
 
 ## Supporto (fuori dal percorso)

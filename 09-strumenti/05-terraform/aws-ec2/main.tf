@@ -25,9 +25,38 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+# la MIA chiave pubblica SSH caricata su AWS: senza, sull'istanza non si entra
+resource "aws_key_pair" "chiave" {
+  key_name   = "${var.instance_name}-chiave"
+  public_key = file(pathexpand(var.ssh_public_key_path)) # pathexpand trasforma ~ nella home
+}
+
+# il firewall dell'istanza: di default AWS blocca tutto il traffico in ingresso
+resource "aws_security_group" "ssh" {
+  name        = "${var.instance_name}-ssh"
+  description = "SSH in ingresso, tutto in uscita"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ssh_allowed_cidr]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # tutti i protocolli: serve per apt update
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_instance" "app_server" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  key_name               = aws_key_pair.chiave.key_name
+  vpc_security_group_ids = [aws_security_group.ssh.id]
 
   tags = {
     Name = var.instance_name
