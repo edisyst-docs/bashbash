@@ -29,6 +29,7 @@ basta modificare `index.html` e ricaricare il browser.
 
 > **NOTA**: su Windows con Docker Desktop il percorso si scrive `C:\Users\io\cartella:/test` o `/c/Users/io/cartella:/test` (Git Bash).
 > I bind mount dal filesystem di Windows sono lenti: per progetti grossi conviene tenere il codice dentro WSL.
+> In Git Bash i path assoluti come `-w /app` e le path in `tar` vengono convertiti da MSYS: anteporre `MSYS_NO_PATHCONV=1` al comando.
 
 ### Esercizio: un volume condiviso da due container
 ```bash
@@ -60,7 +61,7 @@ docker network rm app-net
 | `bridge` | rete privata sull'host (default `172.17.0.0/16`). I container escono su internet in NAT attraverso l'host |
 | `host` | nessun isolamento: il container usa direttamente le interfacce e le porte dell'host (niente `-p`) |
 | `none` | solo loopback, nessuna rete |
-| `overlay` | una rete che attraversa più host, per Docker Swarm (vedi [05-swarm.md](05-swarm.md)) |
+| `overlay` | una rete che attraversa più host, per Docker Swarm (vedi [05-swarm/](05-swarm/)) |
 
 ### Risoluzione per nome
 Sulla rete `bridge` **predefinita** i container si vedono solo per IP. Su una rete **creata dall'utente**, e su quella che

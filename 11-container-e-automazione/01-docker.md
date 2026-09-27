@@ -1,6 +1,6 @@
 # docker da riga di comando
 
-Uso quotidiano della CLI: immagini e container. Come si scrive un Dockerfile è in [02-dockerfile.md](02-dockerfile.md),
+Uso quotidiano della CLI: immagini e container. Come si scrive un Dockerfile è in [02-dockerfile/](02-dockerfile/),
 volumi e reti in [03-volumi-e-reti.md](03-volumi-e-reti.md), `docker compose` in [04-compose/](04-compose/).
 
 - **immagine**: il modello in sola lettura, fatto di layer sovrapposti (es. `nginx:alpine`). Si scarica da un registry (Docker Hub) o si costruisce con un Dockerfile
@@ -54,6 +54,7 @@ docker run --rm --entrypoint sh -it nginx # sostituisce l'ENTRYPOINT dell'immagi
 docker run -d --memory 512m --cpus 1 app  # limiti di risorse
 ```
 In PowerShell `"$PWD"` funziona uguale; in CMD si usa `%cd%`. Per andare a capo in PowerShell si usa il backtick `` ` `` invece di `\`.
+In Git Bash su Windows, MSYS converte i path assoluti come `/app` in path Windows: anteporre `MSYS_NO_PATHCONV=1` al comando (`MSYS_NO_PATHCONV=1 docker run ...`) oppure usare PowerShell.
 
 ### Uscire senza fermare il container
 In un container avviato con `-it`:

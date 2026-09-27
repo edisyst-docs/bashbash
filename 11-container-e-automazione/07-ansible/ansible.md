@@ -206,8 +206,9 @@ ansible-lint playbook.yml                                    # verifica stile e 
 ## Gestione utenti
 La password va hashata prima di metterla nel playbook:
 ```bash
-python3 -c "from passlib.hash import sha512_crypt; print(sha512_crypt.using(rounds=5000).hash('miapwd'))"
-# oppure sul sistema: openssl passwd -6 miapwd
+openssl passwd -6 miapwd                  # richiede openssl (standard su Debian/Ubuntu/macOS)
+# oppure con python3-passlib:
+# python3 -c "from passlib.hash import sha512_crypt; print(sha512_crypt.using(rounds=5000).hash('miapwd'))"
 ```
 ```yaml
 - name: Crea utente deployer
