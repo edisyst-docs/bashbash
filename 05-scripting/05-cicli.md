@@ -1,5 +1,7 @@
 # Cicli
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 05-cicli`. Cosa contiene: [lab/](lab/).
+
 La condizione si scrive sempre in uno dei 3 modi: `[ condizione ]`, `[[ condizione ]]`, `test condizione`.
 
 > **NOTA su IFS**: `IFS` (Internal Field Separator) ha 3 valori di default — newline, spazio e tab
@@ -46,7 +48,7 @@ done
 Costruisce un menu numerato a partire da una lista e cicla finché non esce.
 ```bash
 PS3="Scegli un'opzione: "
-select vardir in $(ls -d ../zz-sandbox/zz_esempi/*/)
+select vardir in $(ls -d esempi/*/)
 do
     echo "Hai scelto la directory: $vardir"
     break

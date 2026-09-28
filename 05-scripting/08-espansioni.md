@@ -1,5 +1,7 @@
 # Espansioni
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 08-espansioni`. Cosa contiene: [lab/](lab/).
+
 Quando esegue un comando, la shell applica per prima cosa le eventuali redirezioni, poi in
 quest'ordine le varie espansioni.
 

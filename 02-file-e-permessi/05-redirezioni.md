@@ -1,5 +1,7 @@
 # Redirezioni
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 05-redirezioni`. Cosa contiene: [lab/](lab/).
+
 Ogni processo nasce con tre file descriptor: `0` standard input, `1` standard output, `2` standard error.
 Redirigere significa collegare uno di questi a un file invece che al terminale.
 

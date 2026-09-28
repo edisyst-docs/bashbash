@@ -1,5 +1,7 @@
 # Archiviazione e compressione
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 03-archivi-compressione`. Cosa contiene: [lab/](lab/).
+
 - **Archiviazione**: un file unico che ne contiene N più le cartelle (`tar`).
 - **Compressione**: riduzione dello spazio occupato (`gzip`, `bzip2`, `xz`).
 

@@ -1,5 +1,7 @@
 # Trap, gestione errori e debug
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 12-trap-e-debug`. Cosa contiene: [lab/](lab/).
+
 ## trap: reagire a segnali ed eventi
 > **SINTASSI**: `trap 'comandi' SEGNALE [SEGNALE...]`
 
@@ -95,6 +97,8 @@ bash -x script.sh      # => + script.sh:12 deploy(): rsync -az ./ ...
 
 BASH_XTRACEFD=7 bash -x script.sh 7> trace.log # la traccia va in trace.log, l'output normale resta a video
 ```
+> **ATTENZIONE**: se bash gira come **root** ignora il `PS4` ereditato dall'ambiente (misura di sicurezza)
+> e la traccia torna al semplice `+`. Da root il `PS4` va impostato dentro lo script, prima di `set -x`.
 
 ## ShellCheck: il linter per bash
 Trova staticamente quote mancanti, variabili non usate, confronti sbagliati, `cd` senza controllo e molto altro.

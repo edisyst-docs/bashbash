@@ -117,11 +117,36 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 
 - **[zz-esempi/](zz-esempi/)** — script completi e funzionanti: la [rubrica](zz-esempi/rubrica/) interattiva e gli [esercizi](zz-esempi/esercizi/) di scripting
 - **[zz-risorse/](zz-risorse/)** — [link utili](zz-risorse/link-utili.md), [sintassi Mermaid](zz-risorse/mermaid.md), PDF e cheat sheet di riferimento
-- **[zz-sandbox/](zz-sandbox/)** — file usa-e-getta su cui lanciare i comandi degli esempi. Si possono sporcare liberamente
+
+## Laboratori: provare i comandi
+
+Le aree 02, 03 e 05 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i file che
+servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
+`lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker):
+```bash
+./lab.sh 03               # shell come root in ~/lab, con i file dell'area 03 già pronti
+cd 02-grep                # la cartella del .md che sto studiando
+grep -i errore logfile.txt
+
+./lab.sh 02 --tester      # UGUALE ma come utente tester (password: tester): per vedere i "Permission denied"
+./lab.sh 05 -- 'cd 03-parametri && ./opzioni.sh -n a.txt' # esegue un comando nel laboratorio ed esce
+./lab.sh 02 --build       # ricostruisce l'immagine (dopo una modifica al Dockerfile)
+```
+- La KB è montata in `/kb` in **sola lettura**: nessun esercizio può modificare il repository.
+- All'uscita il container sparisce con tutto quello che è stato creato o rovinato. Per ripartire da zero
+  senza uscire: `bash /kb/<area>/lab/prepara.sh && cd ~/lab`.
+- I file non stanno nel repository perché permessi, link simbolici, bit speciali e date di modifica
+  non sopravvivono a git (su Windows i link diventano file di testo). Nel repo resta solo il materiale
+  non generabile, in `lab/materiale/`.
+- Su Linux si può fare a meno di Docker: `bash 03-testo-e-regex/lab/prepara.sh ~/lab-03`. Lo script
+  cancella e ricrea solo una cartella creata da lui (riconosce il file `.lab-bashbash`).
+- Se Git Bash su Windows risponde `the input device is not a TTY` (succede nella finestra mintty),
+  aprire Git Bash dentro Windows Terminal o nel terminale di VS Code.
 
 ## Ambiente di test Ubuntu
 
 Per provare i comandi senza toccare la macchina host, c'è un `Dockerfile` con Ubuntu 24.04 e tutti gli strumenti della KB.
+`lab.sh` lo costruisce da solo la prima volta; a mano:
 
 **Build (una tantum):**
 ```bash
@@ -142,11 +167,6 @@ docker run --rm -it -v "$(pwd):/kb" bashbash su - tester
 docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 ```
 
-**Usare la sandbox:**
-```bash
-docker run --rm -it -v "$(pwd):/kb" -w /kb/zz-sandbox bashbash
-```
-
 > **Limitazioni:** `systemctl`, `ufw` (come firewall attivo), `mount` di partizioni, `fail2ban` e `ip netns` richiedono init/privilegio che non funzionano in container standard. Per il resto la KB funziona normalmente.
 
 ## Trovare un comando
@@ -160,6 +180,7 @@ grep -rn "nome_comando" --include="*.md" .
 - File e cartelle in minuscolo, parole separate da trattino.
 - Ogni cartella ha un `README.md` con l'indice dei suoi file.
 - In `05-scripting/` e `04-processi/` lo script di prova porta lo stesso numero del `.md` che lo spiega.
+- La cartella `lab/` di un'area contiene `prepara.sh` (genera i file del laboratorio, una sottocartella per `.md`), `README.md` (cosa contiene) ed eventualmente `materiale/` (file non generabili).
 - Ogni comando ha il suo commento inline sulla stessa riga, allineato.
 - `UGUALE` indica una forma alternativa che fa esattamente la stessa cosa del comando sopra.
 - Gli script `.sh` sono in LF, i `.bat` e i `.ps1` in CRLF: lo forza il `.gitattributes`.

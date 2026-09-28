@@ -11,9 +11,11 @@ RUN apt-get update && apt-get install -y \
     # testo e regex
     grep gawk sed mawk diffutils patch \
     # file e archivi
-    rsync tar gzip xz-utils zip unzip file \
+    rsync tar gzip bzip2 xz-utils zip unzip file \
+    # permessi e ricerca
+    acl plocate \
     # scripting
-    shellcheck bc \
+    shellcheck bc python-is-python3 \
     # processi e risorse
     procps lsof htop \
     # rete
@@ -23,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     openssh-client gnupg \
     # sistema e terminale
     sudo adduser cron logrotate tmux \
-    # git e docker CLI
+    # git
     git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -34,5 +36,5 @@ RUN useradd -m -s /bin/bash tester \
 
 WORKDIR /kb
 
-# avvia cron in background + shell interattiva
+# shell interattiva; per i laboratori delle aree vedi ./lab.sh
 CMD ["bash"]

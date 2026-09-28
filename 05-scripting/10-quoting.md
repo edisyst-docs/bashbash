@@ -1,5 +1,7 @@
 # Quoting e printf
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 10-quoting`. Cosa contiene: [lab/](lab/).
+
 Il quoting decide quali [espansioni](08-espansioni.md) avvengono e se il risultato viene spezzato
 in più parole. È la causa numero uno dei bug negli script.
 

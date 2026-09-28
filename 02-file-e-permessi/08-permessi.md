@@ -1,5 +1,7 @@
 # Permessi
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 08-permessi`. Cosa contiene: [lab/](lab/).
+
 ## Valori numerici (notazione ottale)
 La modalità numerica usa numeri per rappresentare i permessi. Ogni permesso ha un valore:
 

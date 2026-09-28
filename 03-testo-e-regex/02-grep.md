@@ -1,5 +1,7 @@
 # grep
 
+> **Laboratorio**: `./lab.sh 03`, poi `cd 02-grep`. Cosa contiene: [lab/](lab/).
+
 Cerca specifiche stringhe di testo o regex all'interno di file, cartelle o output di altri comandi.
 
 ## Sintassi base

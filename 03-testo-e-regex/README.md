@@ -10,4 +10,7 @@ Cercare, filtrare, trasformare ed editare testo. Sono gli strumenti che userai d
 | 04 | [sed](04-sed.md) | Stream editor: stampa, inserimento, sostituzione, gruppi di cattura |
 | 05 | [vim](05-vim.md) | I 4 modi di VIM e i comandi di ciascuno |
 
+**Laboratorio**: `./lab.sh 03` dalla radice della KB apre un container usa-e-getta con una cartella
+per ogni `.md`, già piena di testi, log e CSV su cui provare i comandi. Dettagli in [lab/](lab/).
+
 Area precedente: [../02-file-e-permessi/](../02-file-e-permessi/) · Prossima: [../04-processi/](../04-processi/)

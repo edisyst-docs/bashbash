@@ -1,5 +1,7 @@
 # Link simbolici e hard link
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 04-link`. Cosa contiene: [lab/](lab/).
+
 ## Link simbolico
 Punta a un **percorso**. È un file a sé, con il suo inode.
 ```bash

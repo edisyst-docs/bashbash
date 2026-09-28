@@ -1,5 +1,7 @@
 # Parametri speciali
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 03-parametri`. Cosa contiene: [lab/](lab/).
+
 ```bash
 $0 # nome dello script eseguito
 $1 # primo argomento dello script. A seguire $2, $3, ecc.

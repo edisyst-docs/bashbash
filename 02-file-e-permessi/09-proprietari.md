@@ -1,5 +1,7 @@
 # Proprietario e gruppo di un file
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 09-proprietari`. Cosa contiene: [lab/](lab/).
+
 ## CHOWN e CHGRP
 ```bash
 chown utente file.txt       # utente diventa il proprietario di file.txt
@@ -25,9 +27,9 @@ groups ronaldo                  # verifico a quali gruppi appartiene ronaldo
 id ronaldo                      # UGUALE, con qualche info in più
 
 mkdir /realmadrid_data
-chown :realmadrid /realmadrid_data # cambio solo il gruppo di /realmadrid_data
-chown ronaldo:realmadrid /data     # così cambio sia owner che gruppo
-chmod 770 /realmadrid_data         # rwxrwx---: ronaldo e il gruppo possono tutto, gli altri niente
+chown :realmadrid /realmadrid_data        # cambio solo il gruppo di /realmadrid_data
+chown ronaldo:realmadrid /realmadrid_data # così cambio sia owner che gruppo
+chmod 770 /realmadrid_data                # rwxrwx---: ronaldo e il gruppo possono tutto, gli altri niente
 
 sudo -u ronaldo touch /realmadrid_data/test_file # TEST: creo un file come ronaldo, se i permessi sono corretti funziona
 sudo -u messi ls /realmadrid_data                # TEST: messi non può vedere il contenuto di /realmadrid_data

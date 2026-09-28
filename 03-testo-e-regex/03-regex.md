@@ -1,3 +1,7 @@
+# Espressioni regolari
+
+> **Laboratorio**: `./lab.sh 03`, poi `cd 03-regex`. Cosa contiene: [lab/](lab/).
+
 https://www.youtube.com/watch?v=fPii79dBQqY&list=PL4L8OWDC99_c1pppqEyT3FXuBPDI3Qx4F
 
 https://regex101.com/  

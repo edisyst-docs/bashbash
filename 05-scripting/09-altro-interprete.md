@@ -1,5 +1,7 @@
 # Usare un altro interprete
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 09-altro-interprete`. Cosa contiene: [lab/](lab/).
+
 Lo **shebang** nella prima riga dice al sistema quale interprete usare per eseguire il file.
 Non deve per forza essere bash.
 

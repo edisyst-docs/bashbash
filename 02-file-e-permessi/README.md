@@ -14,4 +14,7 @@ Operare sui file e decidere chi può farlo.
 | 08 | [permessi](08-permessi.md) | Notazione ottale, `chmod`, bit speciali, `umask` |
 | 09 | [proprietari](09-proprietari.md) | `chown`, `chgrp`, gruppi condivisi, setgid su cartella |
 
+**Laboratorio**: `./lab.sh 02` dalla radice della KB apre un container usa-e-getta con una cartella
+per ogni `.md`, già piena dei file che servono ai comandi. Dettagli in [lab/](lab/).
+
 Area precedente: [../01-basi/](../01-basi/) · Prossima: [../03-testo-e-regex/](../03-testo-e-regex/)

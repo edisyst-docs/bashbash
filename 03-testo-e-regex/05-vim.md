@@ -1,5 +1,7 @@
 # VIM
 
+> **Laboratorio**: `./lab.sh 03`, poi `cd 05-vim`. Cosa contiene: [lab/](lab/).
+
 * https://vim.rtorr.com/lang/it (VIM CHEAT SHEET)
 * https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcli/index.html
 * https://docs.oracle.com/cd/E19620-01/802-7642/6ib8ghcla/index.html

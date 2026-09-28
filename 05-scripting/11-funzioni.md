@@ -1,5 +1,7 @@
 # Funzioni
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 11-funzioni`. Cosa contiene: [lab/](lab/).
+
 Un blocco di comandi con un nome, richiamabile come un comando qualsiasi.
 Riceve argomenti come uno script (`$1`, `$#`, `"$@"`) e restituisce un exit status.
 
@@ -134,7 +136,7 @@ albero() {
         [[ -d $f ]] && albero "$f" "$indent  "   # richiama se stessa con due spazi in più
     done
 }
-albero ../zz-sandbox/zz_esempi
+albero esempi
 ```
 
 ### Funzioni esportate per xargs e find

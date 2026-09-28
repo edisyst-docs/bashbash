@@ -1,5 +1,7 @@
 # sed = Stream EDitor
 
+> **Laboratorio**: `./lab.sh 03`, poi `cd 04-sed`. Cosa contiene: [lab/](lab/).
+
 Individua i pattern di testo che gli definisco e trasforma il testo in base all'azione che gli dico.
 
 ```bash
@@ -10,7 +12,8 @@ sed 'comando:<ricerca>:<sostituisci>:(parametri)' # ALTERNATIVA: posso usare com
 
 ## Comandi che modificano l'output, non il file
 ```bash
-cat /etc/xattr.conf > config     # contiene alcune righe commentate, che iniziano per #
+cat config                       # file di prova: righe commentate (#), "pattern", "ciao", un blocco tra "Inizio" e "Fine"
+                                 # fuori dal lab va bene anche una copia di un config vero: cat /etc/xattr.conf > config
 
 sed -n '1,5 p' config            # stampa le righe 1,2,3,4,5
 sed    '1,5 p' config            # stampa tutto il file MA DUPLICA le righe 1,2,3,4,5

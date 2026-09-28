@@ -1,17 +1,21 @@
 # Confronto e sincronizzazione di file
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 07-diff-e-rsync`. Cosa contiene: [lab/](lab/).
+
 ## diff: differenze tra file (anche binari)
 ```bash
-diff ../zz-sandbox/simile1.sh ../zz-sandbox/simile2.sh    # mostra le differenze tra i file
-diff -y ../zz-sandbox/simile1.sh ../zz-sandbox/simile2.sh # mostra riga per riga, affiancate, evidenziando le differenze
-diff -i file1 file2                                       # ignora le differenze di maiuscole/minuscole
-diff -w file1 file2                                       # ignora gli spazi bianchi nelle differenze
-diff -u file1 file2                                       # output più leggibile, è il formato usato dai sistemi di controllo versione
+diff simile1.sh simile2.sh    # mostra le differenze tra i file
+diff -y simile1.sh simile2.sh # mostra riga per riga, affiancate, evidenziando le differenze
+diff -i file1 file2           # ignora le differenze di maiuscole/minuscole
+diff -w file1 file2           # ignora gli spazi bianchi nelle differenze
+diff -u file1 file2           # output più leggibile, è il formato usato dai sistemi di controllo versione
 
-cmp file1.bin file2.bin                                   # confronta file byte per byte, ma si ferma alla prima differenza
+cmp file1.bin file2.bin       # confronta file byte per byte, ma si ferma alla prima differenza
 
-comm ../zz-sandbox/simile1.sh ../zz-sandbox/simile2.sh    # 3 colonne: nella terza ci sono le righe in comune tra i due file
+comm simile1.sh simile2.sh    # 3 colonne: nella terza ci sono le righe in comune tra i due file
 ```
+> **NOTA**: `comm` si aspetta file ordinati. Su file non ordinati come questi avvisa con
+> `comm: file 2 is not in sorted order` e le colonne possono essere sbagliate: vedi più sotto `comm <(sort ...)`.
 
 ## patch: applicare un diff
 ```bash

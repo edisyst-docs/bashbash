@@ -1,5 +1,7 @@
 # Array
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 06-array`. Cosa contiene: [lab/](lab/).
+
 Due tipi:
 - **array classici** (indicizzati da numeri): posso NON dichiararli
 - **array associativi** (indicizzati da stringhe): DEVO dichiararli

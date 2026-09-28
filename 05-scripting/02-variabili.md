@@ -1,5 +1,7 @@
 # Variabili
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 02-variabili`. Cosa contiene: [lab/](lab/).
+
 ## Assegnare e leggere
 ```bash
 variabile="valore" # senza nessuno spazio prima e dopo l'uguale

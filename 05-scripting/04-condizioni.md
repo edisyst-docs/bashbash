@@ -1,5 +1,7 @@
 # Condizioni
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 04-condizioni`. Cosa contiene: [lab/](lab/).
+
 La condizione si può scrivere in 3 modi: `[ condizione ]`, `[[ condizione ]]`, `test condizione`.
 
 ## Test sui file

@@ -1,5 +1,7 @@
 # Basi dello scripting
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 01-basi-scripting`. Cosa contiene: [lab/](lab/).
+
 ## I 4 modi per lanciare uno script
 ```bash
 ./s1.sh      # delegato a una sottoshell. Servono i permessi di esecuzione (es: chmod 744 s1.sh)
@@ -54,6 +56,7 @@ log "fine"
 > Aiuta molto, ma non sostituisce il controllo esplicito dei comandi critici.
 
 ## Script di esempio
-Gli script di questa cartella sono gli appunti in forma eseguibile: `variabili.sh`,
-`condizioni1.sh`, `condizioni2.sh`, `cicli1.sh`, `select.sh`, `array.sh`, `read1.sh`, `read2.sh`.
-Per esempi completi e funzionanti vedi [../zz-esempi/](../zz-esempi/).
+Gli script di questa cartella sono gli appunti in forma eseguibile: `02-variabili.sh`,
+`04-condizioni1.sh`, `04-condizioni2.sh`, `05-cicli1.sh`, `05-select.sh`, `06-array.sh`, `07-read1.sh`,
+`07-read2.sh`, `09-altro_interprete.sh`. Nel laboratorio (`./lab.sh 05`) sono già copiati, eseguibili,
+nella cartella del `.md` che li spiega. Per esempi completi e funzionanti vedi [../zz-esempi/](../zz-esempi/).

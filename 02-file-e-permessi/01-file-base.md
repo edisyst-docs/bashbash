@@ -1,5 +1,7 @@
 # Creare, copiare, eliminare file
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 01-file-base`. Cosa contiene: [lab/](lab/).
+
 ## Capire con cosa ho a che fare
 ```bash
 basename /etc/apache2/conf-available/common.conf # stampa solo common.conf

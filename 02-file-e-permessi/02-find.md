@@ -1,5 +1,7 @@
 # find: cercare file e cartelle
 
+> **Laboratorio**: `./lab.sh 02`, poi `cd 02-find`. Cosa contiene: [lab/](lab/).
+
 > **SINTASSI**: `find [percorso] [opzioni] [criteri] [azione]`
 
 **Opzioni**

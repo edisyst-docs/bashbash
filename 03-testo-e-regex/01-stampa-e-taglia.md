@@ -1,5 +1,7 @@
 # Stampare, ordinare, tagliare e splittare file
 
+> **Laboratorio**: `./lab.sh 03`, poi `cd 01-stampa-e-taglia`. Cosa contiene: [lab/](lab/).
+
 ## Visualizzare porzioni di file
 ```bash
 head file       # mostra le prime  10 righe del file
@@ -16,8 +18,8 @@ tail -f ciao addio # funziona anche su più file insieme
 nl divina_commedia.txt # UGUALE a cat, ma aggiunge gli indici di riga
 pr file_5000           # stampa con la paginazione, pronto per la stampa
 
-less divina  # dentro posso fare /non e mi evidenzia tutte le stringhe "non"
-more divina  # UGUALE ma ha meno funzionalità di less
+less divina_commedia.txt # dentro posso fare /non e mi evidenzia tutte le stringhe "non"
+more divina_commedia.txt # UGUALE ma ha meno funzionalità di less
 ```
 
 ## sort: ordinare
@@ -72,7 +74,7 @@ awk 'length($0) > 120' file                              # righe più lunghe di 
 awk '!visto[$0]++' file                                  # elimina i duplicati MANTENENDO l'ordine originale (sort -u invece riordina)
 awk -F: '$3 >= 1000 && $7 !~ /(nologin|false)$/ {print $1, $6}' /etc/passwd # utenti "umani": uid >= 1000 e shell di login vera
 awk -F, 'NR>1 {tot+=$2*$3; n++} END {printf "totale: %.2f  media: %.2f\n", tot, tot/n}' vendite.csv # CSV: salta l'intestazione, somma qta*prezzo e fa la media
-awk -F, 'BEGIN {OFS=";"} {$1=$1; print}' file.csv        # converte un CSV da virgole a punto e virgola ($1=$1 forza la ricostruzione della riga con OFS)
+awk -F, 'BEGIN {OFS=";"} {$1=$1; print}' vendite.csv     # converte un CSV da virgole a punto e virgola ($1=$1 forza la ricostruzione della riga con OFS)
 awk -F, 'NR==FNR {chiavi[$1]; next} $1 in chiavi' ids.txt dati.csv # "JOIN": righe di dati.csv il cui primo campo compare in ids.txt
                                                                     # NR==FNR è vero solo mentre legge il primo file
 ```
@@ -138,8 +140,8 @@ cut -d':' -f1,7 --output-delimiter=$'\n' /etc/passwd # stampa f1 ed f7 e li deli
 ## split: spezzare un file in più parti
 ```bash
 for l in $(seq 5000) ; do
-  echo "riga numero $l" >> file_5000
-done
+  echo "riga numero $l"
+done > file_5000      # redirigo l'intero ciclo: il file viene riscritto da zero, non accodato
 
 wc -l file_5000      # ha effettivamente 5000 righe
 wc -l *              # fa la stessa cosa su tutti i file della cartella corrente

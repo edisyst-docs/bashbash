@@ -1,5 +1,7 @@
 # Input e read
 
+> **Laboratorio**: `./lab.sh 05`, poi `cd 07-input-read`. Cosa contiene: [lab/](lab/).
+
 `read` legge una riga dallo standard input e la assegna a una o più variabili.
 ```bash
 read var1 var2 var3  # legge una riga e la spezza in 3 variabili usando IFS come separatore
