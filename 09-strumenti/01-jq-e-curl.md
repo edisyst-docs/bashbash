@@ -1,7 +1,13 @@
 # curl, wget e jq: API, download e JSON da terminale
 
+> **Laboratorio**: `./lab.sh 09`, poi `cd 01-jq-e-curl`. Cosa contiene: [lab/](lab/).
+
 `curl` fa richieste HTTP, `jq` legge e trasforma JSON. Insieme bastano per testare e automatizzare quasi ogni API.
 `wget` è specializzato nello scaricare file, anche interi siti.
+
+> **NOTA**: `api.example.com` negli esempi è un indirizzo inventato. Nel laboratorio (`./lab.sh 09`) c'è un'API
+> finta su `http://api` che risponde agli stessi percorsi (`/users`, `/posts`, `/items?page=N`, ...): basta sostituire
+> `https://api.example.com` con `http://api`. `example.com` e `jsonplaceholder.typicode.com` invece esistono davvero.
 
 ## curl
 ```bash

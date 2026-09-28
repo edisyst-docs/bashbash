@@ -9,4 +9,7 @@ Docker, Kubernetes, Jenkins, Ansible e Terraform hanno un'area tutta loro: [../1
 | 02 | [git](02-git.md) | Storia, `stash`, correzioni, `reflog`, `bisect`, branch, hook |
 | 03 | [mysql](03-mysql.md) | Client `mysql`, `mysqldump`, ripristino, diagnostica, utenti |
 
+**Laboratorio**: `./lab.sh 09` dalla radice della KB avvia un MySQL 9.7 con un database già popolato,
+un'API finta su `http://api` e un repository git con una storia da indagare. Dettagli in [lab/](lab/).
+
 Area precedente: [../08-remoto-e-sicurezza/](../08-remoto-e-sicurezza/) · Prossima: [../10-rete-e-web/](../10-rete-e-web/)

@@ -120,9 +120,10 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 
 ## Laboratori: provare i comandi
 
-Le aree 02, 03 e 05 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i file che
+Le aree 02, 03, 05 e 09 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i file che
 servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
-`lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker):
+`lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
+servizi c'è anche un `lab/compose.yaml`: l'area 09 avvia così MySQL 9.7 e un'API finta su `http://api`.
 ```bash
 ./lab.sh 03               # shell come root in ~/lab, con i file dell'area 03 già pronti
 cd 02-grep                # la cartella del .md che sto studiando
@@ -180,7 +181,7 @@ grep -rn "nome_comando" --include="*.md" .
 - File e cartelle in minuscolo, parole separate da trattino.
 - Ogni cartella ha un `README.md` con l'indice dei suoi file.
 - In `05-scripting/` e `04-processi/` lo script di prova porta lo stesso numero del `.md` che lo spiega.
-- La cartella `lab/` di un'area contiene `prepara.sh` (genera i file del laboratorio, una sottocartella per `.md`), `README.md` (cosa contiene) ed eventualmente `materiale/` (file non generabili).
+- La cartella `lab/` di un'area contiene `prepara.sh` (genera i file del laboratorio, una sottocartella per `.md`), `README.md` (cosa contiene) ed eventualmente `materiale/` (file non generabili) e `compose.yaml` (servizi, con un servizio `shell` in cui si entra).
 - Ogni comando ha il suo commento inline sulla stessa riga, allineato.
 - `UGUALE` indica una forma alternativa che fa esattamente la stessa cosa del comando sopra.
 - Gli script `.sh` sono in LF, i `.bat` e i `.ps1` in CRLF: lo forza il `.gitattributes`.

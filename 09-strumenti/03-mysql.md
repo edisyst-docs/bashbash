@@ -1,5 +1,7 @@
 # mysql e mysqldump da riga di comando
 
+> **Laboratorio**: `./lab.sh 09`, poi `cd 03-mysql`. Cosa contiene: [lab/](lab/).
+
 Client a riga di comando di MySQL/MariaDB: interrogare, fare dump e ripristini, diagnosticare.
 
 ## Credenziali senza scriverle sulla riga di comando
@@ -47,7 +49,13 @@ mysqldump --single-transaction app_db users orders > parziale.sql        # solo 
 mysqldump --no-data app_db > schema.sql                                  # solo la struttura
 mysqldump --no-create-info --where="created_at >= '2026-09-01'" app_db orders > ordini_settembre.sql # solo dati filtrati
 mysqldump --single-transaction --all-databases > tutto.sql               # tutti i database
+mysqldump --single-transaction --set-gtid-purged=OFF app_db > app_db.sql # senza istruzioni GTID: si ripristina anche sullo stesso server (vedi sotto)
 ```
+> **ATTENZIONE (GTID)**: se il server ha i GTID attivi (`SELECT @@gtid_mode` restituisce `ON`, come nell'immagine
+> Docker di MySQL 9.7) il dump contiene `SET @@GLOBAL.GTID_PURGED=...`, e ripristinarlo sullo stesso server o su uno
+> che ha già quei GTID fallisce con `ERROR 3546 (HY000) ... the added gtid set must not overlap with @@GLOBAL.GTID_EXECUTED`.
+> Per i dump da ripristinare o copiare aggiungere `--set-gtid-purged=OFF` (opzione di MySQL: `mariadb-dump` non ce l'ha).
+> Senza `--single-transaction`, con i GTID attivi `mysqldump` avvisa anche che il dump potrebbe non essere coerente.
 
 ## Ripristino
 ```bash
@@ -68,6 +76,7 @@ mysql -e "SELECT table_schema AS db, ROUND(SUM(data_length+index_length)/1024/10
 # le 10 tabelle più grandi di un database
 mysql -e "SELECT table_name, table_rows, ROUND((data_length+index_length)/1024/1024,1) AS MB
           FROM information_schema.tables WHERE table_schema='app_db' ORDER BY MB DESC LIMIT 10"
+mysql app_db -e 'ANALYZE TABLE orders, logs'   # se i numeri sopra sembrano sbagliati: ricalcola le statistiche
 
 # numero di righe di ogni tabella, in un ciclo bash
 for t in $(mysql app_db -N -B -e 'SHOW TABLES'); do
@@ -78,12 +87,16 @@ done
 mysql app_db -B -e "SELECT id, name, email FROM users" | sed 's/\t/;/g' > utenti.csv
 
 # copiare un database da produzione a locale in streaming, senza file intermedi
-ssh produzione 'mysqldump --single-transaction app_db | gzip' | gunzip | mysql app_db_locale
+ssh produzione 'mysqldump --single-transaction --set-gtid-purged=OFF app_db | gzip' | gunzip | mysql app_db_locale
 
 # copiare un database in un altro sullo stesso server (es. per una prova)
 mysql -e 'CREATE DATABASE app_db_test'
-mysqldump --single-transaction app_db | mysql app_db_test
+mysqldump --single-transaction --set-gtid-purged=OFF app_db | mysql app_db_test
 ```
+> **NOTA**: `table_rows`, `data_length` e `index_length` di `information_schema.tables` sono **stime**, tenute in
+> cache per `information_schema_stats_expiry` secondi (default 86400, un giorno). Subito dopo un caricamento
+> massiccio possono valere ancora 0: `ANALYZE TABLE` le ricalcola. Il conteggio esatto resta `SELECT COUNT(*)`,
+> come nel ciclo sopra.
 
 Diagnostica:
 ```bash

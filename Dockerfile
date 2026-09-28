@@ -25,8 +25,8 @@ RUN apt-get update && apt-get install -y \
     openssh-client gnupg \
     # sistema e terminale
     sudo adduser cron logrotate tmux \
-    # git
-    git \
+    # git e client mysql
+    git mysql-client pv \
     && rm -rf /var/lib/apt/lists/*
 
 # utente non-root per testare permessi/sudo

@@ -1,5 +1,7 @@
 # git oltre le basi
 
+> **Laboratorio**: `./lab.sh 09`, poi `cd 02-git`. Cosa contiene: [lab/](lab/).
+
 Si dà per scontato `clone`, `add`, `commit`, `push`, `pull`. Qui ci sono i comandi per indagare, correggere e recuperare.
 
 ## Leggere la storia
@@ -10,12 +12,12 @@ git log --follow -- vecchio/percorso.php        # la storia di un file anche pri
 git log -S 'calcolaTotale' --oneline            # "pickaxe": commit che hanno AGGIUNTO o RIMOSSO questa stringa
 git log -G 'env\(.*DB_' --oneline               # UGUALE ma con una regex, su qualsiasi riga modificata
 git log --author='Edoardo' --since='2 weeks ago' --oneline
-git log main..feature --oneline                 # commit presenti in feature ma non in main
+git log main..feature/login --oneline           # commit presenti in feature ma non in main
 git shortlog -sn                                # numero di commit per autore
 git show a1b2c3d                                # dettagli e diff di un commit
 git show a1b2c3d:config/app.php                 # il contenuto di un file com'era in quel commit
 git blame -L 40,60 app/Http/Kernel.php          # chi ha scritto le righe 40-60 e in quale commit
-git diff main...feature --stat                  # cosa cambia il branch rispetto al punto in cui si è staccato da main
+git diff main...feature/login --stat            # cosa cambia il branch rispetto al punto in cui si è staccato da main
 git grep -n 'TODO'                              # cerca solo nei file versionati (più veloce di grep -r, ignora vendor)
 ```
 
@@ -64,6 +66,9 @@ git fsck --lost-found                     # ultima spiaggia: oggetti non più ra
 
 ## Trovare il commit che ha introdotto un bug: bisect
 Ricerca binaria: con 1000 commit bastano circa 10 prove.
+> **NOTA**: bisect fa il checkout di commit vecchi, quindi vuole un working tree pulito. Con modifiche
+> non committate su file toccati da quei commit si ferma con `Your local changes ... would be overwritten
+> by checkout`: prima `git stash -u`, alla fine `git stash pop`.
 ```bash
 git bisect start
 git bisect bad                            # la versione attuale ha il bug
@@ -82,16 +87,18 @@ git bisect reset
 
 ## Branch e remoti
 ```bash
-git switch -c feature/login               # crea ed entra in un branch (equivale a checkout -b)
-git switch -                              # torna al branch precedente (come cd -)
-git branch -vv                            # branch locali con il remoto collegato e se sono avanti/indietro
-git branch --merged main                  # branch già uniti in main: si possono cancellare
-git branch -d feature/login               # cancella (rifiuta se non unito); -D forza
-git fetch --prune                         # aggiorna i remoti e rimuove i riferimenti ai branch cancellati sul server
-git push -u origin feature/login          # primo push, collega il branch locale al remoto
-git push origin --delete feature/login    # cancella il branch sul remoto
-git remote -v                             # remoti configurati
+git switch -c feature/registrazione            # crea ed entra in un branch (equivale a checkout -b)
+git switch -                                   # torna al branch precedente (come cd -)
+git branch -vv                                 # branch locali con il remoto collegato e se sono avanti/indietro
+git branch --merged main                       # branch già uniti in main: si possono cancellare
+git branch -d feature/registrazione            # cancella (rifiuta se non unito); -D forza
+git fetch --prune                              # aggiorna i remoti e rimuove i riferimenti ai branch cancellati sul server
+git push -u origin feature/registrazione       # primo push, collega il branch locale al remoto
+git push origin --delete feature/registrazione # cancella il branch sul remoto
+git remote -v                                  # remoti configurati
 ```
+> **NOTA**: un nome di branch non può essere anche "cartella" di altri branch: se esiste `feature`,
+> `git switch -c feature/login` fallisce con `cannot lock ref ... 'refs/heads/feature' exists`.
 
 ## Configurazione utile
 ```bash
