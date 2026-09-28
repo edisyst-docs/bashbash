@@ -1,5 +1,7 @@
 # Servizi, spegnimento e messaggi broadcast
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 07-servizi`. Cosa contiene: [lab/](lab/).
+
 ## systemd
 ```bash
 systemctl reload apache2  # ricarica la configurazione di Apache dopo aver modificato le conf dei sites

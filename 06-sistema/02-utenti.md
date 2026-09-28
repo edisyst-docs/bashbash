@@ -1,5 +1,7 @@
 # Utenti e gruppi
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 02-utenti`. Cosa contiene: [lab/](lab/).
+
 ## Chi sono, chi è collegato
 ```bash
 whoami     # restituisce il mio username

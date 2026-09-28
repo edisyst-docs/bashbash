@@ -1,5 +1,7 @@
 # GPG: cifrare file
 
+> **Laboratorio**: `./lab.sh 08`, poi `cd 03-gpg`. Cosa contiene: [lab/](lab/).
+
 GnuPG (`gpg`) è installato su quasi ogni distribuzione. Cifra e firma file con due metodi:
 - **simmetrico**: una sola password, per cifrare e per decifrare. Semplice, per i propri backup
 - **asimmetrico**: una coppia di chiavi

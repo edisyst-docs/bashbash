@@ -1,5 +1,7 @@
 # Firewall e hardening di base
 
+> **Laboratorio**: `./lab.sh 08`, poi `cd 02-firewall-e-hardening`. Cosa contiene: [lab/](lab/).
+
 Le prime cose da fare su un server Ubuntu/Debian appena creato ed esposto su internet.
 
 > **ATTENZIONE**: lavorando via SSH, un errore su firewall o sshd può chiudere fuori anche te.

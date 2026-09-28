@@ -1,5 +1,7 @@
 # Dischi e partizioni
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 04-dischi`. Cosa contiene: [lab/](lab/).
+
 ## Montare e smontare
 ```bash
 mount /dev/sda1 /mnt # monta il disco sda1 nella cartella /mnt

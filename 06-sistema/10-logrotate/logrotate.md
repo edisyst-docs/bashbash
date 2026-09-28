@@ -1,5 +1,7 @@
 # LOGROTATE
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 10-logrotate`. Cosa contiene: [lab/](../lab/).
+
 `logrotate` è un utility su Linux che aiuta a gestire i file di log. Il suo scopo principale è quello di ruotare i log, 
 ovvero rinominarli, comprimerli, eliminarli o inviarli via email dopo che hanno raggiunto una certa dimensione o dopo un certo periodo di tempo. 
 Questo evita che i file di log crescano indefinitamente, occupando spazio su disco.

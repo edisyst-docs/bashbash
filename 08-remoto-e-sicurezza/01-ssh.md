@@ -1,5 +1,7 @@
 # SSH
 
+> **Laboratorio**: `./lab.sh 08`, poi `cd 01-ssh`. Cosa contiene: [lab/](lab/).
+
 Accesso remoto cifrato a un server, trasferimento di file e tunnel.
 
 ## Collegarsi

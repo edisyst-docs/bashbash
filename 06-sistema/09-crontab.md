@@ -1,5 +1,7 @@
 # Crontab
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 09-crontab`. Cosa contiene: [lab/](lab/).
+
 `crontab -e` apre (in EDIT MODE, tipicamente con VIM) il crontab dell'utente in corso
 
 `crontab -e -u pippo` lo lancia root impersonando l'utente pippo, evidentemente perché l'owner non è root ma pippo

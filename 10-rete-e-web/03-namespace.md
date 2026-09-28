@@ -1,11 +1,13 @@
 # Laboratorio: più host su una sola macchina con i network namespace
 
+> **Laboratorio**: `./lab.sh 10`, poi `cd 03-namespace`. Cosa contiene: [lab/](lab/).
+
 Per far comunicare due o più "host" con IP diversi senza macchine virtuali si usano i **network namespace**:
 una funzionalità del kernel che dà a un gruppo di processi un ambiente di rete tutto suo (interfacce, IP,
 tabella di routing, regole firewall). È lo stesso meccanismo su cui si basano i container Docker.
 
 Funziona su qualunque Ubuntu, compresa WSL. Serve root. Dentro il container del `Dockerfile` della KB funziona
-solo avviandolo con `--privileged`: meglio WSL o una VM.
+solo con `NET_ADMIN` e `SYS_ADMIN` (o `--privileged`): il laboratorio dell'area li ha già, vedi [lab/](lab/).
 
 ## Due host collegati da un cavo
 ```bash

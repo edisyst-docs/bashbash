@@ -1,5 +1,7 @@
 # FILE SYSTEM DEBIAN/UBUNTU
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 01-filesystem`. Cosa contiene: [lab/](lab/).
+
 ```bash
 /
 ├── bin

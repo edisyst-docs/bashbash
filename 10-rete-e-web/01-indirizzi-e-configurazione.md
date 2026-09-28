@@ -1,5 +1,7 @@
 # Indirizzi IP e configurazione di rete
 
+> **Laboratorio**: `./lab.sh 10`, poi `cd 01-indirizzi-e-configurazione`. Cosa contiene: [lab/](lab/).
+
 Come si legge un indirizzo con la sua subnet, come si configura un'interfaccia a mano e in modo permanente,
 e a cosa corrispondono i vecchi comandi `ifconfig`, `route`, `netstat`.
 

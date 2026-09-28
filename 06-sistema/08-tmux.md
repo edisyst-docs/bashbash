@@ -1,5 +1,7 @@
 # tmux
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 08-tmux`. Cosa contiene: [lab/](lab/).
+
 Terminali e finestre multipli su una singola istanza, per esempio su un singolo collegamento SSH.
 
 ## Gestione sessioni

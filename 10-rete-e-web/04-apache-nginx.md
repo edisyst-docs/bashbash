@@ -1,5 +1,7 @@
 # Apache e Nginx
 
+> **Laboratorio**: `./lab.sh 10`, poi `cd 04-apache-nginx`. Cosa contiene: [lab/](lab/).
+
 I due web server più diffusi su Debian/Ubuntu. Si gestiscono entrambi con `systemctl`
 (vedi [../06-sistema/07-servizi.md](../06-sistema/07-servizi.md)); cambiano il modo di abilitare siti e moduli.
 
@@ -23,6 +25,10 @@ sudo apache2ctl configtest && sudo systemctl reload apache2
 `reload` rilegge la configurazione senza interrompere le connessioni in corso; `restart` ferma e riavvia il processo.
 Se la configurazione ha un errore, `reload` fallisce e il server continua a girare con quella vecchia,
 mentre dopo un `restart` il server resta **spento**.
+
+> **NOTA**: `systemctl reload nginx` torna appena ha mandato il segnale al processo master: per un istante
+> rispondono ancora i worker con la configurazione vecchia. Un `curl` lanciato subito dopo, in uno script,
+> può vedere il sito di prima: meglio un `sleep 1` prima di verificare.
 
 ## Apache
 ```bash

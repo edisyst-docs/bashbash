@@ -1,5 +1,7 @@
 # Data, ora e localizzazione
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 05-data-e-ora`. Cosa contiene: [lab/](lab/).
+
 ## Configurazione
 ```bash
 dpkg-reconfigure tzdata  # modifica timezone/fuso orario

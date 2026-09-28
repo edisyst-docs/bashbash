@@ -1,5 +1,7 @@
 # Gestione pacchetti (apt)
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 03-pacchetti-apt`. Cosa contiene: [lab/](lab/).
+
 ## Cercare e ispezionare
 ```bash
 apt-cache search pdf   # cerca ad esempio programmi per PDF

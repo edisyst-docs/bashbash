@@ -1,5 +1,7 @@
 # Rete e identità della macchina
 
+> **Laboratorio**: `./lab.sh 06`, poi `cd 06-rete-e-host`. Cosa contiene: [lab/](lab/).
+
 ## Hostname e sistema operativo
 ```bash
 hostname    # hostname della macchina

@@ -1,4 +1,9 @@
-FROM ubuntu:24.04
+# Immagini della KB. Senza --target si costruisce l'ultimo stadio, cioè la shell di sempre:
+#   docker build -t bashbash .                                  shell Ubuntu con gli strumenti della KB
+#   docker build --target systemd -t bashbash-systemd .         UGUALE + systemd come PID 1 e servizi veri
+# La seconda la costruisce da sola docker compose nei laboratori che ne hanno bisogno (06, 08, 10).
+
+FROM ubuntu:24.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
@@ -21,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     # rete
     curl wget jq \
     iproute2 net-tools iputils-ping dnsutils \
-    traceroute mtr-tiny whois iftop tcpdump nmap netcat-openbsd ipcalc \
+    traceroute iputils-tracepath mtr-tiny whois iftop tcpdump nmap netcat-openbsd ipcalc \
     openssh-client gnupg \
     # sistema e terminale
     sudo adduser cron logrotate tmux \
@@ -35,6 +40,34 @@ RUN useradd -m -s /bin/bash tester \
     && usermod -aG sudo tester
 
 WORKDIR /kb
+
+
+# ---------------------------------------------------------------- systemd
+# systemd come PID 1: systemctl, journalctl, timer, servizi veri (ssh, nginx, apache2, fail2ban, ufw).
+# Va avviato con /sys/fs/cgroup in scrittura e CAP_SYS_ADMIN (vedi i compose.yaml dei laboratori):
+# NON serve --privileged, quindi il container non vede i dischi della macchina.
+FROM base AS systemd
+
+RUN apt-get update && apt-get install -y \
+    systemd systemd-sysv dbus libpam-systemd rsyslog \
+    openssh-server nginx apache2 \
+    ufw fail2ban iptables \
+    && rm -rf /var/lib/apt/lists/* \
+    # apache2 sulla 8080: la 80 è di nginx (entrambi attivi, come su tanti server di sviluppo)
+    && sed -i 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
+    && sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-available/000-default.conf \
+    # unit che in un container non hanno senso e finirebbero in "failed"
+    && systemctl mask systemd-udevd.service systemd-udevd-kernel.socket systemd-udevd-control.socket \
+        systemd-modules-load.service sys-kernel-config.mount sys-kernel-debug.mount sys-kernel-tracing.mount \
+        getty@tty1.service console-getty.service systemd-remount-fs.service \
+    && systemctl enable ssh nginx apache2 rsyslog
+
+STOPSIGNAL SIGRTMIN+3
+CMD ["/sbin/init"]
+
+
+# ---------------------------------------------------------------- default
+FROM base
 
 # shell interattiva; per i laboratori delle aree vedi ./lab.sh
 CMD ["bash"]

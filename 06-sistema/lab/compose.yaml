@@ -1,0 +1,27 @@
+# Laboratorio dell'area 06: lo avvia ./lab.sh 06 dalla radice della KB.
+# Un solo container, "sistema": Ubuntu 24.04 con systemd come PID 1 e servizi veri
+# (ssh, nginx, apache2 sulla 8080, cron, rsyslog, fail2ban). lab.sh ci entra con compose exec.
+#
+# NON è --privileged: ha solo CAP_SYS_ADMIN e il cgroup in scrittura, che servono a systemd.
+# Non vede i dischi della macchina, quindi mkfs, fdisk e mount di partizioni non possono fare danni.
+name: lab-06
+x-lab-entra: sistema
+
+services:
+  sistema:
+    image: bashbash-systemd
+    build:
+      context: ../..
+      target: systemd
+    hostname: lab-06
+    cgroup: private
+    cap_add: [SYS_ADMIN]
+    tmpfs: [/run, /run/lock]
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - ../..:/kb:ro
+    healthcheck:                                  # "degraded" = partito, ma con qualche unit fallita
+      test: ["CMD-SHELL", "systemctl is-system-running | grep -qE '^(running|degraded)$$'"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

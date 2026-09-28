@@ -4,13 +4,13 @@
 # Uso: ./lab.sh AREA [--tester] [--build] [-- COMANDO]
 #   AREA        numero dell'area (es. 02) o nome della cartella (es. 02-file-e-permessi)
 #   --tester    entra come utente tester (password: tester) invece che come root
-#   --build     ricostruisce l'immagine bashbash prima di partire
+#   --build     ricostruisce le immagini (bashbash e, dove serve, bashbash-systemd)
 #   -- COMANDO  esegue COMANDO dentro il laboratorio ed esce, senza shell interattiva
 #
 # Il container parte da zero ogni volta: la KB è montata in /kb in SOLA LETTURA, i file
-# del laboratorio vengono generati in ~/lab e spariscono all'uscita. Se l'area ha anche
-# lab/compose.yaml (database, API...), i servizi partono insieme alla shell e all'uscita
-# vengono eliminati con i loro volumi.
+# del laboratorio vengono generati in ~/lab e spariscono all'uscita. Se l'area ha anche un
+# lab/compose.yaml (database, API, server con systemd...), i servizi partono con la shell
+# e all'uscita vengono eliminati con i loro volumi.
 set -euo pipefail
 
 KB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -64,21 +64,29 @@ else
     AVVIO='bash "$LAB_PREPARA" "$HOME/lab" && cd "$HOME/lab" && exec bash'
 fi
 
-# Aree con servizi (database, API...): lab/compose.yaml definisce il servizio "shell" più gli altri.
-# compose run avvia anche le dipendenze; all'uscita down -v elimina container, rete e volumi.
+# Aree con servizi: lab/compose.yaml. Due modi, li sceglie il compose.yaml stesso:
+#   - un servizio "shell": compose run lo avvia insieme alle sue dipendenze (area 09)
+#   - una riga "x-lab-entra: NOME": tutti i servizi partono con compose up e si entra in NOME con
+#     compose exec, perché la shell deve stare nel container dove gira systemd (aree 06, 08, 10)
+# All'uscita down -v elimina container, rete e volumi.
 COMPOSE="$KB/$CARTELLA/lab/compose.yaml"
 if [[ -f $COMPOSE ]]; then
+    ENTRA=$(sed -n 's/^x-lab-entra: *\([A-Za-z0-9_-]*\).*/\1/p' "$COMPOSE")
     command -v cygpath > /dev/null && COMPOSE=$(cygpath -w "$COMPOSE")
     compose() { docker compose --progress quiet -f "$COMPOSE" "$@"; }
     trap 'echo "Spengo i servizi del laboratorio..." >&2; compose down -v --remove-orphans > /dev/null 2>&1' EXIT
     [[ ${TTY[0]} == -it ]] && TTY_COMPOSE=() || TTY_COMPOSE=(-T)
+    BUILD_COMPOSE=()
+    (( BUILD )) && BUILD_COMPOSE=(--build)
+    AMBIENTE=(-u "$UTENTE" -e LAB_PREPARA="$PREPARA" -e LAB_COMANDO="$COMANDO" -e TERM="${TERM:-xterm}")
     stato=0
-    compose run --rm "${TTY_COMPOSE[@]}" \
-        -u "$UTENTE" \
-        -e LAB_PREPARA="$PREPARA" \
-        -e LAB_COMANDO="$COMANDO" \
-        -e TERM="${TERM:-xterm}" \
-        shell bash -c "$AVVIO" || stato=$?
+    if [[ -n $ENTRA ]]; then
+        echo "Avvio i servizi del laboratorio (la prima volta costruisce le immagini)..." >&2
+        compose up -d --wait "${BUILD_COMPOSE[@]}" || muori "i servizi non sono partiti: docker compose -f \"$COMPOSE\" logs"
+        compose exec "${TTY_COMPOSE[@]}" "${AMBIENTE[@]}" "$ENTRA" bash -c "$AVVIO" || stato=$?
+    else
+        compose run --rm "${BUILD_COMPOSE[@]}" "${TTY_COMPOSE[@]}" "${AMBIENTE[@]}" shell bash -c "$AVVIO" || stato=$?
+    fi
     exit "$stato"
 fi
 

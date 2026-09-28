@@ -120,10 +120,20 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 
 ## Laboratori: provare i comandi
 
-Le aree 02, 03, 05 e 09 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i file che
-servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
+Le aree 02, 03, 05, 06, 08, 09 e 10 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
-servizi c'è anche un `lab/compose.yaml`: l'area 09 avvia così MySQL 9.7 e un'API finta su `http://api`.
+servizi c'è anche un `lab/compose.yaml`:
+
+| Area | Cosa avvia |
+|---|---|
+| 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
+| 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban |
+| 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
+| 10 | una rete con un router in mezzo (host, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace e web server |
+
+I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability
+che servono (`SYS_ADMIN` per systemd, `NET_ADMIN` per rete e firewall).
 ```bash
 ./lab.sh 03               # shell come root in ~/lab, con i file dell'area 03 già pronti
 cd 02-grep                # la cartella del .md che sto studiando
@@ -168,7 +178,10 @@ docker run --rm -it -v "$(pwd):/kb" bashbash su - tester
 docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 ```
 
-> **Limitazioni:** `systemctl`, `ufw` (come firewall attivo), `mount` di partizioni, `fail2ban` e `ip netns` richiedono init/privilegio che non funzionano in container standard. Per il resto la KB funziona normalmente.
+> **Limitazioni:** in questa shell semplice `systemctl`, `ufw`, `fail2ban` e `ip netns` non funzionano: servono systemd
+> e alcune capability. Li hanno i laboratori delle aree 06, 08 e 10 (`./lab.sh 06`). Restano fuori da tutti i
+> laboratori il `mount` di partizioni vere e lo swap, che richiederebbero `--privileged`: con quello il container
+> vedrebbe i dischi della macchina.
 
 ## Trovare un comando
 Se non ricordi in che file sta un comando:
@@ -181,7 +194,7 @@ grep -rn "nome_comando" --include="*.md" .
 - File e cartelle in minuscolo, parole separate da trattino.
 - Ogni cartella ha un `README.md` con l'indice dei suoi file.
 - In `05-scripting/` e `04-processi/` lo script di prova porta lo stesso numero del `.md` che lo spiega.
-- La cartella `lab/` di un'area contiene `prepara.sh` (genera i file del laboratorio, una sottocartella per `.md`), `README.md` (cosa contiene) ed eventualmente `materiale/` (file non generabili) e `compose.yaml` (servizi, con un servizio `shell` in cui si entra).
+- La cartella `lab/` di un'area contiene `prepara.sh` (genera i file del laboratorio, una sottocartella per `.md`), `README.md` (cosa contiene) ed eventualmente `materiale/` (file non generabili) e `compose.yaml` (servizi: o un servizio `shell` che `lab.sh` avvia, o una riga `x-lab-entra: NOME` con il servizio in cui entrare).
 - Ogni comando ha il suo commento inline sulla stessa riga, allineato.
 - `UGUALE` indica una forma alternativa che fa esattamente la stessa cosa del comando sopra.
 - Gli script `.sh` sono in LF, i `.bat` e i `.ps1` in CRLF: lo forza il `.gitattributes`.

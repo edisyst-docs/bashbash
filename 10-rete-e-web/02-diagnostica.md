@@ -1,10 +1,12 @@
 # Diagnostica di rete
 
+> **Laboratorio**: `./lab.sh 10`, poi `cd 02-diagnostica`. Cosa contiene: [lab/](lab/).
+
 Percorso dei pacchetti, DNS in profondità, traffico in tempo reale, scansione delle porte.
 
 Molti di questi strumenti non sono installati di default:
 ```bash
-sudo apt install traceroute mtr-tiny whois dnsutils iftop tcpdump nmap netcat-openbsd
+sudo apt install traceroute iputils-tracepath mtr-tiny whois dnsutils iftop tcpdump nmap netcat-openbsd
 ```
 
 ## Percorso dei pacchetti
@@ -62,6 +64,8 @@ sudo iftop -F 192.168.1.0/24       # considera "locale" quella rete: il traffico
 sudo iftop -t -s 10                # modalità testo per 10 secondi, poi esce: utilizzabile negli script e nei log
 ip -s link show eth0               # contatori totali di byte, pacchetti, errori e scarti dell'interfaccia
 ```
+> **NOTA**: con `-t -s` iftop stampa ed esce solo se sull'interfaccia passa del traffico: su un'interfaccia
+> muta resta in attesa. In uno script conviene proteggerlo con `timeout 20 iftop -t -s 10`.
 
 ## tcpdump: catturare i pacchetti
 Mostra i pacchetti che passano da un'interfaccia. Serve per rispondere a "la richiesta arriva davvero al server?".

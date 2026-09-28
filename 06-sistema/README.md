@@ -15,4 +15,7 @@ Amministrazione della macchina: utenti, pacchetti, dischi, schedulazione, log.
 | 09 | [crontab](09-crontab.md) | Sintassi, crontab reale, `flock`, backup MySQL con rotazione |
 | 10 | [logrotate](10-logrotate/) | Rotazione dei log, con script e configurazione di esempio |
 
+**Laboratorio**: `./lab.sh 06` dalla radice della KB apre un container Ubuntu con systemd come PID 1:
+`systemctl`, `journalctl`, timer, cron e servizi veri (ssh, nginx, apache2, fail2ban). Dettagli in [lab/](lab/).
+
 Area precedente: [../05-scripting/](../05-scripting/) · Prossima: [../07-windows/](../07-windows/)
