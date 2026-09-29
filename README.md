@@ -120,6 +120,19 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 
 ## Laboratori: provare i comandi
 
+**Prerequisiti:** Docker Desktop installato e avviato. Nient'altro.
+
+**Allestimento (una tantum):** la prima volta `./lab.sh <area>` costruisce l'immagine Docker (~1 min); le volte successive parte in pochi secondi.
+
+**Flusso di studio:**
+1. Apri il `.md` dell'argomento (es. `02-file-e-permessi/02-find.md`)
+2. In un secondo terminale, dalla radice della KB: `./lab.sh 02`
+3. Sei in `~/lab` come root — il file è già lì: `cd 02-find`
+4. Prova i comandi seguendo il `.md`; puoi rovinare tutto, il container è usa-e-getta
+5. `exit` → container e file spariscono; riaprilo per ripartire da zero
+
+---
+
 Le aree 02, 03, 05, 06, 08, 09 e 10 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
