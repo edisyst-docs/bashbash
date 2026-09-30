@@ -37,18 +37,21 @@ cat > nuovo_file           # crea nuovo_file e dentro ci scrive ciò che l'utent
 `xargs` prende i suoi parametri dallo standard input e li passa come argomenti a un altro comando.
 Serve quando il comando di destinazione non legge da stdin (es. `cp`, `rm`, `tar`).
 ```bash
-echo {1..9} | xargs -n4  # processa i parametri 4 alla volta e ne fa un echo
-
-find /etc/ -iname '*.conf' | xargs tar -czvf configs.tar.gz  # scrive tutto in un archivio compresso tar
-tar -tf configs.tar.gz | wc -l                               # conto quante righe sono, cioè quanti file
+find /var/log -name '*.log' | xargs wc -l          # conta le righe di tutti i file di log trovati
+find . -name '*.bak' | xargs rm                    # elimina tutti i file .bak trovati da find
+cat lista_file.txt | xargs cp -t /backup/          # copia in /backup/ tutti i file elencati nel file di testo
 ```
 
 ### xargs avanzato
 ```bash
-find . -name '*.log' -print0 | xargs -0 -r gzip # -print0/-0 separano con il carattere NUL: gestisce nomi con spazi e a capo
-                                                # -r non esegue gzip se find non trova niente
-echo a b c | xargs -I{} echo "file: {}.txt"     # -I{} sceglie il placeholder: il comando viene lanciato una volta per elemento
-cat urls.txt | xargs -n1 -P8 curl -s -o /dev/null -w '%{http_code} %{url_effective}\n' # 8 curl in parallelo (-P8): status HTTP di una lista di URL
+find . -name '*.log' -print0 | xargs -0 -r gzip   # -print0/-0 separano con NUL: gestisce nomi con spazi
+                                                   # -r non esegue gzip se find non trova niente
+
+find . -name '*.php' -print0 | xargs -0 grep -l 'eval('  # trova i file PHP che contengono eval(): cerca su tutti i file senza aprire una shell per ognuno
+
+cat server.txt | xargs -I{} ssh {} 'df -h /'       # -I{} lancia il comando una volta per host: spazio disco su ogni server in lista
+
+cat urls.txt | xargs -n1 -P8 curl -s -o /dev/null -w '%{http_code} %{url_effective}\n'  # 8 curl in parallelo (-P8): status HTTP di una lista di URL
 ```
 
 ## Exit status di una pipeline
