@@ -8,6 +8,10 @@ Docker, Kubernetes, Jenkins, Ansible e Terraform hanno un'area tutta loro: [../1
 | 01 | [jq e curl](01-jq-e-curl.md) | Richieste HTTP, API, misurare i tempi, download con `wget`, leggere e costruire JSON |
 | 02 | [git](02-git.md) | Storia, `stash`, correzioni, `reflog`, `bisect`, branch, hook |
 | 03 | [mysql](03-mysql.md) | Client `mysql`, `mysqldump`, ripristino, diagnostica, utenti |
+| 04 | [php](04-php.md) | Ispezione installazione, esecuzione al volo, lint, server built-in, Composer |
+| 05 | [python](05-python.md) | Ispezione installazione, snippet al volo, venv, pip, moduli stdlib utili |
+| 06 | [postgresql](06-postgresql.md) | Client `psql`, `pg_dump`/`pg_restore`, diagnostica, utente applicativo |
+| 07 | [redis](07-redis.md) | `redis-cli`, chiavi, strutture dati, monitoraggio, amministrazione |
 
 **Laboratorio**: `./lab.sh 09` dalla radice della KB avvia un MySQL 9.7 con un database già popolato,
 un'API finta su `http://api` e un repository git con una storia da indagare. Dettagli in [lab/](lab/).
