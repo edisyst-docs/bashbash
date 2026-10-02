@@ -1,6 +1,6 @@
 # 11 - Container e automazione
 
-Docker, compose, swarm e Kubernetes; CI/CD con Jenkins; configurazione con Ansible e infrastruttura con Terraform.
+Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab; configurazione con Ansible e infrastruttura con Terraform.
 
 | # | File/cartella | Contenuto |
 |---|---|---|
@@ -13,5 +13,6 @@ Docker, compose, swarm e Kubernetes; CI/CD con Jenkins; configurazione con Ansib
 | 07 | [jenkins](07-jenkins/) | Laboratorio configurato da codice (JCasC, Docker in Docker, agenti), Jenkinsfile Declarative, 9 pipeline di esempio, API REST |
 | 08 | [ansible](08-ansible/) | Inventory, playbook, moduli, group_vars; laboratorio Docker master→slave |
 | 09 | [terraform](09-terraform/) | Infrastructure as Code: HCL, variabili, `for_each`, moduli, stato, import; esempi Docker, AWS e Kubernetes |
+| 10 | [gitlab ci](10-gitlab-ci/) | GitLab CE + runner in compose e `gitlab-ci-local`, `.gitlab-ci.yml`: rules, needs, matrix, artefatti e cache, variabili protette, servizi, registry, ambienti, include; 9 pipeline di esempio |
 
 Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Torna all'[indice](../README.md)

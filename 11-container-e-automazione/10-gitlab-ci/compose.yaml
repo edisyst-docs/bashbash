@@ -1,0 +1,76 @@
+# GitLab CE + un runner con executor docker + Docker in Docker per i container dei job
+#   docker compose up -d          -> http://gitlab.localhost:8929 (primo avvio: 3-5 minuti), utente root, password in .env
+#   ./configura.sh                -> token, runner registrato, un progetto per ogni pipeline di esempio
+#   docker compose down -v        (smonta tutto, dati compresi)
+# Serve Docker con almeno 6 GB di RAM: GitLab da solo ne usa circa 3.
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:19.4.1-ce.0
+    hostname: gitlab.localhost
+    shm_size: 256m                               # Prometheus e Puma usano /dev/shm: con i 64 MB di default si lamentano
+    environment:
+      GITLAB_ROOT_PASSWORD: ${GITLAB_ROOT_PASSWORD:-Tiglio-Arancio-4729}
+      # gitlab.rb in una variabile: viene applicato a ogni avvio (gitlab-ctl reconfigure)
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.localhost:8929'
+        registry_external_url 'http://gitlab.localhost:5050'
+        gitlab_rails['initial_root_password'] = ENV['GITLAB_ROOT_PASSWORD']
+        # meno memoria: niente processi Puma separati, meno thread Sidekiq, niente monitoraggio interno
+        puma['worker_processes'] = 0
+        sidekiq['concurrency'] = 10
+        prometheus_monitoring['enable'] = false
+    ports:
+      - "8929:8929"                              # interfaccia web, API e git via HTTP
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab              # repository, database, registry
+    networks:
+      ci:
+        ipv4_address: 172.29.250.10              # IP fisso: i container dei job lo raggiungono con extra_hosts
+        aliases: [gitlab.localhost]
+
+  # Docker in Docker: il demone su cui il runner avvia i container dei job (come nel laboratorio di Jenkins)
+  docker:
+    image: docker:29-dind
+    privileged: true
+    command: ["--insecure-registry=gitlab.localhost:5050"]   # il registry del laboratorio è HTTP, non HTTPS
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    ports:
+      - "8930:8930"                              # gli ambienti "staging" e "production" della pipeline 08
+      - "8931:8931"
+    volumes:
+      - docker_certs:/certs/client
+      - docker_data:/var/lib/docker
+    networks:
+      ci:
+        ipv4_address: 172.29.250.20
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 5s
+      retries: 20
+
+  runner:
+    image: gitlab/gitlab-runner:v19.4.1          # stessa versione di GitLab
+    volumes:
+      - runner_config:/etc/gitlab-runner         # config.toml, scritto da "gitlab-runner register"
+      - docker_certs:/certs/client:ro            # certificati client per parlare con il demone dind
+    networks: [ci]
+    depends_on:
+      docker:
+        condition: service_healthy
+
+networks:
+  ci:
+    ipam:
+      config:
+        - subnet: 172.29.250.0/24
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+  docker_certs:
+  docker_data:
+  runner_config:

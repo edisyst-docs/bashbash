@@ -1,0 +1,21 @@
+# Modelli comuni, inclusi dalla pipeline 09-riuso con "include: local". In un'azienda starebbero in un
+# repository a parte, inclusi con "include: project" (o pubblicati come componente CI/CD).
+.python:
+  image: python:3.13-slim
+  variables:
+    PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+  cache:
+    key: pip
+    paths: [.cache/pip]
+  before_script:
+    - pip install --quiet -r app/requirements.txt
+
+.solo-main:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.comandi:
+  saluto:
+    - echo "pipeline $CI_PIPELINE_ID su $CI_COMMIT_REF_NAME"
+  pulizia:
+    - rm -rf .cache/tmp

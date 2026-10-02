@@ -1,0 +1,58 @@
+# Variabili CI/CD del progetto (Settings > CI/CD > Variables, create da configura.sh): mascherate, protette,
+# di tipo file, legate a un ambiente. Poi variabili passate fra job (dotenv) e il token del job.
+stages:
+  - segreti
+  - passaggio
+
+default:
+  image: alpine:3.22
+
+segreti:
+  stage: segreti
+  script:
+    - echo "TOKEN_DEMO vale $TOKEN_DEMO"         # nel log: [MASKED]
+    - echo "lunghezza ${#TOKEN_DEMO} caratteri"  # il valore c'è, è solo nascosto nel log
+    - echo "UTENTE_DEMO vale $UTENTE_DEMO"       # non mascherata: si legge
+    - echo "SOLO_PROTETTI vale '${SOLO_PROTETTI:-}'"   # protetta: solo su branch e tag protetti (main lo è)
+    - echo "CONFIG_DEMO è il percorso di un file temporaneo -> $CONFIG_DEMO"
+    - cat "$CONFIG_DEMO"
+    - echo "PASSWORD_STAGING vale '${PASSWORD_STAGING:-}'"  # vuota: è legata all'ambiente staging
+
+staging:
+  stage: segreti
+  environment:
+    name: staging
+    action: prepare                              # usa l'ambiente senza registrare un deploy
+  script:
+    - echo "PASSWORD_STAGING vale $PASSWORD_STAGING"   # qui c'è (mascherata)
+
+feature:
+  stage: segreti
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH   # su un branch non protetto: git push origin main:prova
+  script:
+    - echo "SOLO_PROTETTI vale '${SOLO_PROTETTI:-}'"   # vuota
+
+calcola:
+  stage: segreti
+  script:
+    - echo "VERSIONE_CALCOLATA=1.4.$CI_PIPELINE_IID" >> build.env
+    - echo "IMMAGINE=registry.example.com/app:$CI_COMMIT_SHORT_SHA" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env                          # le righe CHIAVE=valore diventano variabili dei job successivi
+
+usa-calcolate:
+  stage: passaggio
+  needs: [calcola]
+  script:
+    - echo "versione $VERSIONE_CALCOLATA, immagine $IMMAGINE"
+
+token-del-job:
+  stage: passaggio
+  script:
+    - apk add --no-cache curl >/dev/null
+    # CI_JOB_TOKEN: valido solo mentre il job gira, con i permessi di chi ha avviato la pipeline (ridotti)
+    # apici singoli attorno alla riga: ": " ne farebbe una mappa YAML.
+    # --connect-to solo nel laboratorio: curl manda ogni *.localhost a 127.0.0.1, cioè al container del job
+    - 'curl -fsS --connect-to gitlab.localhost:8929:gitlab:8929 --header "JOB-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/job" | cut -c1-300'

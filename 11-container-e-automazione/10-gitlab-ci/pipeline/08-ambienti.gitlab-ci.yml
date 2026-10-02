@@ -1,0 +1,62 @@
+# Ambienti e deploy: environment con url, deploy manuale in produzione, resource_group, on_stop.
+# Il "server" è il demone dind: staging risponde su http://localhost:8930, produzione su http://localhost:8931.
+# Operate > Environments: gli ambienti, la loro storia di deploy, i pulsanti per fermarli o tornare indietro.
+stages:
+  - build
+  - staging
+  - produzione
+
+default:
+  image: docker:29-cli
+
+.deploy:                                         # job nascosto (inizia con il punto): un modello per i due deploy
+  script:
+    - docker rm -f "app-$AMBIENTE" 2>/dev/null || true
+    - docker run -d --name "app-$AMBIENTE" -p "$PORTA:80" nginx:1.29-alpine
+    - docker exec "app-$AMBIENTE" sh -c "echo '<h1>$AMBIENTE</h1><p>commit $CI_COMMIT_SHORT_SHA, pipeline $CI_PIPELINE_ID</p>' > /usr/share/nginx/html/index.html"
+    - wget -qO- "http://docker:$PORTA/"
+
+pacchetto:
+  stage: build
+  script:
+    - echo "qui si costruirebbe l'immagine (vedi 07-ci-app)"
+
+deploy-staging:
+  stage: staging
+  extends: .deploy
+  variables:
+    AMBIENTE: staging
+    PORTA: "8930"
+  environment:
+    name: staging
+    url: http://localhost:8930                   # il pulsante "Open" nella pagina dell'ambiente
+    on_stop: ferma-staging
+    auto_stop_in: 1 day                          # GitLab lancia ferma-staging da solo dopo un giorno
+  resource_group: staging                        # un deploy alla volta su questo ambiente
+
+ferma-staging:
+  stage: staging
+  variables:
+    GIT_STRATEGY: none                           # quando parte, il branch potrebbe non esistere più: niente clone
+  script:
+    - docker rm -f app-staging
+  environment:
+    name: staging
+    action: stop
+  when: manual
+
+deploy-produzione:
+  stage: produzione
+  extends: .deploy
+  variables:
+    AMBIENTE: produzione
+    PORTA: "8931"
+  environment:
+    name: production
+    url: http://localhost:8931
+    deployment_tier: production
+  resource_group: produzione
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual                               # pulsante "play"; la pipeline resta "blocked" finché non si preme
+      allow_failure: false

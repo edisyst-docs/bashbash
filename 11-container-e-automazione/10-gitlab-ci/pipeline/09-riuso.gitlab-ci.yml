@@ -1,0 +1,44 @@
+# Non ripetersi: include, job nascosti con extends, !reference, ancore YAML.
+# Build > Pipeline editor > "Full configuration" mostra il file come lo vede GitLab, dopo include ed extends.
+include:
+  - local: ci/modelli.yml                        # un file dello stesso repository (percorso dalla radice)
+
+stages:
+  - controlli
+  - test
+
+# ancora YAML: funziona solo dentro questo file (gli include non la vedono)
+.ritenta: &ritenta
+  retry:
+    max: 1
+    when: runner_system_failure
+
+sintassi:
+  stage: controlli
+  extends: .python                               # eredita image, variables, cache, before_script
+  script:
+    - python -m py_compile app/app.py app/test_app.py
+    - echo "sintassi ok"
+
+test:
+  stage: test
+  extends:
+    - .python
+    - .solo-main                                 # più modelli: in caso di chiavi uguali vince l'ultimo
+  <<: *ritenta
+  script:
+    - !reference [.comandi, saluto]              # inserisce i comandi di un altro blocco
+    - pip install --quiet pytest
+    - cd app && pytest -q
+  after_script:
+    - !reference [.comandi, pulizia]
+
+personalizzato:
+  stage: test
+  extends: .python
+  image: python:3.12-slim                        # le chiavi del job vincono su quelle del modello
+  before_script:
+    - !reference [.python, before_script]        # quello del modello, più un comando
+    - pip list | grep -i flask
+  script:
+    - python --version

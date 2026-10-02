@@ -1,0 +1,66 @@
+# CI completa di app/: test con report JUnit e copertura, cache di pip, immagine nel Container Registry del
+# progetto, smoke test dell'immagine appena pubblicata.
+# I job con image docker:29-cli usano il demone dind del laboratorio: DOCKER_HOST e i certificati li imposta il
+# runner (vedi configura.sh). Su GitLab.com o con un runner normale si aggiunge "services: [docker:29-dind]".
+stages:
+  - test
+  - build
+  - verifica
+
+variables:
+  IMMAGINE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA   # gitlab.localhost:5050/root/07-ci-app:abc1234
+
+test:
+  stage: test
+  image: python:3.13-slim
+  variables:
+    PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip    # la cache deve stare dentro la cartella del progetto
+  cache:
+    key:
+      files: [app/requirements.txt]              # cache nuova quando cambiano le dipendenze
+    paths: [.cache/pip]
+  script:
+    - pip install --quiet -r app/requirements.txt pytest pytest-cov
+    - cd app
+    - pytest --junitxml=report.xml --cov=. --cov-report=term --cov-report=xml:coverage.xml
+  coverage: '/^TOTAL.+?(\d+\%)$/'                # la percentuale letta dal log: compare nella lista dei job e nelle MR
+  artifacts:
+    when: always                                 # anche se i test falliscono: è proprio quando servono
+    reports:
+      junit: app/report.xml                      # scheda "Tests" della pipeline
+      coverage_report:
+        coverage_format: cobertura
+        path: app/coverage.xml                   # righe coperte evidenziate nel diff delle MR
+
+immagine:
+  stage: build
+  image: docker:29-cli
+  script:
+    # CI_REGISTRY_USER e CI_REGISTRY_PASSWORD: credenziali temporanee create da GitLab per questo job
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    # --provenance=false: niente attestazione, l'immagine è un manifest semplice. Con l'attestazione Docker 29
+    # pubblica un indice OCI, e il registry del laboratorio risponde "blob unknown to registry"
+    - docker build --pull --provenance=false -t "$IMMAGINE" -t "$CI_REGISTRY_IMAGE:latest" app
+    - docker push "$IMMAGINE"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+smoke-test:
+  stage: verifica
+  image: docker:29-cli
+  needs: [immagine]
+  variables:
+    CONTAINER: smoke-$CI_JOB_ID
+  script:
+    - docker run -d --name "$CONTAINER" -p 5000 "$IMMAGINE"   # porta casuale sul demone dind
+    - PORTA=$(docker port "$CONTAINER" 5000 | head -1 | cut -d':' -f2)
+    - for i in $(seq 1 30); do wget -qO- "http://docker:$PORTA/health" && break; sleep 1; done
+    - wget -qO- "http://docker:$PORTA/" | tee risposta.txt
+    - grep -q "Ciao da Flask" risposta.txt
+  after_script:
+    - docker rm -f "$CONTAINER"
+  artifacts:
+    paths: [risposta.txt]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
