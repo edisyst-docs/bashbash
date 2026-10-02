@@ -1,0 +1,11 @@
+# Datasource creata all'avvio di Grafana: niente click in Connections > Data sources
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy                                 # le query le fa il server Grafana, non il browser
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      timeInterval: 10s                           # uguale allo scrape_interval: è il minimo di $__rate_interval

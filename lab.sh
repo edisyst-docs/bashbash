@@ -67,7 +67,7 @@ fi
 # Aree con servizi: lab/compose.yaml. Due modi, li sceglie il compose.yaml stesso:
 #   - un servizio "shell": compose run lo avvia insieme alle sue dipendenze (area 09)
 #   - una riga "x-lab-entra: NOME": tutti i servizi partono con compose up e si entra in NOME con
-#     compose exec, perché la shell deve stare nel container dove gira systemd (aree 06, 08, 10)
+#     compose exec, perché la shell deve stare nel container dove gira systemd (aree 06, 08, 10, 12)
 # All'uscita down -v elimina container, rete e volumi.
 COMPOSE="$KB/$CARTELLA/lab/compose.yaml"
 if [[ -f $COMPOSE ]]; then

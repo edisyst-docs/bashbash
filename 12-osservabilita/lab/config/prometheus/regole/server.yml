@@ -1,0 +1,66 @@
+# Alert sul server. "for": quanto deve restare vera la condizione prima di passare da pending a firing.
+# Le soglie e le durate sono basse apposta, per vederli scattare in un minuto: in produzione sono più alte.
+groups:
+  - name: server
+    rules:
+      - alert: IstanzaGiu
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} su {{ $labels.instance }} non risponde"
+          description: "Prometheus non riesce a leggere le metriche da {{ $labels.instance }} da almeno 30 secondi."
+
+      - alert: CpuAlta
+        expr: instance:node_cpu_utilizzo:ratio > 0.8
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU al {{ $value | humanizePercentage }} su {{ $labels.host }}"
+
+      - alert: MemoriaScarsa
+        expr: instance:node_memoria_utilizzo:ratio > 0.9
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "memoria usata al {{ $value | humanizePercentage }} su {{ $labels.host }}"
+
+      # filesystem del server; nel laboratorio fuori /kb e i file che Docker monta in /etc (sono dischi del PC)
+      - alert: DiscoQuasiPieno
+        expr: |
+          1 - node_filesystem_avail_bytes{fstype!~"overlay|9p|fuse.*", mountpoint!~"/kb|/etc/.*|/run.*|/sys.*|/dev.*"}
+            / node_filesystem_size_bytes > 0.8
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.mountpoint }} pieno al {{ $value | humanizePercentage }} su {{ $labels.host }}"
+
+      - alert: DiscoSiRiempira
+        expr: |
+          predict_linear(node_filesystem_avail_bytes{fstype!~"overlay|9p|fuse.*", mountpoint!~"/kb|/etc/.*|/run.*|/sys.*|/dev.*"}[5m], 3600) < 0
+          and node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.mountpoint }} su {{ $labels.host }} sarà pieno entro un'ora a questo ritmo"
+
+      - alert: UnitFallita
+        expr: node_systemd_unit_state{state="failed"} == 1
+        labels:
+          severity: warning
+        annotations:
+          summary: "unit {{ $labels.name }} in stato failed su {{ $labels.host }}"
+          description: "systemctl status {{ $labels.name }} e journalctl -u {{ $labels.name }} per capire perché."
+
+      # metrica scritta da backup.sh nel textfile collector; in produzione la soglia sarebbe 26h, non 2 minuti
+      - alert: BackupVecchio
+        expr: time() - backup_ultimo_successo_timestamp_seconds > 120
+        labels:
+          severity: warning
+        annotations:
+          summary: "ultimo backup di {{ $labels.archivio }} su {{ $labels.host }} riuscito {{ $value | humanizeDuration }} fa"

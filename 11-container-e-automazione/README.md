@@ -15,4 +15,4 @@ Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab; configurazione 
 | 09 | [terraform](09-terraform/) | Infrastructure as Code: HCL, variabili, `for_each`, moduli, stato, import; esempi Docker, AWS e Kubernetes |
 | 10 | [gitlab ci](10-gitlab-ci/) | GitLab CE + runner in compose e `gitlab-ci-local`, `.gitlab-ci.yml`: rules, needs, matrix, artefatti e cache, variabili protette, servizi, registry, ambienti, include; 9 pipeline di esempio |
 
-Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Torna all'[indice](../README.md)
+Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Prossima: [../12-osservabilita/](../12-osservabilita/)

@@ -114,6 +114,16 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 9. [terraform](11-container-e-automazione/09-terraform/) — infrastruttura come codice: HCL, moduli, stato, import; esempi Docker, AWS, Kubernetes
 10. [gitlab ci](11-container-e-automazione/10-gitlab-ci/) — `.gitlab-ci.yml`, runner, rules, needs, variabili protette, registry, ambienti; laboratorio GitLab CE e `gitlab-ci-local`, 9 pipeline di esempio
 
+### [12-osservabilita/](12-osservabilita/) — metriche e alert
+Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
+
+1. [concetti](12-osservabilita/01-concetti.md) — metriche, log, tracce; pull e push; USE, RED, SLI/SLO
+2. [prometheus](12-osservabilita/02-prometheus.md) — installazione, `prometheus.yml`, service discovery, relabeling, API, `promtool`
+3. [exporter](12-osservabilita/03-exporter.md) — node_exporter, textfile collector dagli script, blackbox, nginx, database, `/metrics` nelle app
+4. [promql](12-osservabilita/04-promql.md) — `rate`, aggregazioni, `group_left`, percentili, query di tutti i giorni
+5. [alerting](12-osservabilita/05-alerting.md) — regole e unit test, Alertmanager, inibizioni, silenzi con `amtool`
+6. [grafana](12-osservabilita/06-grafana.md) — dashboard, variabili, provisioning da codice, API
+
 ## Supporto (fuori dal percorso)
 
 - **[zz-esempi/](zz-esempi/)** — script completi e funzionanti: la [rubrica](zz-esempi/rubrica/) interattiva e gli [esercizi](zz-esempi/esercizi/) di scripting
@@ -134,7 +144,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 
 ---
 
-Le aree 02, 03, 05, 06, 08, 09 e 10 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+Le aree 02, 03, 05, 06, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
 servizi c'è anche un `lab/compose.yaml`:
@@ -145,6 +155,7 @@ servizi c'è anche un `lab/compose.yaml`:
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban |
 | 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
 | 10 | una rete con un router in mezzo (host, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace e web server |
+| 12 | Prometheus, Alertmanager, Grafana, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
 
 I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability
 che servono (`SYS_ADMIN` per systemd, `NET_ADMIN` per rete e firewall).
@@ -193,7 +204,7 @@ docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 ```
 
 > **Limitazioni:** in questa shell semplice `systemctl`, `ufw`, `fail2ban` e `ip netns` non funzionano: servono systemd
-> e alcune capability. Li hanno i laboratori delle aree 06, 08 e 10 (`./lab.sh 06`). Restano fuori da tutti i
+> e alcune capability. Li hanno i laboratori delle aree 06, 08, 10 e 12 (`./lab.sh 06`). Restano fuori da tutti i
 > laboratori il `mount` di partizioni vere e lo swap, che richiederebbero `--privileged`: con quello il container
 > vedrebbe i dischi della macchina.
 

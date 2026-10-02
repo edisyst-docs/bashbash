@@ -1,0 +1,40 @@
+# alertmanager.yml - chi riceve cosa. Gli alert arrivano da Prometheus, qui si raggruppano, si instradano,
+# si silenziano. Dopo una modifica: amtool check-config /etc/monitoring/alertmanager/alertmanager.yml
+#                                   curl -X POST http://alertmanager:9093/-/reload
+global:
+  smtp_smarthost: mailpit:1025
+  smtp_from: alertmanager@lab.local
+  smtp_require_tls: false                         # mailpit non ha TLS; un server SMTP vero sì
+
+route:
+  receiver: squadra                               # chi riceve se nessuna sotto-rotta corrisponde
+  group_by: [alertname, host]                     # un messaggio per ogni alert e server
+  group_wait: 10s                                 # attesa prima del primo invio, per raccogliere alert simili
+  group_interval: 1m                              # attesa prima di avvisare di novità nello stesso gruppo
+  repeat_interval: 4h                             # ripete un alert ancora attivo
+  routes:
+    - matchers: [severity="critical"]
+      receiver: reperibile
+      repeat_interval: 1h
+
+inhibit_rules:
+  # se il sito non risponde, non serve anche l'avviso su nginx dello stesso server
+  - source_matchers: [alertname="SitoNonRaggiungibile"]
+    target_matchers: [alertname="NginxGiu"]
+    equal: [host]
+  # un critical silenzia i warning dello stesso alert sullo stesso server
+  - source_matchers: [severity="critical"]
+    target_matchers: [severity="warning"]
+    equal: [alertname, host]
+
+receivers:
+  - name: squadra
+    email_configs:
+      - to: squadra@lab.local
+        send_resolved: true                       # manda anche il messaggio "risolto"
+  - name: reperibile
+    email_configs:
+      - to: reperibile@lab.local
+        send_resolved: true
+        headers:
+          Subject: '[URGENTE] {{ .CommonLabels.alertname }} su {{ .CommonLabels.host }} ({{ .Status }})'
