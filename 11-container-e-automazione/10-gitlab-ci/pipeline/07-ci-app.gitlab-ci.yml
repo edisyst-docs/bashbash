@@ -1,5 +1,6 @@
-# CI completa di app/: test con report JUnit e copertura, cache di pip, immagine nel Container Registry del
-# progetto, smoke test dell'immagine appena pubblicata.
+# CI completa di app/: test con report JUnit e copertura, cache di pip, lint del Dockerfile, immagine scansionata
+# con Trivy prima di arrivare nel Container Registry del progetto, smoke test dell'immagine appena pubblicata.
+# Hadolint e Trivy: ../../12-trivy-hadolint/trivy-hadolint.md
 # I job con image docker:29-cli usano il demone dind del laboratorio: DOCKER_HOST e i certificati li imposta il
 # runner (vedi configura.sh). Su GitLab.com o con un runner normale si aggiunge "services: [docker:29-dind]".
 stages:
@@ -9,6 +10,20 @@ stages:
 
 variables:
   IMMAGINE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA   # gitlab.localhost:5050/root/07-ci-app:abc1234
+  # versione e digest fissi: a marzo 2026 sono state pubblicate immagini Trivy compromesse con tag "normali"
+  TRIVY: aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+
+lint-dockerfile:
+  stage: test                                    # insieme ai test: nessuna dipendenza fra i due
+  image: hadolint/hadolint:v2.15.1-debian        # la variante con la shell: il runner ci esegue lo script
+  script:
+    # report per GitLab (widget Code Quality nelle MR), poi lo stesso controllo leggibile nel log: fallisce da warning in su
+    - hadolint --format gitlab_codeclimate --no-fail app/Dockerfile > hadolint.json
+    - hadolint --failure-threshold warning app/Dockerfile
+  artifacts:
+    when: always
+    reports:
+      codequality: hadolint.json
 
 test:
   stage: test
@@ -41,8 +56,20 @@ immagine:
     # --provenance=false: niente attestazione, l'immagine è un manifest semplice. Con l'attestazione Docker 29
     # pubblica un indice OCI, e il registry del laboratorio risponde "blob unknown to registry"
     - docker build --pull --provenance=false -t "$IMMAGINE" -t "$CI_REGISTRY_IMAGE:latest" app
+    # Trivy prima del push: un'immagine con CRITICAL correggibili non arriva nel registry. Gira come container nel
+    # demone dind, legge l'immagine dal suo socket e tiene il database nel volume trivy-cache del demone
+    - TRIVY_RUN="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy $TRIVY"
+    # 1. report: HIGH e CRITICAL con una correzione disponibile, nella scheda Tests della pipeline
+    - $TRIVY_RUN image --quiet --scanners vuln,secret --severity HIGH,CRITICAL --ignore-unfixed
+        --format template --template @/contrib/junit.tpl "$IMMAGINE" > trivy.xml
+    # 2. blocco: un CRITICAL correggibile fa fallire il job (exit code 1), e il push non avviene
+    - $TRIVY_RUN image --quiet --scanners vuln,secret --severity CRITICAL --ignore-unfixed --exit-code 1 "$IMMAGINE"
     - docker push "$IMMAGINE"
     - docker push "$CI_REGISTRY_IMAGE:latest"
+  artifacts:
+    when: always
+    reports:
+      junit: trivy.xml
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 

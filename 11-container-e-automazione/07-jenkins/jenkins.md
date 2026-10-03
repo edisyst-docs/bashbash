@@ -490,7 +490,7 @@ curl -s -X POST -u "$AUTH" -H "Content-Type: application/xml" \
 Aspettare la fine di un build in uno script:
 ```bash
 until curl -s -u "$AUTH" "$J/job/07-ci-app/lastBuild/api/json?tree=building" | grep -q '"building":false'; do sleep 5; done
-curl -s -u "$AUTH" "$J/job/07-ci-app/lastBuild/api/json?tree=result"   # {"result":"SUCCESS"}
+curl -s -u "$AUTH" "$J/job/07-ci-app/lastBuild/api/json?tree=result"   # {"result":"UNSTABLE"}: SUCCESS, UNSTABLE o FAILURE
 ```
 Senza token, con utente e password, ogni POST vuole il crumb, legato a un cookie di sessione:
 ```bash

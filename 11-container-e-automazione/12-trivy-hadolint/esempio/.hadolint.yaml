@@ -1,0 +1,10 @@
+# Configurazione di Hadolint: la legge da sola se sta nella cartella da cui si lancia (o in ~/.config/hadolint.yaml).
+failure-threshold: warning           # exit code 1 da warning in su; gli "info" si vedono ma non bloccano
+ignored:
+  - DL3008                           # versioni fisse in apt-get install: con un'immagine base aggiornata spesso, troppo rigido
+trustedRegistries:                   # FROM solo da questi registry (DL3026)
+  - docker.io
+  - localhost:5001
+override:
+  error:
+    - DL3002                         # USER root come ultimo utente: errore, non solo warning

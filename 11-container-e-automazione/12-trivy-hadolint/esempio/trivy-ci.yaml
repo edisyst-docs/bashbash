@@ -1,0 +1,10 @@
+# Configurazione di Trivy per la CI: "trivy image --config trivy-ci.yaml ...". Non si chiama trivy.yaml apposta:
+# un trivy.yaml nella cartella corrente Trivy lo legge da solo, anche quando non lo si vuole.
+# Le stesse opzioni della riga di comando, raggruppate per sezione.
+severity: [HIGH, CRITICAL]
+exit-code: 1                         # fallisce se trova qualcosa (dopo filtri ed eccezioni)
+ignorefile: .trivyignore.yaml
+vulnerability:
+  ignore-unfixed: true               # solo quelle con una versione corretta disponibile: le altre non si possono sistemare
+scan:
+  scanners: [vuln, secret]
