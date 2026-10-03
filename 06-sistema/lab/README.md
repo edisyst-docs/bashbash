@@ -16,8 +16,8 @@ systemctl status nginx
 ```
 All'uscita il container viene eliminato: utenti creati, servizi installati e crontab spariscono con lui.
 
-> **Sicurezza**: il container non è `--privileged`. Ha solo `CAP_SYS_ADMIN` e il cgroup in scrittura, che servono
-> a systemd, e **non vede i dischi** della macchina: `mkfs.ext4 /dev/sdb` risponde `The file /dev/sdb does not exist`.
+> **Sicurezza**: il container non è `--privileged`. Ha solo `CAP_SYS_ADMIN` e AppArmor disattivato, che servono a
+> systemd per rendere scrivibile il **proprio** cgroup (non quello della macchina), e **non vede i dischi** della macchina: `mkfs.ext4 /dev/sdb` risponde `The file /dev/sdb does not exist`.
 > `lsblk` mostra comunque i dischi della VM di Docker, ma solo in lettura.
 
 ## Cosa si prova e dove

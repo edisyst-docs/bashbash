@@ -45,7 +45,10 @@ WORKDIR /kb
 
 # ---------------------------------------------------------------- systemd
 # systemd come PID 1: systemctl, journalctl, timer, servizi veri (ssh, nginx, apache2, fail2ban, ufw).
-# Va avviato con /sys/fs/cgroup in scrittura e CAP_SYS_ADMIN (vedi i compose.yaml dei laboratori):
+# Va avviato con un cgroup privato (cgroup: private), CAP_SYS_ADMIN e senza AppArmor (vedi i compose.yaml dei
+# laboratori). Docker monta il cgroup del container in sola lettura: avvia-systemd lo rimonta in scrittura, poi
+# passa a /sbin/init. Così systemd vede solo il proprio cgroup, non quello della macchina, e funziona sia su
+# Docker Desktop sia su un Linux con systemd (anche i runner di GitHub Actions).
 # NON serve --privileged, quindi il container non vede i dischi della macchina.
 FROM base AS systemd
 
@@ -63,8 +66,18 @@ RUN apt-get update && apt-get install -y \
         getty@tty1.service console-getty.service systemd-remount-fs.service \
     && systemctl enable ssh nginx apache2 rsyslog
 
+COPY --chmod=755 <<'EOF' /usr/local/sbin/avvia-systemd
+#!/bin/sh
+# avvia-systemd: rende scrivibile il cgroup privato del container, poi systemd diventa il PID 1
+if ! mount -o remount,rw /sys/fs/cgroup; then
+    echo "avvia-systemd: cgroup in sola lettura (servono CAP_SYS_ADMIN e AppArmor unconfined)" >&2
+    exit 1
+fi
+exec /sbin/init
+EOF
+
 STOPSIGNAL SIGRTMIN+3
-CMD ["/sbin/init"]
+CMD ["/usr/local/sbin/avvia-systemd"]
 
 
 # ---------------------------------------------------------------- osservabilita

@@ -30,12 +30,12 @@ services:
     hostname: server
     cgroup: private
     cap_add: [SYS_ADMIN]
+    security_opt: ["apparmor:unconfined"]      # AppArmor vieterebbe il remount del cgroup (vedi il Dockerfile)
     tmpfs:
       - /run
       - /run/lock
       - /dati:size=64m                            # disco piccolo da riempire per far scattare l'alert
     volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - ../..:/kb:ro
       - monitoring:/etc/monitoring
       - serverlog:/var/log                           # condiviso con alloy per leggere journal e log nginx
