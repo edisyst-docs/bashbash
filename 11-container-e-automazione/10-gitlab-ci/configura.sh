@@ -25,6 +25,9 @@ scrivi_env() {
 }
 
 api() { curl -fsS --header "PRIVATE-TOKEN: $TOKEN" "$@"; }
+# comandi nel container del runner. MSYS_NO_PATHCONV: in Git Bash su Windows gli argomenti come /etc/gitlab-runner/...
+# o /certs/client diventerebbero C:/Program Files/Git/..., e il runner si registrerebbe con percorsi sbagliati
+runner() { MSYS_NO_PATHCONV=1 docker compose exec -T runner "$@"; }
 
 # --- 0. GitLab pronto? L'immagine ha un healthcheck che passa quando tutti i servizi interni rispondono
 echo -n "attendo GitLab"
@@ -55,7 +58,7 @@ if [ -z "$TOKEN" ] || ! api -o /dev/null "$API/user" 2>/dev/null; then
 fi
 
 # --- 2. runner: si registra una volta sola (config.toml sta nel volume runner_config)
-if docker compose exec -T runner grep -q '^\[\[runners\]\]' /etc/gitlab-runner/config.toml 2>/dev/null; then
+if runner grep -q '^\[\[runners\]\]' /etc/gitlab-runner/config.toml 2>/dev/null; then
     echo "runner già registrato"
 else
     # il runner si crea su GitLab (che restituisce il token glrt-...), poi si registra con quel token
@@ -67,7 +70,7 @@ else
     # e trovano già le variabili per usare la CLI docker su dind (pipeline 07 e 08).
     # url e clone_url con "gitlab" e non "gitlab.localhost": curl e git trattano ogni *.localhost come 127.0.0.1
     # senza guardare /etc/hosts, e dentro il container del job 127.0.0.1 è il container stesso
-    docker compose exec -T runner gitlab-runner register --non-interactive \
+    runner gitlab-runner register --non-interactive \
         --url http://gitlab:8929 --clone-url http://gitlab:8929 --token "$RUNNER_TOKEN" --name runner-lab \
         --executor docker --docker-image alpine:3.22 \
         --docker-host tcp://docker:2376 --docker-tlsverify --docker-cert-path /certs/client \
@@ -76,7 +79,7 @@ else
         --docker-volumes /certs/client:/certs/client:ro --docker-volumes /cache \
         --env DOCKER_HOST=tcp://docker:2376 --env DOCKER_TLS_VERIFY=1 --env DOCKER_CERT_PATH=/certs/client
     # fino a 4 job insieme (il default è 1): si vedono i job paralleli della pipeline 04
-    docker compose exec -T runner sed -i 's/^concurrent = .*/concurrent = 4/' /etc/gitlab-runner/config.toml
+    runner sed -i 's/^concurrent = .*/concurrent = 4/' /etc/gitlab-runner/config.toml
     echo "runner registrato"
 fi
 
