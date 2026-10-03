@@ -1,0 +1,59 @@
+# Esempio 06: database e altri servizi per i test. Un servizio è un container che parte con il job e muore con lui.
+# Due modi: il job sulla macchina (servizio raggiunto su localhost) o il job in un container (servizio per nome).
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: "Esempio 06: servizi"
+
+on:
+  push:
+    paths: [.github/workflows/esempio-06-servizi.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sulla-macchina:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_PASSWORD: prova       # solo per i test: il container sparisce a fine job
+          POSTGRES_DB: negozio
+        ports: ["5432:5432"]             # pubblicata sulla macchina: il job la trova su localhost
+        options: >-                      # opzioni di docker run: il job aspetta che il servizio sia "healthy"
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s
+          --health-retries 20
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: prova
+      PGDATABASE: negozio
+    steps:
+      - name: Uno schema e due righe
+        run: |
+          psql -c "CREATE TABLE prodotti (id serial PRIMARY KEY, nome text, prezzo numeric)"
+          psql -c "INSERT INTO prodotti (nome, prezzo) VALUES ('tastiera', 39.90), ('mouse', 19.50)"
+          psql -At -c "SELECT count(*) || ' prodotti, totale ' || sum(prezzo) FROM prodotti"
+          psql -At -c "SELECT version()"
+
+  in-un-container:
+    runs-on: ubuntu-24.04
+    container: python:3.13-slim          # tutti gli step girano qui dentro, non sulla macchina
+    services:
+      redis:
+        image: redis:8-alpine            # niente ports: il container del job lo raggiunge per nome, "redis"
+        options: --health-cmd "redis-cli ping" --health-interval 2s --health-retries 20
+    steps:
+      - run: pip install --quiet redis
+      - name: Il servizio per nome
+        run: |
+          python - << 'EOF'
+          import redis
+          r = redis.Redis(host="redis")
+          r.set("visite", 0)
+          for _ in range(3):
+              r.incr("visite")
+          print("visite:", r.get("visite").decode(), "- Redis", r.info()["redis_version"])
+          EOF

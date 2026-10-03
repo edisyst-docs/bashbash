@@ -1,0 +1,65 @@
+# Esempio 08: ambienti, segreti, variabili e il token OIDC (credenziali cloud senza segreti salvati).
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+# Facoltativo, per vedere un segreto mascherato e una variabile:
+#   gh secret set TOKEN_DEMO --body "tok-1234-segreto-abcd"
+#   gh variable set SERVER_DEMO --body "203.0.113.10"
+name: "Esempio 08: ambienti e segreti"
+
+on:
+  push:
+    paths: [.github/workflows/esempio-08-ambienti.yml]
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        type: choice
+        options: [staging, produzione]
+        default: staging
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment:                         # l'ambiente nasce da solo al primo uso (Settings > Environments):
+      name: ${{ inputs.ambiente || 'staging' }}    # lì si aggiungono revisori obbligatori, attese, rami ammessi
+      url: https://${{ inputs.ambiente || 'staging' }}.example.com
+    concurrency:                         # un deploy alla volta per ambiente; quello dopo aspetta, non annulla
+      group: deploy-${{ inputs.ambiente || 'staging' }}
+      cancel-in-progress: false
+    steps:
+      - name: Segreti e variabili
+        env:
+          TOKEN: ${{ secrets.TOKEN_DEMO }}                       # vuoto se non esiste
+          SERVER: ${{ vars.SERVER_DEMO || 'non impostata' }}
+          AMBIENTE: ${{ inputs.ambiente || 'staging' }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+              echo "token: $TOKEN"       # nel log diventa ***: GitHub maschera i valori dei segreti
+              echo "il token è lungo ${#TOKEN} caratteri"
+          else
+              echo "TOKEN_DEMO non c'è: gh secret set TOKEN_DEMO --body ..."
+          fi
+          echo "server: $SERVER, ambiente: $AMBIENTE"
+
+  oidc:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write                    # permette di chiedere a GitHub un token OIDC firmato per questo job
+    steps:
+      - name: Cosa c'è nel token
+        run: |
+          # AWS, Azure, Google Cloud e Vault si fidano di questo token (firmato da GitHub) e danno credenziali
+          # temporanee in cambio: nessuna chiave salvata nei segreti. Qui lo si legge soltanto.
+          RISPOSTA=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=esempio-kb")
+          python3 - "$RISPOSTA" << 'EOF'
+          import base64, json, sys
+          token = json.loads(sys.argv[1])["value"]
+          corpo = token.split(".")[1]
+          corpo += "=" * (-len(corpo) % 4)              # base64url senza padding
+          dati = json.loads(base64.urlsafe_b64decode(corpo))
+          for chiave in ("iss", "aud", "sub", "repository", "ref", "event_name", "job_workflow_ref", "runner_environment"):
+              print(f"{chiave:20} {dati.get(chiave)}")
+          EOF

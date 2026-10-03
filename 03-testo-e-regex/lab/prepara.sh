@@ -124,7 +124,7 @@ printf 'server_name vecchio.dominio.it;\n' > sito/nginx.conf
 
 # ---------------------------------------------------------------- 03-regex
 sezione 03-regex
-cat > crontab << 'EOF'
+cat > ./crontab << 'EOF'
 # m h dom mon dow comando
 # backup notturno
 0 2 * * * /usr/local/bin/backup.sh

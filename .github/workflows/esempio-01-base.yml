@@ -1,0 +1,81 @@
+# Esempio 01: la struttura di un workflow. Un job, i suoi step, le variabili dell'ambiente, i comandi del runner.
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+# Parte quando cambia questo file, o a mano: Actions > "Esempio 01: base" > Run workflow (o gh workflow run).
+name: "Esempio 01: base"
+
+on:
+  push:
+    paths: [.github/workflows/esempio-01-base.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read                         # il GITHUB_TOKEN di questo workflow può solo leggere il repository
+
+env:                                     # variabili per tutti i job
+  SALUTO: Ciao
+
+jobs:
+  ciao:
+    runs-on: ubuntu-24.04                # una macchina virtuale nuova, distrutta alla fine del job
+    timeout-minutes: 5                   # il default è 360 minuti
+    env:
+      CHI: dal job ciao                  # variabili di questo job
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Dove sono
+        run: |
+          echo "$SALUTO $CHI"
+          echo "repository $GITHUB_REPOSITORY, ramo $GITHUB_REF_NAME, commit ${GITHUB_SHA::7}"
+          echo "evento $GITHUB_EVENT_NAME, avviato da $GITHUB_ACTOR, esecuzione n. $GITHUB_RUN_NUMBER"
+          echo "cartella di lavoro: $PWD"
+          ls
+
+      - name: La macchina
+        run: |
+          echo "::group::Sistema"
+          . /etc/os-release && echo "$PRETTY_NAME"
+          echo "$(nproc) CPU, $(free -h | awk '/Mem:/ {print $2}') di RAM, utente $(whoami)"
+          echo "::endgroup::"
+          echo "::group::Strumenti preinstallati"
+          docker --version
+          python3 --version
+          shellcheck --version | sed -n 2p
+          echo "::endgroup::"
+
+      - name: Espressioni e variabili
+        run: |
+          # le espressioni fra doppie graffe le sostituisce GitHub PRIMA di eseguire lo script (anche nei commenti:
+          # per questo qui non se ne può scrivere una vuota); $VAR invece la espande la shell durante l'esecuzione
+          echo "espressione: ${{ github.workflow }} sul runner ${{ runner.os }}"
+          echo "variabile:   $GITHUB_WORKFLOW sul runner $RUNNER_OS"
+
+      - name: Annotazioni
+        run: |
+          echo "::notice title=Esempio 01::una nota: compare nel riepilogo dell'esecuzione"
+          echo "::warning file=README.md,line=1::un avviso legato a una riga di un file"
+
+      - name: Un valore per gli step successivi
+        id: data                         # con un id i suoi output si leggono come steps.data.outputs...
+        run: |
+          echo "oggi=$(date +%F)" >> "$GITHUB_OUTPUT"
+          echo "BUILD_ORA=$(date +%T)" >> "$GITHUB_ENV"     # diventa una variabile d'ambiente degli step dopo
+
+      - name: Riepilogo
+        run: |
+          {
+            echo "## Esempio 01"
+            echo "| | |"
+            echo "|---|---|"
+            echo "| data | ${{ steps.data.outputs.oggi }} |"
+            echo "| ora | $BUILD_ORA |"
+            echo "| runner | $RUNNER_OS $RUNNER_ARCH, $ImageOS |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Shell e opzioni
+        shell: bash                      # il default è "bash -e {0}"; scritto così è "bash --noprofile --norc -eo pipefail {0}"
+        run: |
+          false | true                   # con pipefail la pipeline fallisce...
+          echo "non arriva qui"
+        continue-on-error: true          # ...ma lo step fallito non ferma il job

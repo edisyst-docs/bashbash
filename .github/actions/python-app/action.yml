@@ -1,0 +1,29 @@
+# Action composita: più step riusati come uno solo. La usa l'esempio 09 (e la si può usare in qualunque workflow
+# del repository con "uses: ./.github/actions/python-app", dopo il checkout).
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: Python con le dipendenze dell'app
+description: Installa Python, ripristina la cache di pip e installa i requirements di una cartella
+inputs:
+  cartella:
+    description: Cartella con requirements.txt
+    required: true
+  python:
+    description: Versione di Python
+    default: "3.13"
+outputs:
+  versione:
+    description: La versione di Python installata davvero
+    value: ${{ steps.python.outputs.python-version }}
+runs:
+  using: composite
+  steps:
+    - id: python
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: ${{ inputs.python }}
+        cache: pip
+        cache-dependency-path: ${{ inputs.cartella }}/requirements.txt
+    - shell: bash                        # in un'Action composita ogni step "run" deve dire quale shell usa
+      env:
+        CARTELLA: ${{ inputs.cartella }}
+      run: pip install --quiet -r "$CARTELLA/requirements.txt" pytest
