@@ -115,6 +115,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 10. [gitlab ci](11-container-e-automazione/10-gitlab-ci/) — `.gitlab-ci.yml`, runner, rules, needs, variabili protette, registry, ambienti; laboratorio GitLab CE e `gitlab-ci-local`, 9 pipeline di esempio
 11. [argo cd](11-container-e-automazione/11-argocd/) — GitOps: Application, sync automatica, self-heal, rollback con `git revert`, Kustomize e Helm, hook, app of apps, ApplicationSet; laboratorio su kind con registry e Gitea locali
 12. [trivy e hadolint](11-container-e-automazione/12-trivy-hadolint/) — lint dei Dockerfile, CVE e segreti nelle immagini, configurazione Kubernetes e Terraform, SBOM; stage nelle pipeline Jenkins e GitLab
+13. [github actions](11-container-e-automazione/13-github-actions/) — workflow, matrix, artefatti e cache, servizi, ambienti, segreti e OIDC, riuso, sicurezza, `act`; nove esempi eseguibili e la CI della KB
 
 ### [12-osservabilita/](12-osservabilita/) — metriche, log e alert
 Sapere come stanno server e servizi prima che se ne accorgano gli utenti.

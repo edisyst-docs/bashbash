@@ -541,8 +541,8 @@ il report `container_scanning`. La sua visualizzazione nelle MR e nella dashboar
 pagamento; i report `junit` e `codequality` usati qui funzionano anche con GitLab CE.
 
 ### GitHub Actions
-Non provato in questo laboratorio (non c'è un runner GitHub). La forma sicura dopo marzo 2026: Action fissata allo
-**SHA del commit**, con la versione come commento.
+La forma sicura dopo marzo 2026: Action fissata allo **SHA del commit**, con la versione come commento (questo
+blocco non è stato eseguito).
 ```yaml
 - name: Trivy
   uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0 (release immutabile)
@@ -552,7 +552,9 @@ Non provato in questo laboratorio (non c'è un runner GitHub). La forma sicura d
     ignore-unfixed: true
     exit-code: "1"
 ```
-Oppure, senza Action di terzi, l'immagine con il digest in uno step `run:`, come nelle pipeline di Jenkins e GitLab.
+Oppure, senza Action di terzi, l'immagine con il digest in uno step `run:`, come nelle pipeline di Jenkins e GitLab:
+è quello che fa l'esempio 07 di [../13-github-actions/](../13-github-actions/github-actions.md#una-ci-completa), provato
+su GitHub (0 CRITICAL, report delle HIGH nel riepilogo dell'esecuzione).
 Con `--format sarif --output trivy.sarif` e l'Action `github/codeql-action/upload-sarif` i risultati compaiono nella
 scheda *Security* del repository.
 

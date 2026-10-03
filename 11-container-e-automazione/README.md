@@ -1,6 +1,6 @@
 # 11 - Container e automazione
 
-Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab, sicurezza delle immagini con Trivy e Hadolint, deploy GitOps con Argo CD; configurazione con Ansible e infrastruttura con Terraform.
+Docker, compose, swarm e Kubernetes; CI/CD con Jenkins, GitLab e GitHub Actions, sicurezza delle immagini con Trivy e Hadolint, deploy GitOps con Argo CD; configurazione con Ansible e infrastruttura con Terraform.
 
 | # | File/cartella | Contenuto |
 |---|---|---|
@@ -16,5 +16,6 @@ Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab, sicurezza delle
 | 10 | [gitlab ci](10-gitlab-ci/) | GitLab CE + runner in compose e `gitlab-ci-local`, `.gitlab-ci.yml`: rules, needs, matrix, artefatti e cache, variabili protette, servizi, registry, ambienti, include; 9 pipeline di esempio |
 | 11 | [argo cd](11-argocd/) | GitOps su kind con registry e Gitea locali: Application, sync automatica, self-heal, rollback con `git revert`, Kustomize e Helm, hook, app of apps, ApplicationSet, AppProject; laboratorio in 11 passi |
 | 12 | [trivy e hadolint](12-trivy-hadolint/) | Lint dei Dockerfile, vulnerabilità e segreti nelle immagini, configurazione di Kubernetes e Terraform, SBOM; stage che bloccano i CRITICAL nelle pipeline di Jenkins e GitLab |
+| 13 | [github actions](13-github-actions/) | Workflow, eventi, matrix, needs, artefatti e cache, servizi, CI con Trivy e ghcr.io, ambienti, segreti e OIDC, riuso; sicurezza e `act`; nove esempi in `.github/workflows/` e la CI della KB |
 
 Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Prossima: [../12-osservabilita/](../12-osservabilita/)
