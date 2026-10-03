@@ -12,8 +12,9 @@ Grafana mostra. I comandi per guardare un server "a mano" (`top`, `free`, `df`, 
 | 04 | [promql](04-promql.md) | Selettori, `rate`/`increase`, operatori e `on`/`group_left`, aggregazioni, funzioni, percentili, query di tutti i giorni, recording rule |
 | 05 | [alerting](05-alerting.md) | Regole di alert e test con `promtool`, Alertmanager: route, raggruppamento, inibizioni, silenzi con `amtool`, receiver, API |
 | 06 | [grafana](06-grafana.md) | Installazione, dashboard e variabili, dashboard pronte, provisioning da codice, API e backup |
+| 07 | [loki](07-loki.md) | Log centralizzati con Loki e Promtail: architettura, `loki.yml`, `promtail.yml`, pipeline, LogQL, logcli, alert sui log, confronto con ELK |
 
-**Laboratorio**: `./lab.sh 12` dalla radice della KB avvia Prometheus, Alertmanager, Grafana, gli exporter e un
+**Laboratorio**: `./lab.sh 12` dalla radice della KB avvia Prometheus, Alertmanager, Grafana, Loki, Promtail, gli exporter e un
 server con systemd da monitorare (e rompere). Dettagli in [lab/](lab/).
 
 Area precedente: [../11-container-e-automazione/](../11-container-e-automazione/) · Torna all'[indice](../README.md)

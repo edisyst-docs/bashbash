@@ -9,12 +9,12 @@ previsti. Si regge su tre tipi di dati:
 | | Cosa sono | Esempio | Strumenti |
 |---|---|---|---|
 | **metriche** | numeri nel tempo, con etichette | `node_cpu_seconds_total{mode="idle"}` ogni 15 s | Prometheus, Grafana |
-| **log** | righe di testo con un orario | `GET /login 500 0.231s` | journald, Loki, Elasticsearch |
+| **log** | righe di testo con un orario | `GET /login 500 0.231s` | journald, Loki ([07-loki.md](07-loki.md)), Elasticsearch |
 | **tracce** | il percorso di una richiesta fra più servizi | nginx 2 ms → app 180 ms → database 170 ms | OpenTelemetry, Tempo, Jaeger |
 
 Le metriche costano poco (un numero per serie, ogni N secondi) e dicono **che** c'è un problema; log e tracce dicono
-**perché**. Quest'area copre le metriche e gli alert; i log del singolo server con `journalctl` sono in
-[../06-sistema/07-servizi.md](../06-sistema/07-servizi.md).
+**perché**. Quest'area copre le metriche, gli alert e i log centralizzati con Loki ([07-loki.md](07-loki.md)); i log
+del singolo server con `journalctl` sono in [../06-sistema/07-servizi.md](../06-sistema/07-servizi.md).
 
 ## Pull e push
 - **pull** (Prometheus): il server di monitoraggio interroga a intervalli ogni bersaglio (`GET /metrics`). Se un

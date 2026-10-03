@@ -1,17 +1,17 @@
 # Laboratorio dell'area 12: lo avvia ./lab.sh 12 dalla radice della KB.
 #
 #   server (systemd, node_exporter :9100, nginx :80, stub_status :8000)   <- lab.sh entra qui
-#      ^ scrape            ^ probe HTTP/TCP          ^ stub_status
-#   prometheus :9090    blackbox :9115    nginx-exporter :9113
-#      | alert
-#   alertmanager :9093 --email--> mailpit :8025 (web) / :1025 (SMTP)
-#   grafana :3000 --query--> prometheus
+#      ^ scrape            ^ probe HTTP/TCP          ^ stub_status        ^ log
+#   prometheus :9090    blackbox :9115    nginx-exporter :9113          promtail :9080
+#      | alert                                                            | push
+#   alertmanager :9093 --email--> mailpit :8025 (web) / :1025 (SMTP)   loki :3100
+#   grafana :3000 --query--> prometheus, loki
 #
 # La configurazione di Prometheus e Alertmanager sta in un volume condiviso: il servizio "config" ci copia
 # lab/config/ alla partenza, server lo monta in /etc/monitoring in scrittura. Si modifica dal server e si ricarica
 # con curl -X POST http://prometheus:9090/-/reload, senza toccare la KB (montata in sola lettura).
 # Dal PC: Prometheus http://localhost:9090, Alertmanager http://localhost:9093, Grafana http://localhost:3000
-# (admin / laboratorio), Mailpit http://localhost:8025.
+# (admin / laboratorio), Loki http://localhost:3100, Mailpit http://localhost:8025.
 name: lab-12
 x-lab-entra: server
 
@@ -38,6 +38,7 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - ../..:/kb:ro
       - monitoring:/etc/monitoring
+      - serverlog:/var/log                           # condiviso con promtail per leggere journal e log nginx
     depends_on:
       config: {condition: service_completed_successfully}
     healthcheck:                                  # "degraded" = partito, ma con qualche unit fallita
@@ -110,6 +111,30 @@ services:
       - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./config/grafana/dashboard:/var/lib/grafana/dashboards:ro
 
+  loki:
+    <<: *dns
+    image: grafana/loki:3.5.0
+    command: ["-config.file=/etc/loki/loki.yml"]
+    ports: ["3100:3100"]
+    volumes:
+      - ./config/loki:/etc/loki:ro
+      - loki:/loki
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 2s
+      retries: 30
+
+  promtail:
+    <<: *dns
+    image: grafana/promtail:3.5.0
+    command: ["-config.file=/etc/promtail/promtail.yml"]
+    volumes:
+      - ./config/promtail:/etc/promtail:ro
+      - serverlog:/var/log:ro                        # journal e log nginx del server
+    depends_on:
+      loki: {condition: service_healthy}
+      server: {condition: service_healthy}
+
   mailpit:
     <<: *dns
     image: axllent/mailpit:v1.31.3
@@ -118,3 +143,5 @@ services:
 volumes:
   monitoring:
   prometheus:
+  loki:
+  serverlog:

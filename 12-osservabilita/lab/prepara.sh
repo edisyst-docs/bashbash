@@ -203,10 +203,40 @@ tests:
               summary: "ultimo backup di etc su server riuscito 3m 0s fa"
 EOF
 
+# ---------------------------------------------------------------- 07-loki
+sezione 07-loki
+ln -s /etc/monitoring config
+cat > query.sh << 'EOF'
+#!/usr/bin/env bash
+# query.sh - una query LogQL a Loki via logcli, con output breve.
+# Uso: ./query.sh '{job="nginx"}'                                      ultimi 10 log
+#      ./query.sh '{job="nginx"} |= "404"' --limit 50                  con filtro e limite
+#      ./query.sh '{job="nginx"} | json | status >= 500' --since 5m    errori degli ultimi 5 minuti
+set -euo pipefail
+QUERY=${1:?uso: $0 'QUERY_LOGQL' [opzioni logcli]}
+shift
+logcli query "$QUERY" --quiet "$@"
+EOF
+chmod +x query.sh
+cat > push.sh << 'EOF'
+#!/usr/bin/env bash
+# push.sh - manda una riga di log a Loki via API push: per provare senza Promtail.
+# Uso: ./push.sh "messaggio di prova"       (job=test, host=server)
+set -euo pipefail
+MSG=${1:?uso: $0 "messaggio"}
+TS=$(date +%s)000000000
+curl -s -X POST http://loki:3100/loki/api/v1/push \
+    -H 'Content-Type: application/json' \
+    -d "{\"streams\":[{\"stream\":{\"job\":\"test\",\"host\":\"server\"},\"values\":[[\"$TS\",\"$MSG\"]]}]}"
+echo "inviato a Loki: $MSG"
+EOF
+chmod +x push.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 12 pronto in $DEST: una cartella per ogni .md"
     echo "Questo è il server monitorato (node_exporter :9100, nginx :80). Dal PC: Prometheus http://localhost:9090,"
-    echo "Alertmanager http://localhost:9093, Grafana http://localhost:3000 (admin / laboratorio), posta http://localhost:8025"
+    echo "Alertmanager http://localhost:9093, Grafana http://localhost:3000 (admin / laboratorio),"
+    echo "Loki http://localhost:3100, posta http://localhost:8025"
     echo "Prova: cd 05-alerting && ./scenari.sh nginx"
     echo "Per ripartire da zero con i file: bash $LAB_SRC/prepara.sh"
 fi

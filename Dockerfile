@@ -69,12 +69,13 @@ CMD ["/sbin/init"]
 
 # ---------------------------------------------------------------- osservabilita
 # Il server monitorato del laboratorio 12: systemd + node_exporter installato come su un server vero
-# (binario in /usr/local/bin, utente di sistema, unit systemd) e i client promtool e amtool.
+# (binario in /usr/local/bin, utente di sistema, unit systemd) e i client promtool, amtool e logcli.
 FROM systemd AS osservabilita
 
 ARG NODE_EXPORTER=1.12.1
 ARG PROMETHEUS=3.15.0
 ARG ALERTMANAGER=0.34.1
+ARG LOKI=3.5.0
 ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \
@@ -85,7 +86,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \
     && for p in node_exporter-$NODE_EXPORTER prometheus-$PROMETHEUS alertmanager-$ALERTMANAGER; do \
          curl -fsSL "https://github.com/prometheus/${p%-*}/releases/download/v${p##*-}/$p.linux-$arch.tar.gz" | tar xz || exit 1; \
        done \
-    && install -m 755 node_exporter-*/node_exporter prometheus-*/promtool alertmanager-*/amtool /usr/local/bin/ \
+    && curl -fsSL "https://github.com/grafana/loki/releases/download/v$LOKI/logcli-linux-$arch.zip" -o logcli.zip \
+    && unzip -q logcli.zip && mv logcli-linux-$arch logcli \
+    && install -m 755 node_exporter-*/node_exporter prometheus-*/promtool alertmanager-*/amtool logcli /usr/local/bin/ \
     && rm -rf /tmp/* \
     && useradd --system --no-create-home --shell /usr/sbin/nologin node_exporter \
     && install -d -o node_exporter -g node_exporter -m 775 /var/lib/node_exporter/textfile \
@@ -105,6 +108,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \
     && systemctl enable node_exporter \
     # amtool legge l'indirizzo di Alertmanager da qui: niente --alertmanager.url a ogni comando
     && install -d /etc/amtool && echo 'alertmanager.url: http://alertmanager:9093' > /etc/amtool/config.yml \
+    # logcli legge l'indirizzo di Loki da qui: niente --addr a ogni comando
+    && echo 'export LOKI_ADDR=http://loki:3100' >> /etc/bash.bashrc \
     # stub_status per nginx-prometheus-exporter, solo dalla rete del laboratorio
     && printf '%s\n' \
        'server {' \

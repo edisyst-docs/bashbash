@@ -1,0 +1,15 @@
+# Datasource Loki creata all'avvio di Grafana, accanto a Prometheus
+apiVersion: 1
+datasources:
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      maxLines: 1000
+      derivedFields:                                 # link dai log alle metriche: cliccando un log si apre Prometheus
+        - matcherRegex: '"(?:GET|POST|PUT|DELETE|PATCH|HEAD) (\S+)'
+          name: Percorso
+          datasourceUid: prometheus
+          url: ''

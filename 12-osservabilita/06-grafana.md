@@ -3,8 +3,8 @@
 > **Laboratorio**: `./lab.sh 12`, poi dal PC http://localhost:3000 (`admin` / `laboratorio`; senza login si guarda
 > soltanto). Cosa contiene: [lab/](lab/).
 
-Dashboard e grafici sopra una o più sorgenti di dati (*data source*): Prometheus, Loki, MySQL, PostgreSQL,
-Elasticsearch, CloudWatch. Non conserva le metriche: a ogni aggiornamento interroga la sorgente.
+Dashboard e grafici sopra una o più sorgenti di dati (*data source*): Prometheus, Loki ([07-loki.md](07-loki.md)),
+MySQL, PostgreSQL, Elasticsearch, CloudWatch. Non conserva le metriche: a ogni aggiornamento interroga la sorgente.
 Porta **3000**. Versione del laboratorio: 13.2 (settembre 2026). Documentazione: https://grafana.com/docs/grafana/latest/
 
 ## Installazione

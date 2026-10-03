@@ -1,0 +1,51 @@
+# loki.yml - configurazione minimale per il laboratorio.
+# Storage locale su filesystem, retention 48h, singola istanza.
+# Documentazione: https://grafana.com/docs/loki/latest/configure/
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  log_level: warn
+
+common:
+  path_prefix: /loki
+  replication_factor: 1                          # singola istanza
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: "2024-01-01"
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  filesystem:
+    directory: /loki/chunks
+
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
+
+limits_config:
+  retention_period: 48h                          # come Prometheus nel lab (2d)
+  ingestion_rate_mb: 10
+  ingestion_burst_size_mb: 20
+  max_query_series: 500
+  max_query_parallelism: 2
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
