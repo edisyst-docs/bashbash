@@ -220,7 +220,7 @@ EOF
 chmod +x query.sh
 cat > push.sh << 'EOF'
 #!/usr/bin/env bash
-# push.sh - manda una riga di log a Loki via API push: per provare senza Promtail.
+# push.sh - manda una riga di log a Loki via API push: per provare senza agente.
 # Uso: ./push.sh "messaggio di prova"       (job=test, host=server)
 set -euo pipefail
 MSG=${1:?uso: $0 "messaggio"}
@@ -236,7 +236,7 @@ if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 12 pronto in $DEST: una cartella per ogni .md"
     echo "Questo è il server monitorato (node_exporter :9100, nginx :80). Dal PC: Prometheus http://localhost:9090,"
     echo "Alertmanager http://localhost:9093, Grafana http://localhost:3000 (admin / laboratorio),"
-    echo "Loki http://localhost:3100, posta http://localhost:8025"
+    echo "Loki http://localhost:3100, Alloy http://localhost:12345, posta http://localhost:8025"
     echo "Prova: cd 05-alerting && ./scenari.sh nginx"
     echo "Per ripartire da zero con i file: bash $LAB_SRC/prepara.sh"
 fi

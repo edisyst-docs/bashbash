@@ -6,20 +6,20 @@ Loki raccoglie log da più macchine e li rende interrogabili da un punto solo �
 Stessa logica di Prometheus per le metriche, ma applicata ai log: indicizza solo le **etichette** (job, host,
 filename), non il testo delle righe. Questo lo rende molto più leggero di Elasticsearch/ELK, ma meno potente
 per la ricerca full-text su volumi enormi.
-Porta **3100**. Versione del laboratorio: 3.5 (2026). Documentazione: https://grafana.com/docs/loki/latest/
+Porta **3100**. Versione del laboratorio: 3.7 (2026). Documentazione: https://grafana.com/docs/loki/latest/
 
 ## Architettura
 
 ```
- server ──nginx log──┐      ┌──────────────────────────────────────────────────────┐
- server ──journal────┤      │                      Loki :3100                      │
-                  Promtail   │  distributor → ingester → compactor → storage        │
- altro  ──Alloy──────┤      │                         (filesystem / S3 / GCS)      │
-                     └push──┤  querier ← query-frontend ← Grafana / logcli        │
-                            └──────────────────────────────────────────────────────┘
+                                    ┌──────────────────────────────────────────────────────┐
+ log di nginx ──┐                   │                      Loki :3100                      │
+ journal ───────┼──> Alloy ──push──>│  distributor → ingester → compactor → storage        │
+ container ─────┘                   │                         (filesystem / S3 / GCS)      │
+                                    │  querier ← query-frontend ← Grafana / logcli         │
+                                    └──────────────────────────────────────────────────────┘
 ```
 
-- **Promtail** (o Grafana Alloy): agente che legge file e journal, aggiunge etichette, manda a Loki
+- **Grafana Alloy**: agente che legge file, journal e log dei container, aggiunge etichette, manda a Loki
 - **Loki**: riceve, indicizza le etichette, comprime il testo, lo salva; risponde alle query in **LogQL**
 - **Grafana** o **logcli**: interrogano Loki
 
@@ -29,7 +29,7 @@ A differenza di Prometheus (che fa *pull*), il flusso dei log è **push**: è l'
 
 ### Binario e unit systemd (Ubuntu/Debian)
 ```bash
-V=3.5.0
+V=3.7.8
 curl -fsSLO https://github.com/grafana/loki/releases/download/v$V/loki-linux-amd64.zip
 unzip loki-linux-amd64.zip && sudo install -m 755 loki-linux-amd64 /usr/local/bin/loki
 sudo useradd --system --no-create-home --shell /usr/sbin/nologin loki
@@ -61,7 +61,7 @@ curl -s localhost:3100/ready                         # ready
 docker run -d --name loki -p 3100:3100 \
     -v ./loki.yml:/etc/loki/loki.yml:ro \
     -v loki:/loki \
-    grafana/loki:3.5.0 -config.file=/etc/loki/loki.yml
+    grafana/loki:3.7.8 -config.file=/etc/loki/loki.yml
 ```
 
 ## loki.yml
@@ -117,57 +117,206 @@ limits_config:
 Spazio su disco: Loki comprime bene (5-10× rispetto al testo originale). 1 GB di log al giorno ≈ 100-200 MB
 su disco, più gli indici.
 
-## Promtail: raccogliere i log
+## Grafana Alloy: raccogliere i log
 
-Promtail è l'agente ufficiale che legge file di log e journal di systemd e li manda a Loki. È un singolo binario.
+Alloy è l'agente di Grafana che legge file di log e journal di systemd, li etichetta e li manda a Loki. Lo stesso
+binario raccoglie anche metriche e tracce OpenTelemetry: qui si usa solo per i log. Ha preso il posto di
+**Promtail**, a fine vita dal 2 marzo 2026 (vedi [Da Promtail ad Alloy](#da-promtail-ad-alloy)).
+Versione del laboratorio: 1.20. Documentazione: https://grafana.com/docs/alloy/latest/
 
-### Installazione
+### Installazione (Ubuntu/Debian)
 ```bash
-V=3.5.0
-curl -fsSLO https://github.com/grafana/loki/releases/download/v$V/promtail-linux-amd64.zip
-unzip promtail-linux-amd64.zip && sudo install -m 755 promtail-linux-amd64 /usr/local/bin/promtail
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" \
+    | sudo tee /etc/apt/sources.list.d/grafana.list
+sudo apt-get update && sudo apt-get install alloy
+sudo usermod -aG systemd-journal alloy               # per leggere il journal (nel gruppo adm c'è già: /var/log/*)
+sudo systemctl enable --now alloy
 ```
-`/etc/systemd/system/promtail.service`:
-```ini
-[Unit]
-Description=Promtail
-After=network-online.target
+Il pacchetto crea l'utente `alloy`, la unit systemd e due file:
 
-[Service]
-ExecStart=/usr/local/bin/promtail -config.file=/etc/promtail/promtail.yml
-Restart=on-failure
+| File | Contenuto |
+|---|---|
+| `/etc/alloy/config.alloy` | la configurazione (all'inizio un esempio) |
+| `/etc/default/alloy` | opzioni di avvio: `CONFIG_FILE`, e in `CUSTOM_ARGS` gli argomenti in più, es. `--server.http.listen-addr=0.0.0.0:12345` |
 
-[Install]
-WantedBy=multi-user.target
+```bash
+alloy --version                                      # alloy, version v1.20.1
+alloy fmt /etc/alloy/config.alloy                    # controlla la sintassi e stampa il file formattato
+sudo systemctl reload alloy                          # rilegge la configurazione senza perdere la posizione nei file
+curl -s localhost:12345/-/ready                      # Alloy is ready.
 ```
 
-### promtail.yml
-Quello del laboratorio, commentato: [lab/config/promtail/promtail.yml](lab/config/promtail/promtail.yml).
+In Docker:
+```bash
+docker run -d --name alloy -p 12345:12345 \
+    -v ./config.alloy:/etc/alloy/config.alloy:ro \
+    -v /var/log:/var/log:ro \
+    grafana/alloy:v1.20.1 run --server.http.listen-addr=0.0.0.0:12345 \
+    --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+```
+
+### config.alloy
+La sintassi non è YAML: è fatta di **componenti** `tipo "nome" { argomenti }`, collegati fra loro con
+`forward_to`. Ogni componente espone dei valori (`loki.write.default.receiver`, `discovery.relabel.journal.rules`)
+che gli altri usano come argomenti, e Alloy ricava da lì il grafo. Commenti con `//`; stringhe fra `"..."` o fra
+backtick, senza escape: comodo per le regex.
+
+Quella del laboratorio, commentata: [lab/config/alloy/config.alloy](lab/config/alloy/config.alloy).
+```
+ loki.source.journal "journal" ──────────────────────────────────────┐
+ loki.source.file "nginx_access" ──> loki.process "nginx_access" ────┼──> loki.write "default" ──> Loki
+ loki.source.file "nginx_error"  ──> loki.process "nginx_error"  ────┘
+```
+```hcl
+// journal di systemd: tutti i servizi della macchina
+discovery.relabel "journal" {                        // regole: dalle etichette interne del journal a etichette vere
+	targets = []
+	rule {
+		source_labels = ["__journal__systemd_unit"]
+		target_label  = "unit"                          // ssh.service, cron.service, ...
+	}
+	rule {
+		source_labels = ["__journal_priority_keyword"]
+		target_label  = "priority"                      // err, warning, info, ...
+	}
+}
+
+loki.source.journal "journal" {
+	path          = "/var/log/journal"                 // il default è /run/log/journal (solo volatile)
+	relabel_rules = discovery.relabel.journal.rules
+	labels        = {job = "journal", host = "server"}
+	forward_to    = [loki.write.default.receiver]
+}
+
+// access log di nginx: le righe passano da loki.process prima di arrivare a Loki
+loki.source.file "nginx_access" {
+	targets = [{
+		__path__ = "/var/log/nginx/access.log",        // il file da leggere
+		job      = "nginx",
+		host     = "server",
+		tipo     = "access",
+	}]
+	forward_to = [loki.process.nginx_access.receiver]
+}
+
+loki.process "nginx_access" {
+	stage.regex {                                      // vedi la tabella degli stage
+		expression = `^(?P<ip>\S+) - \S+ \[(?P<ts>[^\]]+)\] "(?P<metodo>\S+) (?P<percorso>\S+) \S+" (?P<stato>\d{3}) (?P<bytes>\d+)`
+	}
+	stage.labels {
+		values = {metodo = "", stato = ""}              // diventano etichette, indicizzate
+	}
+	stage.timestamp {
+		source = "ts"
+		format = "02/Jan/2006:15:04:05 -0700"          // formato Go: il reference time è Mon Jan 2 15:04:05 MST 2006
+	}
+	forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {                               // dove mandare i log
+	endpoint {
+		url = "http://loki:3100/loki/api/v1/push"
+	}
+}
+```
+La posizione di lettura di ogni file Alloy la tiene in `--storage.path` (col pacchetto `/var/lib/alloy/data`):
+dopo un riavvio riparte da lì, senza rimandare righe già inviate né perderne.
+
+### Componenti per i log
+| Componente | Cosa fa |
+|---|---|
+| `loki.source.file` | legge file di log, come `tail -F`: segue rotazioni e troncamenti |
+| `loki.source.journal` | legge il journal di systemd |
+| `loki.source.docker` | legge i log dei container dal demone Docker (con `discovery.docker`) |
+| `loki.source.kubernetes` | legge i log dei Pod dall'API di Kubernetes (con `discovery.kubernetes`) |
+| `loki.source.syslog` | riceve syslog via TCP/UDP da router, firewall, rsyslog |
+| `local.file_match` | trova i file con un glob (`/var/log/nginx/*.log`) e produce i target per `loki.source.file` |
+| `discovery.relabel` | regole di relabeling, come quelle di Prometheus |
+| `loki.process` | trasforma ogni riga con una sequenza di `stage.*` |
+| `loki.write` | manda a Loki; più `endpoint` = più destinazioni |
+
+### Stage di loki.process
+Gli stage trasformano ogni riga di log prima di mandarla a Loki, nell'ordine in cui sono scritti. I più usati:
+
+| Stage | Cosa fa | Esempio |
+|---|---|---|
+| `stage.regex` | estrae campi con una regex (gruppi con nome) | `(?P<stato>\d{3})` |
+| `stage.json` | estrae campi da una riga JSON | `expressions = {livello = "level"}` |
+| `stage.logfmt` | estrae campi da una riga `key=value` | `mapping = {livello = "level"}` |
+| `stage.labels` | promuove un campo estratto a etichetta Loki | `values = {stato = ""}` (`""`: stesso nome) |
+| `stage.timestamp` | usa un campo estratto come orario della riga | `format = "RFC3339"` |
+| `stage.output` | usa un campo estratto come testo della riga | `source = "messaggio"` |
+| `stage.drop` | scarta la riga se corrisponde | `expression = ".*healthcheck.*"` |
+| `stage.replace` | sostituisce testo nella riga | `password=(\S+)` → `replace = "***"` |
+| `stage.template` | genera un campo con Go template | `template = "{{ ToUpper .Value }}"` |
+
+Attenzione alla **cardinalità**: le etichette prodotte dalla pipeline devono avere pochi valori
+(metodo HTTP: 5-6; status code: una dozzina). Mai `ip`, `url` con parametri, `user_id` come etichetta:
+si usa il filtro nel testo della riga (`|= "192.168.1.100"`).
+
+```hcl
+loki.process "app" {
+	stage.json {                                       // riga JSON: {"level":"error","msg":"disco pieno","ts":"..."}
+		expressions = {livello = "level", messaggio = "msg"}
+	}
+	stage.labels {
+		values = {livello = ""}
+	}
+	stage.output {
+		source = "messaggio"                            // in Loki finisce solo "disco pieno", non il JSON intero
+	}
+	stage.drop {
+		source = "livello"
+		value  = "debug"                                // scarta le righe di debug
+	}
+	stage.replace {
+		expression = `password=(\S+)`                   // il gruppo catturato viene sostituito
+		replace    = "***"
+	}
+	forward_to = [loki.write.default.receiver]
+}
+```
+Con tre righe nel file (`error` "disco pieno", `debug` "dettaglio inutile", `info` "backup ok password=segreta"),
+in Loki arrivano:
+```
+$ logcli query '{job="app"}'
+2026-10-03T14:29:27Z {livello="info"}  backup ok password=***
+2026-10-03T14:29:27Z {livello="error"} disco pieno
+```
+L'orario è quello di lettura: per usare il `ts` della riga serve anche uno `stage.timestamp`.
+
+### Interfaccia web
+Su `--server.http.listen-addr` (di default `127.0.0.1:12345`; nel laboratorio http://localhost:12345) Alloy mostra
+il grafo dei componenti, lo stato di ognuno (*healthy*, oppure *unhealthy* con il messaggio d'errore) e gli
+argomenti effettivi. È il primo posto dove guardare quando i log non arrivano. Lo stesso dall'API:
+```bash
+curl -s localhost:12345/api/v0/web/components | jq -r '.[] | "\(.localID) \(.health.state)"'
+```
+```
+loki.write.default healthy
+loki.process.nginx_access healthy
+loki.source.file.nginx_access healthy
+loki.process.nginx_error healthy
+loki.source.file.nginx_error healthy
+discovery.relabel.journal healthy
+loki.source.journal.journal healthy
+```
+
+### Da Promtail ad Alloy
+Promtail, l'agente storico di Loki, è a fine vita dal **2 marzo 2026**: niente più aggiornamenti né correzioni
+di sicurezza (l'ultima immagine è `grafana/promtail:3.6.11`). Si trova ancora su molti server, con una
+configurazione YAML come questa:
 ```yaml
+# /etc/promtail/promtail.yml
 server:
   http_listen_port: 9080
-
 positions:
   filename: /tmp/positions.yaml                      # dove è arrivata la lettura di ogni file
-
 clients:
-  - url: http://loki:3100/loki/api/v1/push          # dove mandare i log
-
+  - url: http://loki:3100/loki/api/v1/push
 scrape_configs:
-  # journal di systemd: tutti i servizi della macchina
-  - job_name: journal
-    journal:
-      path: /var/log/journal                         # il default è /run/log/journal (solo volatile)
-      labels:
-        job: journal
-        host: server
-    relabel_configs:                                 # etichette dal journal: la unit e la priorità
-      - source_labels: [__journal__systemd_unit]
-        target_label: unit
-      - source_labels: [__journal_priority_keyword]
-        target_label: priority
-
-  # access log di nginx
   - job_name: nginx-access
     static_configs:
       - targets: [localhost]
@@ -175,71 +324,42 @@ scrape_configs:
           job: nginx
           host: server
           tipo: access
-          __path__: /var/log/nginx/access.log        # il file da leggere
-    pipeline_stages:                                 # vedi sotto
+          __path__: /var/log/nginx/access.log
+    pipeline_stages:                                 # gli stessi stage di Alloy, senza il prefisso stage.
       - regex:
-          expression: '^(?P<ip>\S+) - \S+ \[(?P<ts>[^\]]+)\] "(?P<metodo>\S+) (?P<percorso>\S+) \S+" (?P<stato>\d{3}) (?P<bytes>\d+)'
+          expression: '^(?P<ip>\S+) - \S+ \[(?P<ts>[^\]]+)\] "(?P<metodo>\S+) (?P<percorso>\S+)'
       - labels:
-          metodo:                                    # diventa etichetta, indicizzata
-          stato:
-      - timestamp:
-          source: ts
-          format: "02/Jan/2006:15:04:05 -0700"       # formato Go: il reference time è Mon Jan 2 15:04:05 MST 2006
+          metodo:
 ```
-
-### Pipeline stages
-Le pipeline trasformano ogni riga di log prima di mandarla a Loki. Le più usate:
-
-| Stage | Cosa fa | Esempio |
-|---|---|---|
-| `regex` | estrae campi con una regex (gruppi con nome) | `(?P<stato>\d{3})` |
-| `json` | estrae campi da una riga JSON | `{campo: "livello"}` |
-| `logfmt` | estrae campi da una riga `key=value` | nessuna configurazione |
-| `labels` | promuove un campo estratto a etichetta Loki | `stato:` |
-| `timestamp` | usa un campo estratto come orario della riga | `format: "2006-01-02T15:04:05Z"` |
-| `output` | usa un campo estratto come testo della riga | `source: messaggio` |
-| `drop` | scarta la riga se un campo corrisponde | `expression: "healthcheck"` |
-| `replace` | sostituisce testo nella riga | `expression: "password=.*"` |
-| `template` | genera un campo con Go template | `template: '{{ ToUpper .livello }}'` |
-
-Attenzione alla **cardinalità**: le etichette prodotte dalla pipeline devono avere pochi valori
-(metodo HTTP: 5-6; status code: una dozzina). Mai `ip`, `url` con parametri, `user_id` come etichetta:
-si usa il filtro nel testo della riga (`|= "192.168.1.100"`).
-
-```yaml
-    pipeline_stages:
-      - json:                                        # riga JSON: {"level":"error","msg":"disco pieno","ts":"..."}
-          expressions:
-            livello: level
-            messaggio: msg
-      - labels:
-          livello:
-      - output:
-          source: messaggio                          # in Loki finisce solo "disco pieno", non il JSON intero
-      - drop:
-          source: livello
-          value: debug                               # scarta le righe di debug
+Alloy la converte da solo:
+```bash
+alloy convert --source-format=promtail --output=config.alloy promtail.yml
 ```
-
-## Grafana Alloy
-
-Grafana Alloy è il successore ufficiale di Promtail (e di Grafana Agent). Un agente unico per metriche,
-log e tracce; la sintassi è in stile HCL (blocchi con argomenti), non YAML. Nel laboratorio si usa Promtail
-perché la configurazione YAML è più semplice da leggere per chi inizia.
-
+Con il file Promtail che usava prima questo laboratorio, l'uscita è (estratto):
 ```hcl
-// esempio Alloy equivalente al Promtail sopra
-local.file_match "nginx" {
-  path_targets = [{"__path__" = "/var/log/nginx/access.log", "job" = "nginx", "host" = "server"}]
-}
-loki.source.file "nginx" {
-  targets    = local.file_match.nginx.targets
-  forward_to = [loki.write.default.receiver]
-}
-loki.write "default" {
-  endpoint { url = "http://loki:3100/loki/api/v1/push" }
+loki.source.file "nginx_access" {
+	targets = [{
+		__address__ = "localhost",
+		__path__    = "/var/log/nginx/access.log",
+		host        = "server",
+		job         = "nginx",
+		tipo        = "access",
+	}]
+	forward_to = [loki.process.nginx_access.receiver]
+
+	file_match {
+		enabled = true
+	}
+	legacy_positions_file = "/tmp/positions.yaml"
 }
 ```
+- ogni `job_name` diventa una coppia `loki.source.*` + `loki.process`; i `clients` diventano `loki.write`
+- `legacy_positions_file` legge le posizioni di Promtail: al primo avvio Alloy riparte dal punto in cui Promtail
+  si era fermato, senza rimandare tutto il file a Loki. Dopo la migrazione si può togliere
+- `--source-format` accetta anche `prometheus`, `static` (Grafana Agent) e `otelcol`; con `--report=report.txt`
+  scrive cosa non è riuscito a convertire
+
+Cambia solo l'agente. Loki, etichette, query LogQL e dashboard restano uguali.
 
 ## LogQL: il linguaggio di query
 
@@ -316,7 +436,7 @@ che mandano a Loki, con le stesse etichette.
 
 Un client da riga di comando per Loki, come `promtool query` per Prometheus.
 ```bash
-V=3.5.0
+V=3.7.8
 curl -fsSLO https://github.com/grafana/loki/releases/download/v$V/logcli-linux-amd64.zip
 unzip logcli-linux-amd64.zip && sudo install -m 755 logcli-linux-amd64 /usr/local/bin/logcli
 export LOKI_ADDR=http://localhost:3100               # nel lab è già impostato
@@ -326,7 +446,8 @@ logcli query '{job="nginx"}'                         # ultimi log nginx
 logcli query '{job="nginx"} |= "404"' --limit 50    # con filtro e limite
 logcli query '{job="nginx"}' --since 1h              # ultima ora
 logcli query '{job="nginx"}' --from "2026-10-01T00:00:00Z" --to "2026-10-01T06:00:00Z"
-logcli query '{job="journal", unit="nginx.service"}'                     # solo log di nginx da journal
+logcli query '{job="journal", unit="ssh.service"}'                       # i log di sshd dal journal
+logcli query '{job="journal", unit="init.scope"} |= "nginx.service"'     # avvii e arresti di nginx: li scrive systemd
 logcli query '{job="nginx"}' --tail                  # come tail -f: le righe arrivano in tempo reale
 logcli labels                                        # tutte le etichette
 logcli labels job                                    # i valori dell'etichetta "job"
@@ -383,7 +504,7 @@ curl -s $L/loki/api/v1/label/job/values | jq         # i valori di "job"
 # serie (stream)
 curl -sG $L/loki/api/v1/series --data-urlencode 'match={job="nginx"}' | jq
 
-# push: mandare un log senza Promtail (utile per test e script)
+# push: mandare un log senza agente (utile per test e script)
 curl -X POST $L/loki/api/v1/push -H 'Content-Type: application/json' \
     -d '{"streams":[{"stream":{"job":"test","host":"server"},"values":[["'"$(date +%s)"'000000000","messaggio di prova"]]}]}'
 
@@ -497,7 +618,7 @@ limits_config:
 
 | | Cosa è |
 |---|---|
-| Grafana Alloy | agente unico per metriche, log, tracce (sostituisce Promtail e Grafana Agent) |
+| Promtail | il vecchio agente di Loki, a fine vita da marzo 2026: si migra ad Alloy con `alloy convert` |
 | Fluentd / Fluent Bit | collector di log molto diffusi; Fluent Bit è più leggero, può mandare a Loki |
 | Vector | collector ad alte prestazioni (Rust), alternativa a Fluent Bit |
 | Elasticsearch + Kibana (ELK) | ricerca full-text, dashboard Kibana; più pesante, più potente su grandi volumi |

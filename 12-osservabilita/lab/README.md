@@ -5,7 +5,7 @@ Un server da monitorare e tutto lo stack intorno, descritto da [compose.yaml](co
  server (si entra qui) ─┬─ node_exporter :9100  <─────────────── prometheus :9090 ──> alertmanager :9093 ──> mailpit :8025
   systemd, nginx :80    ├─ stub_status :8000 <── nginx-exporter <──┤      ▲                (email)
   /dati da 64 MB        ├─ :80, :22  <────────── blackbox  <───────┘      └── grafana :3000
-  /var/log ─────────────└──────────────────────── promtail :9080 ──push──> loki :3100 <──── grafana
+  /var/log ─────────────└────────────────────────── alloy :12345 ──push──> loki :3100 <──── grafana
 ```
 
 | Container | Cosa è |
@@ -15,8 +15,8 @@ Un server da monitorare e tutto lo stack intorno, descritto da [compose.yaml](co
 | `alertmanager` | instrada gli alert: warning a `squadra@lab.local`, critical a `reperibile@lab.local` |
 | `blackbox` | controlla da fuori `http://server/`, `http://grafana:3000/api/health` e `server:22` |
 | `nginx-exporter` | traduce lo `stub_status` di nginx in metriche |
-| `loki` | riceve e salva i log mandati da Promtail; configurazione in [config/loki/](config/loki/) |
-| `promtail` | legge journal e log nginx dal server e li manda a Loki; configurazione in [config/promtail/](config/promtail/) |
+| `loki` | riceve e salva i log mandati da Alloy; configurazione in [config/loki/](config/loki/) |
+| `alloy` | legge journal e log nginx dal server e li manda a Loki; configurazione in [config/alloy/](config/alloy/) |
 | `grafana` | data source e dashboard *Server* caricate da [config/grafana/](config/grafana/); data source Loki e Prometheus |
 | `mailpit` | un finto server di posta: raccoglie le email degli alert e le mostra nel browser |
 | `config` | parte, copia [config/](config/) nel volume condiviso e termina |
@@ -39,6 +39,7 @@ Dal browser del PC:
 | http://localhost:9093 | Alertmanager: alert, raggruppamenti, silenzi |
 | http://localhost:3000 | Grafana, `admin` / `laboratorio` (senza login si guarda soltanto): *Dashboards > Laboratorio > Server* |
 | http://localhost:3100 | Loki: `curl localhost:3100/ready`, `curl localhost:3100/loki/api/v1/labels` |
+| http://localhost:12345 | Alloy: grafo dei componenti e loro stato |
 | http://localhost:8025 | Mailpit: le email degli alert |
 
 Le porte devono essere libere sul PC: se una è occupata `lab.sh` si ferma con `port is already allocated`.

@@ -75,7 +75,7 @@ FROM systemd AS osservabilita
 ARG NODE_EXPORTER=1.12.1
 ARG PROMETHEUS=3.15.0
 ARG ALERTMANAGER=0.34.1
-ARG LOKI=3.5.0
+ARG LOKI=3.7.8
 ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \

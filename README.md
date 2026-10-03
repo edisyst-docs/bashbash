@@ -123,7 +123,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 4. [promql](12-osservabilita/04-promql.md) — `rate`, aggregazioni, `group_left`, percentili, query di tutti i giorni
 5. [alerting](12-osservabilita/05-alerting.md) — regole e unit test, Alertmanager, inibizioni, silenzi con `amtool`
 6. [grafana](12-osservabilita/06-grafana.md) — dashboard, variabili, provisioning da codice, API
-7. [loki](12-osservabilita/07-loki.md) — log centralizzati con Loki e Promtail, LogQL, logcli, alert sui log
+7. [loki](12-osservabilita/07-loki.md) — log centralizzati con Loki e Grafana Alloy, LogQL, logcli, alert sui log
 
 ## Supporto (fuori dal percorso)
 
@@ -156,7 +156,7 @@ servizi c'è anche un `lab/compose.yaml`:
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban |
 | 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
 | 10 | una rete con un router in mezzo (host, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace e web server |
-| 12 | Prometheus, Alertmanager, Grafana, Loki, Promtail, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
+| 12 | Prometheus, Alertmanager, Grafana, Loki, Alloy, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
 
 I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability
 che servono (`SYS_ADMIN` per systemd, `NET_ADMIN` per rete e firewall).

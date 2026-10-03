@@ -2,7 +2,7 @@
 #
 #   server (systemd, node_exporter :9100, nginx :80, stub_status :8000)   <- lab.sh entra qui
 #      ^ scrape            ^ probe HTTP/TCP          ^ stub_status        ^ log
-#   prometheus :9090    blackbox :9115    nginx-exporter :9113          promtail :9080
+#   prometheus :9090    blackbox :9115    nginx-exporter :9113          alloy :12345
 #      | alert                                                            | push
 #   alertmanager :9093 --email--> mailpit :8025 (web) / :1025 (SMTP)   loki :3100
 #   grafana :3000 --query--> prometheus, loki
@@ -11,7 +11,7 @@
 # lab/config/ alla partenza, server lo monta in /etc/monitoring in scrittura. Si modifica dal server e si ricarica
 # con curl -X POST http://prometheus:9090/-/reload, senza toccare la KB (montata in sola lettura).
 # Dal PC: Prometheus http://localhost:9090, Alertmanager http://localhost:9093, Grafana http://localhost:3000
-# (admin / laboratorio), Loki http://localhost:3100, Mailpit http://localhost:8025.
+# (admin / laboratorio), Loki http://localhost:3100, Alloy http://localhost:12345, Mailpit http://localhost:8025.
 name: lab-12
 x-lab-entra: server
 
@@ -38,7 +38,7 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - ../..:/kb:ro
       - monitoring:/etc/monitoring
-      - serverlog:/var/log                           # condiviso con promtail per leggere journal e log nginx
+      - serverlog:/var/log                           # condiviso con alloy per leggere journal e log nginx
     depends_on:
       config: {condition: service_completed_successfully}
     healthcheck:                                  # "degraded" = partito, ma con qualche unit fallita
@@ -113,26 +113,29 @@ services:
 
   loki:
     <<: *dns
-    image: grafana/loki:3.5.0
+    image: grafana/loki:3.7.8
     command: ["-config.file=/etc/loki/loki.yml"]
     ports: ["3100:3100"]
     volumes:
       - ./config/loki:/etc/loki:ro
       - loki:/loki
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
-      interval: 2s
-      retries: 30
+    # niente healthcheck: l'immagine di Loki è distroless (né shell, né wget né curl).
+    # Non serve: se Loki non è ancora pronto, alloy ritenta l'invio da solo.
 
-  promtail:
+  alloy:
     <<: *dns
-    image: grafana/promtail:3.5.0
-    command: ["-config.file=/etc/promtail/promtail.yml"]
+    image: grafana/alloy:v1.20.1
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345      # interfaccia web: grafico dei componenti e del loro stato
+      - --storage.path=/var/lib/alloy/data           # dove tiene le posizioni di lettura dei file
+      - /etc/alloy/config.alloy
+    ports: ["12345:12345"]
     volumes:
-      - ./config/promtail:/etc/promtail:ro
+      - ./config/alloy:/etc/alloy:ro
       - serverlog:/var/log:ro                        # journal e log nginx del server
     depends_on:
-      loki: {condition: service_healthy}
+      loki: {condition: service_started}
       server: {condition: service_healthy}
 
   mailpit:
