@@ -15,20 +15,20 @@ jobs:
           docker build -q --target systemd -t bashbash-systemd .
       - name: A - attuale (bind del cgroup dell'host)
         run: |
-          docker run -d --name a --cgroupns=private --cap-add SYS_ADMIN --tmpfs /run --tmpfs /run/lock \
+          docker run -d --name sd-a --cgroupns=private --cap-add SYS_ADMIN --tmpfs /run --tmpfs /run/lock \
               -v /sys/fs/cgroup:/sys/fs/cgroup:rw bashbash-systemd; sleep 10
-          docker ps -a --filter name=a --format '{{.Status}}'; docker logs a 2>&1 | tail -15
+          docker ps -a --filter name=sd-a --format '{{.Status}}'; docker logs sd-a 2>&1 | tail -15
       - name: B - cgroup privato rimontato
         run: |
-          docker run -d --name b --cgroupns=private --cap-add SYS_ADMIN --tmpfs /run --tmpfs /run/lock \
+          docker run -d --name sd-b --cgroupns=private --cap-add SYS_ADMIN --tmpfs /run --tmpfs /run/lock \
               --entrypoint sh bashbash-systemd -c 'mount -o remount,rw /sys/fs/cgroup && exec /sbin/init'; sleep 10
-          docker ps -a --filter name=b --format '{{.Status}}'; docker logs b 2>&1 | tail -8
-          docker exec b systemctl is-system-running || true
+          docker ps -a --filter name=sd-b --format '{{.Status}}'; docker logs sd-b 2>&1 | tail -8
+          docker exec sd-b systemctl is-system-running || true
       - name: C - come B, AppArmor unconfined
         run: |
-          docker run -d --name c --cgroupns=private --cap-add SYS_ADMIN --security-opt apparmor=unconfined \
+          docker run -d --name sd-c --cgroupns=private --cap-add SYS_ADMIN --security-opt apparmor=unconfined \
               --tmpfs /run --tmpfs /run/lock \
               --entrypoint sh bashbash-systemd -c 'mount -o remount,rw /sys/fs/cgroup && exec /sbin/init'; sleep 10
-          docker ps -a --filter name=c --format '{{.Status}}'; docker logs c 2>&1 | tail -8
-          docker exec c systemctl is-system-running || true
-          docker exec c systemctl is-active ssh nginx || true
+          docker ps -a --filter name=sd-c --format '{{.Status}}'; docker logs sd-c 2>&1 | tail -8
+          docker exec sd-c systemctl is-system-running || true
+          docker exec sd-c systemctl is-active ssh nginx || true
