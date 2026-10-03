@@ -1,6 +1,6 @@
 # 11 - Container e automazione
 
-Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab; configurazione con Ansible e infrastruttura con Terraform.
+Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab, deploy GitOps con Argo CD; configurazione con Ansible e infrastruttura con Terraform.
 
 | # | File/cartella | Contenuto |
 |---|---|---|
@@ -14,5 +14,6 @@ Docker, compose, swarm e Kubernetes; CI/CD con Jenkins e GitLab; configurazione 
 | 08 | [ansible](08-ansible/) | Inventory, playbook, moduli, group_vars; laboratorio Docker master→slave |
 | 09 | [terraform](09-terraform/) | Infrastructure as Code: HCL, variabili, `for_each`, moduli, stato, import; esempi Docker, AWS e Kubernetes |
 | 10 | [gitlab ci](10-gitlab-ci/) | GitLab CE + runner in compose e `gitlab-ci-local`, `.gitlab-ci.yml`: rules, needs, matrix, artefatti e cache, variabili protette, servizi, registry, ambienti, include; 9 pipeline di esempio |
+| 11 | [argo cd](11-argocd/) | GitOps su kind con registry e Gitea locali: Application, sync automatica, self-heal, rollback con `git revert`, Kustomize e Helm, hook, app of apps, ApplicationSet, AppProject; laboratorio in 11 passi |
 
 Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Prossima: [../12-osservabilita/](../12-osservabilita/)

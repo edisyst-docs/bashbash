@@ -1,0 +1,37 @@
+# ApplicationSet: un modello di Application e un generatore che produce i valori.
+# Il generatore git "directories" crea un'Application per ogni cartella in mia-app/overlays/:
+# oggi dev e prod; una cartella staging nuova in git = un'Application mia-app-staging, senza toccare questo file.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: mia-app
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: http://gitea:3000/lab/gitops.git
+        revision: main
+        directories:
+          - path: mia-app/overlays/*
+  template:
+    metadata:
+      name: "mia-app-{{ .path.basename }}"     # mia-app-dev, mia-app-prod
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: http://gitea:3000/lab/gitops.git
+        targetRevision: main
+        path: "{{ .path.path }}"               # mia-app/overlays/dev: Argo CD vede kustomization.yaml e usa Kustomize
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .path.basename }}"      # namespace dev, prod
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

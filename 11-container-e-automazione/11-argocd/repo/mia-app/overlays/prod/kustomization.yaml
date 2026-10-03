@@ -1,0 +1,23 @@
+# Ambiente prod: tre repliche, porta 30092. Il tag si cambia quando la versione ha funzionato in dev.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: prod
+resources:
+  - ../../base
+images:
+  - name: localhost:5001/mia-app
+    newTag: "1.0"                      # la versione in esecuzione in prod
+replicas:
+  - name: mia-app
+    count: 3
+patches:
+  - patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: mia-app
+      spec:
+        ports:
+          - port: 80
+            protocol: TCP
+            nodePort: 30092

@@ -1,0 +1,10 @@
+# argocd-cm: la configurazione generale di Argo CD (riferimento: argocd-cm.yaml nella documentazione).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  # ogni quanto confrontare git con il cluster se non arriva un webhook. Il default è 120s (+ fino a 60s casuali);
+  # nel laboratorio meno, così chi non ha il webhook non aspetta troppo
+  timeout.reconciliation: 60s
+  timeout.reconciliation.jitter: 0s

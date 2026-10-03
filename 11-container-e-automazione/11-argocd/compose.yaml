@@ -1,0 +1,52 @@
+# Servizi fuori dal cluster per il laboratorio Argo CD: lo avvia ./crea-lab.sh, dopo il cluster kind.
+#
+#   PC ──git push──> gitea :3001 <──git fetch── argocd-repo-server ┐
+#   PC ──docker push──> registry :5001 <──pull── containerd dei nodi ┘ (cluster kind "argocd")
+#
+# Entrambi stanno sulla rete Docker "kind", la stessa dei nodi: dal cluster si raggiungono per nome
+# (http://gitea:3000, http://registry:5000), dal PC su localhost.
+name: argocd-lab
+
+services:
+  registry:                                      # registry di immagini: il "Docker Hub" del laboratorio
+    image: registry:3.1.2
+    container_name: registry
+    ports: ["127.0.0.1:5001:5000"]               # dal PC: docker push localhost:5001/mia-app:1.0
+    volumes:
+      - registry:/var/lib/registry
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"    # permette di cancellare le immagini via API
+
+  gitea:                                         # server git con interfaccia web: il "GitHub" del laboratorio
+    image: gitea/gitea:28.0.0-rootless
+    container_name: gitea
+    ports: ["127.0.0.1:3001:3000"]               # http://localhost:3001
+    volumes:
+      - gitea:/var/lib/gitea
+      - gitea-config:/etc/gitea
+    environment:
+      GITEA__security__INSTALL_LOCK: "true"      # niente procedura guidata al primo avvio
+      # l'indirizzo "ufficiale" è quello interno: finisce nei webhook, e Argo CD riconosce il repository solo se
+      # l'host è lo stesso dell'Application (gitea). Il browser usa localhost:3001 e Gitea costruisce i link
+      # dall'header Host della richiesta (PUBLIC_URL_DETECTION = auto, il default)
+      GITEA__server__ROOT_URL: http://gitea:3000/
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      # i webhook verso indirizzi privati sono bloccati: si permette solo Argo CD (il nodo kind, porta 30443)
+      GITEA__security__ALLOWED_HOST_LIST: argocd-control-plane:30443
+      GITEA__security__EGRESS_MODE: lax          # la lista vale solo per gli indirizzi privati (il default)
+      GITEA__webhook__SKIP_TLS_VERIFY: "true"    # Argo CD nel laboratorio ha un certificato autofirmato
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/healthz"]
+      interval: 2s
+      retries: 30
+
+networks:
+  default:
+    name: kind                                   # la rete creata da "kind create cluster"
+    external: true
+
+volumes:
+  registry:
+  gitea:
+  gitea-config:

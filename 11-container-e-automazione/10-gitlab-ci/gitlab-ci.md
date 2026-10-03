@@ -622,7 +622,8 @@ deploy:
 ```
 L'alternativa senza credenziali del cluster in GitLab è il **GitLab agent for Kubernetes** (`agentk`), installato nel
 cluster: si collega lui a GitLab, e i job usano il contesto `gruppo/progetto:agente`. Oppure GitOps con Argo CD o Flux:
-la pipeline aggiorna un repository di manifest, il cluster si allinea da solo.
+la pipeline aggiorna un repository di manifest, il cluster si allinea da solo (job di esempio e laboratorio in
+[../11-argocd/argocd.md](../11-argocd/argocd.md#la-ci-aggiorna-git-argo-cd-fa-il-deploy)).
 
 ### Release su tag
 ```yaml

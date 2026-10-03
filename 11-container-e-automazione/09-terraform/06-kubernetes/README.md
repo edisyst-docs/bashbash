@@ -48,7 +48,8 @@ Cambiano la ConfigMap e l'annotazione `checksum/pagina` nel template del Pod (`s
 - **Terraform** è comodo per ciò che sta *intorno* alle applicazioni e va creato insieme all'infrastruttura: il cluster
   stesso (EKS, GKE, AKS), namespace, quote, permessi, i componenti di base installati con il provider `helm`
 - le **applicazioni**, che cambiano a ogni rilascio, di solito si gestiscono con manifest, Kustomize o Helm applicati
-  da una pipeline (vedi [../../07-jenkins/](../../07-jenkins/)) o da uno strumento GitOps (Argo CD, Flux)
+  da una pipeline (vedi [../../07-jenkins/](../../07-jenkins/)) o da uno strumento GitOps (Argo CD, Flux: vedi
+  [../../11-argocd/](../../11-argocd/))
 
 ## Smontare
 ```bash

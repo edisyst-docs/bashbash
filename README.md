@@ -113,6 +113,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 8. [ansible](11-container-e-automazione/08-ansible/) — inventory, playbook, moduli; laboratorio Docker master→slave
 9. [terraform](11-container-e-automazione/09-terraform/) — infrastruttura come codice: HCL, moduli, stato, import; esempi Docker, AWS, Kubernetes
 10. [gitlab ci](11-container-e-automazione/10-gitlab-ci/) — `.gitlab-ci.yml`, runner, rules, needs, variabili protette, registry, ambienti; laboratorio GitLab CE e `gitlab-ci-local`, 9 pipeline di esempio
+11. [argo cd](11-container-e-automazione/11-argocd/) — GitOps: Application, sync automatica, self-heal, rollback con `git revert`, Kustomize e Helm, hook, app of apps, ApplicationSet; laboratorio su kind con registry e Gitea locali
 
 ### [12-osservabilita/](12-osservabilita/) — metriche, log e alert
 Sapere come stanno server e servizi prima che se ne accorgano gli utenti.

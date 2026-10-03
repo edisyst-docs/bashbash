@@ -1,0 +1,13 @@
+# Argo CD installato con Kustomize: i manifest ufficiali di una versione precisa, più le modifiche del laboratorio.
+#   kubectl apply -k argocd/ --server-side --force-conflicts
+# --server-side è obbligatorio: alcune CRD (ApplicationSet) superano il limite di 256 KB dell'annotazione
+# che kubectl apply normale aggiunge a ogni oggetto.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd                                # tutto nel namespace argocd (anche i subject dei binding)
+resources:
+  - namespace.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.3/manifests/install.yaml
+patches:
+  - path: argocd-server-service.yaml             # interfaccia web su https://localhost:30443
+  - path: argocd-cm.yaml                         # configurazione generale

@@ -1,0 +1,7 @@
+# Base comune ai due ambienti: gli overlay in ../overlays/ cambiano solo quello che serve.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment.yaml
+  - service.yaml
+  - migrazione.yaml

@@ -1,0 +1,20 @@
+# Ambiente dev: una replica, porta 30091. Si aggiorna per primo: qui si cambia il tag dopo ogni build.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+resources:
+  - ../../base
+images:
+  - name: localhost:5001/mia-app
+    newTag: "1.0"                      # la versione in esecuzione in dev
+patches:
+  - patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: mia-app
+      spec:
+        ports:
+          - port: 80
+            protocol: TCP
+            nodePort: 30091

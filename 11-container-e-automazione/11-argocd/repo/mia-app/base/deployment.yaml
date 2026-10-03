@@ -1,0 +1,51 @@
+# L'app di ../../06-kubernetes/04-app-propria/, presa dal registry del laboratorio invece che da "kind load".
+# Il tag lo decide ogni overlay con "images:": qui c'è solo il nome dell'immagine.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mia-app
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: mia-app
+  template:
+    metadata:
+      labels:
+        app: mia-app
+    spec:
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: app
+          image: localhost:5001/mia-app        # localhost:5001 = il registry, anche per i nodi (hosts.toml)
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {cpu: 250m, memory: 64Mi}
+          lifecycle:
+            preStop:                           # 5 s per uscire dal Service prima del SIGTERM (vedi 04-app-propria)
+              sleep:
+                seconds: 5
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

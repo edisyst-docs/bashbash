@@ -1,0 +1,32 @@
+# Un chart Helm come sorgente: il chart di ../06-kubernetes/07-helm/sito/, copiato nel repository da crea-lab.sh.
+# Argo CD non fa "helm install": genera i manifest con "helm template" e li applica come tutti gli altri,
+# quindi "helm list" non mostra nessuna release. Storia e rollback stanno in Argo CD.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chart-sito
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: http://gitea:3000/lab/gitops.git
+    targetRevision: main
+    path: chart-sito
+    helm:
+      releaseName: vetrina             # diventa .Release.Name nei template (nome di Deployment e Service)
+      valuesObject:                    # come un values.yaml in più: vince sui valori di default del chart
+        titolo: Pubblicato da Argo CD
+        colore: "#2f855a"
+        service:
+          nodePort: 30093
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vetrina
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
