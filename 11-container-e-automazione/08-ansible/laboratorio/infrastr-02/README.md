@@ -5,14 +5,14 @@ Le 3 macchine devono essere collegate tra loro in una `rete Docker`.
 Nella macchina `master` deve essere configurato `Ansible` affinché possa lanciare i comandi alle altre 2 macchine.
 
 
-# Soluzione con docker-compose
+# Soluzione con docker compose
 Per creare una infrastruttura Docker con una macchina `master` che utilizza `Ansible` per gestire due macchine `slave`,
 è più conveniente utilizzare `Docker Compose`, che consente di gestire facilmente la configurazione della rete e dei container.
 
 Ecco i passaggi per configurare l'infrastruttura:
 
-### 1. Creare il file docker-compose.yml
-Nella directory principale del progetto, crea un file `docker-compose.yml`:
+### 1. Creare il file compose.yaml
+Nella directory principale del progetto, crea un file `compose.yaml`:
 ```yaml
 version: '3'
 services:
@@ -120,10 +120,10 @@ slave2 ansible_host=slave2
 ```
 
 
-## 5. Avviare i container docker-compose
+## 5. Avviare i container con docker compose
 Nella directory principale del progetto, esegui il comando:
 ```bash
-docker-compose up --build
+docker compose up --build
 docker ps   # Verifica che tutti i container siano in esecuzione
 ```
 
@@ -157,3 +157,5 @@ Questa infrastruttura parte dalla precedente (infrastr_01) e aggiunge le seguent
 - nel playbook si installa anche composer secondo la sua documentazione, (il file ansible/scripts/install_composer.sh contiene le istruzioni)
 - il playbook prevede di installare sulle slave apache2, mysql, php8, il progetto Laravel, e di deployarlo lì dentro
 - stò provando anche il playbook del corso, per quanto possibile
+
+Torna a [../](../)

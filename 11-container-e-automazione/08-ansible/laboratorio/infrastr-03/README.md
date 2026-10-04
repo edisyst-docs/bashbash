@@ -5,14 +5,14 @@ Le 3 macchine devono essere collegate tra loro in una `rete Docker`.
 Nella macchina `master` deve essere configurato `Ansible` affinché possa lanciare i comandi alle altre 2 macchine.
 
 
-# Soluzione con docker-compose
+# Soluzione con docker compose
 Per creare una infrastruttura Docker con una macchina `master` che utilizza `Ansible` per gestire due macchine `slave`,
 è più conveniente utilizzare `Docker Compose`, che consente di gestire facilmente la configurazione della rete e dei container.
 
 Ecco i passaggi per configurare l'infrastruttura:
 
-### 1. Creare il file docker-compose.yml
-Nella directory principale del progetto, crea un file `docker-compose.yml`:
+### 1. Creare il file compose.yaml
+Nella directory principale del progetto, crea un file `compose.yaml`:
 ```yaml
 version: '3'
 services:
@@ -120,10 +120,10 @@ slave2 ansible_host=slave2
 ```
 
 
-## 5. Avviare i container docker-compose
+## 5. Avviare i container con docker compose
 Nella directory principale del progetto, esegui il comando:
 ```bash
-docker-compose up --build
+docker compose up --build
 docker ps   # Verifica che tutti i container siano in esecuzione
 ```
 
@@ -155,7 +155,7 @@ ansible-playbook /etc/ansible/playbook.yml # Esegui il playbook sulle slave
 Questa infrastruttura, parte dalla precedente (infrastr_02) e mantiene solo questa funzionalità:
 - Sia su master che sugli slave creo un utente edoardo:edopassword : sarà l'utente che svolge le operazioni su ansible
     - ciò permette di non dover aggiungere a mano la chiave ssh di root nelle slave
-Questa infrastruttura aggiunge al docker-compose.yml, i seguenti servizi:
+Questa infrastruttura aggiunge al compose.yaml, i seguenti servizi:
 - un'istanza di un DB mysql, con un suo volume (dove salvare i dati e i DB)
 - un'istanza di phpmyadmin (per avere un'interfaccia dei DB del container mysql)
 - su master e slave installo il pacchetto mysql-client, per poter interagire con il DB mysql da dentro quei container (se installo Laravel sugli slave, dovrò installare anche il mysql)
@@ -164,9 +164,9 @@ Questa infrastruttura aggiunge al docker-compose.yml, i seguenti servizi:
   
 
 ## 8. Verificare l'infrastruttura aggiornata
-Avvio il docker-compose con il comando:
+Avvio i container con il comando:
 ```bash
-docker-compose up -d
+docker compose up -d
 docker compose up -d --build
 ```
 
@@ -192,7 +192,7 @@ mysql -h mysql -u root -p
 
 
 ### Accesso via phpMyAdmin da browser
-Hai esposto phpmyadmin sulla `porta 8080:80` nel `docker-compose.yml`, quindi lo trovi all'url `http://127.0.0.1:8080` 
+Hai esposto phpmyadmin sulla `porta 8080:80` nel `compose.yaml`, quindi lo trovi all'url `http://127.0.0.1:8080` 
 
 Credenziali di accesso:
 ```bash
@@ -209,3 +209,5 @@ apt update && apt install -y mysql-client
 mysql -h mysql -u root -p
 ```
 
+
+Torna a [../](../)

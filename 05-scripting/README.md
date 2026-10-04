@@ -24,4 +24,4 @@ si scommenta il blocco da provare. Per script completi e funzionanti vedi [../zz
 **Laboratorio**: `./lab.sh 05` dalla radice della KB apre un container usa-e-getta con una cartella
 per ogni `.md`, con gli script dell'area già copiati ed eseguibili e i file che servono. Dettagli in [lab/](lab/).
 
-Area precedente: [../04-processi/](../04-processi/) · Prossima: [../06-sistema/](../06-sistema/)
+Area precedente: [../04-processi/](../04-processi/) · Prossima: [../06-sistema/](../06-sistema/) · Torna all'[indice](../README.md)

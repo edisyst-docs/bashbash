@@ -18,4 +18,4 @@ Amministrazione della macchina: utenti, pacchetti, dischi, schedulazione, log.
 **Laboratorio**: `./lab.sh 06` dalla radice della KB apre un container Ubuntu con systemd come PID 1:
 `systemctl`, `journalctl`, timer, cron e servizi veri (ssh, nginx, apache2, fail2ban). Dettagli in [lab/](lab/).
 
-Area precedente: [../05-scripting/](../05-scripting/) · Prossima: [../07-windows/](../07-windows/)
+Area precedente: [../05-scripting/](../05-scripting/) · Prossima: [../07-windows/](../07-windows/) · Torna all'[indice](../README.md)

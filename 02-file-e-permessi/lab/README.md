@@ -3,6 +3,8 @@
 File e cartelle su cui provare i comandi di quest'area senza toccare niente di vero.
 Non sono salvati nel repository: li genera [prepara.sh](prepara.sh), perché link simbolici,
 permessi, bit speciali e date di modifica non sopravvivono a git (soprattutto su Windows).
+Nel repository c'è solo [materiale/img.png](materiale/), l'immagine che `prepara.sh` copia in `01-file-base/` come
+`immagine.png`: un file binario non si può ricreare con uno script.
 
 ## Avvio
 Dalla radice della KB:

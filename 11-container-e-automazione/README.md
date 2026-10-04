@@ -18,4 +18,4 @@ Docker, compose, swarm e Kubernetes; CI/CD con Jenkins, GitLab e GitHub Actions,
 | 12 | [trivy e hadolint](12-trivy-hadolint/) | Lint dei Dockerfile, vulnerabilità e segreti nelle immagini, configurazione di Kubernetes e Terraform, SBOM; stage che bloccano i CRITICAL nelle pipeline di Jenkins e GitLab |
 | 13 | [github actions](13-github-actions/) | Workflow, eventi, matrix, needs, artefatti e cache, servizi, CI con Trivy e ghcr.io, ambienti, segreti e OIDC, riuso; sicurezza e `act`; nove esempi in `.github/workflows/` e la CI della KB |
 
-Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Prossima: [../12-osservabilita/](../12-osservabilita/)
+Area precedente: [../10-rete-e-web/](../10-rete-e-web/) · Prossima: [../12-osservabilita/](../12-osservabilita/) · Torna all'[indice](../README.md)
