@@ -7,7 +7,7 @@
 | [kind-argocd.yaml](kind-argocd.yaml) | Cluster kind `argocd`: un control plane e un worker, porte 30090-30093 e 30443 |
 | [compose.yaml](compose.yaml) | Registry 3.1 e Gitea 28 sulla rete Docker `kind` |
 | [argocd/](argocd/) | Argo CD 3.5.3 installato con Kustomize: NodePort 30443, riconciliazione ogni 60 s |
-| [repo/](repo/) | Il contenuto iniziale del repository `gitops`: `sito/` (YAML), `mia-app/` (Kustomize, dev e prod), `apps/` (app of apps) |
+| [repo/](repo/) | Il contenuto iniziale del repository `gitops`: `sito/` (YAML), `mia-app/` (Kustomize, dev e prod), `apps/` (app of apps); a questi `laboratorio.sh` aggiunge `chart-sito/`, il chart Helm di [../06-kubernetes/07-helm/](../06-kubernetes/07-helm/) |
 | [applicazioni/](applicazioni/) | Le Application da applicare a mano: la prima (`sito.yaml`) e la radice dell'app of apps (`root.yaml`) |
 
 ```bash

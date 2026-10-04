@@ -4,7 +4,8 @@ Knowledge base personale su bash, comandi da terminale Linux e scripting Windows
 
 Cartelle e file sono numerati nell'ordine in cui conviene studiarli: si parte da `01-basi/01-shell.md`
 e si prosegue in ordine. Le cartelle `zz-` non sono tappe del percorso, sono materiale di supporto.
-Ogni cartella ha il proprio `README.md` con l'indice dei suoi file.
+Ogni area e ogni cartella con materiale da studiare ha il proprio `README.md` con l'indice dei suoi file; le
+sottocartelle di supporto (`app/`, `config/`, `master/`…) sono descritte nel README della cartella che le contiene.
 
 ## Percorso di studio
 
@@ -94,6 +95,10 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale, download con `wget`
 2. [git](09-strumenti/02-git.md) — storia, `stash`, `reflog`, `bisect`, hook
 3. [mysql](09-strumenti/03-mysql.md) — `mysql`, `mysqldump`, ripristino, diagnostica
+4. [php](09-strumenti/04-php.md) — installazione, esecuzione al volo, lint, server built-in, Composer
+5. [python](09-strumenti/05-python.md) — snippet al volo, `venv`, `pip`, moduli della libreria standard
+6. [postgresql](09-strumenti/06-postgresql.md) — `psql`, `pg_dump`/`pg_restore`, diagnostica, utente applicativo
+7. [redis](09-strumenti/07-redis.md) — `redis-cli`, chiavi, strutture dati, monitoraggio
 
 ### [10-rete-e-web/](10-rete-e-web/) — reti e web server
 1. [indirizzi e configurazione](10-rete-e-web/01-indirizzi-e-configurazione.md) — CIDR e subnet, `ip addr`/`ip route`, netplan, da `ifconfig` a `ip`
@@ -214,6 +219,23 @@ docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 > laboratori il `mount` di partizioni vere e lo swap, che richiederebbero `--privileged`: con quello il container
 > vedrebbe i dischi della macchina.
 
+## CI del repository
+
+A ogni push e pull request GitHub Actions esegue [.github/workflows/kb.yml](.github/workflows/kb.yml) (la guida è
+in [11-container-e-automazione/13-github-actions/](11-container-e-automazione/13-github-actions/)):
+
+| Job | Cosa controlla |
+|---|---|
+| `shellcheck` | tutti gli script `.sh` dei laboratori e dell'area 11; restano fuori `05-scripting/*.sh` e `zz-esempi/`, che sono esempi da studiare (alcuni sbagliati apposta) |
+| `hadolint` | tutti i file chiamati `Dockerfile`; blocca da `warning` in su e manda il report completo a *Security > Code scanning* |
+| `link` | i link relativi nei `.md` ([.github/scripts/controlla-link.py](.github/scripts/controlla-link.py)): ogni file o cartella indicata deve esistere |
+| `laboratorio` | per le aree 02, 03, 05, 06, 08, 09, 10 e 12 lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio |
+
+Il resto di `.github/` sono gli esempi della guida: i nove workflow `esempio-*.yml`, l'Action composita
+[python-app](.github/actions/python-app/) e il problem matcher di shellcheck. [.hadolint.yaml](.hadolint.yaml) è la
+configurazione di Hadolint per tutto il repository (ignora `DL3008`, le versioni fisse in `apt-get install`).
+Prima di una pull request si può fare lo stesso controllo in locale: `python3 .github/scripts/controlla-link.py`.
+
 ## Trovare un comando
 Se non ricordi in che file sta un comando:
 ```bash
@@ -223,7 +245,9 @@ grep -rn "nome_comando" --include="*.md" .
 ## Convenzioni
 - Cartelle e file numerati nell'ordine di studio; il prefisso `zz-` marca il materiale di supporto.
 - File e cartelle in minuscolo, parole separate da trattino.
-- Ogni cartella ha un `README.md` con l'indice dei suoi file.
+- Ogni area e ogni cartella con materiale da studiare ha un `README.md` con l'indice dei suoi file e, in fondo, un
+  link per tornare indietro (`Torna a` per le sottocartelle; area precedente, prossima e indice per le aree).
+  Le sottocartelle di supporto sono descritte nel README del padre.
 - In `05-scripting/` e `04-processi/` lo script di prova porta lo stesso numero del `.md` che lo spiega.
 - La cartella `lab/` di un'area contiene `prepara.sh` (genera i file del laboratorio, una sottocartella per `.md`), `README.md` (cosa contiene) ed eventualmente `materiale/` (file non generabili) e `compose.yaml` (servizi: o un servizio `shell` che `lab.sh` avvia, o una riga `x-lab-entra: NOME` con il servizio in cui entrare).
 - Ogni comando ha il suo commento inline sulla stessa riga, allineato.

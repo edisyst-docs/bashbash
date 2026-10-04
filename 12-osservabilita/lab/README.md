@@ -47,6 +47,9 @@ Servono circa 1 GB di RAM.
 
 ## Cosa si prova e dove
 
+[prepara.sh](prepara.sh) gira sul `server` (lo lancia `lab.sh`) e crea in `~/lab` una cartella per ogni `.md` dell'area, con gli script
+elencati qui sotto. Per ripartire da zero senza uscire: `bash /kb/12-osservabilita/lab/prepara.sh && cd ~/lab`.
+
 | Cartella | File pronti | Note |
 |---|---|---|
 | `01-concetti/` | nessuno | si guarda `curl -s localhost:9100/metrics \| less` per vedere il formato |

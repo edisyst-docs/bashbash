@@ -11,4 +11,4 @@ Vedere cosa gira, fermarlo, metterlo in background, misurare quante risorse cons
 
 **Script**: [02-contatore.sh](02-contatore.sh) — contatore infinito usato negli esempi di `02-jobs.md`.
 
-Area precedente: [../03-testo-e-regex/](../03-testo-e-regex/) · Prossima: [../05-scripting/](../05-scripting/)
+Area precedente: [../03-testo-e-regex/](../03-testo-e-regex/) · Prossima: [../05-scripting/](../05-scripting/) · Torna all'[indice](../README.md)

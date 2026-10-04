@@ -16,6 +16,9 @@ client ---- rete "esterna" ---- produzione ---- rete "interna" ---- db-interno
 Sui tre server ci sono gli utenti `deploy` (password `deploy`) ed `edoardo` (password `edoardo`, con sudo),
 creati da [server.sh](server.sh). I nomi dei server sono gli stessi alias usati nel `.md`.
 
+Sul `client`, invece, [prepara.sh](prepara.sh) crea i file delle prove (`01-ssh/`, `02-firewall-e-hardening/`, `03-gpg/`) in `~/lab`;
+`lab.sh` lo lancia da solo, e per ripartire da zero senza uscire: `bash /kb/08-remoto-e-sicurezza/lab/prepara.sh && cd ~/lab`.
+
 ## Avvio
 Dalla radice della KB:
 ```bash

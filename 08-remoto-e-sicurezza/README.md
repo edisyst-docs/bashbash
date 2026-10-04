@@ -11,4 +11,4 @@ Collegarsi ai server e metterli in sicurezza.
 **Laboratorio**: `./lab.sh 08` dalla radice della KB avvia un PC e tre server (`produzione`, `staging` e
 `db-interno`, raggiungibile solo via `ProxyJump`) con sshd, ufw e fail2ban veri. Dettagli in [lab/](lab/).
 
-Area precedente: [../07-windows/](../07-windows/) · Prossima: [../09-strumenti/](../09-strumenti/)
+Area precedente: [../07-windows/](../07-windows/) · Prossima: [../09-strumenti/](../09-strumenti/) · Torna all'[indice](../README.md)

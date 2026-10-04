@@ -13,4 +13,4 @@ Cercare, filtrare, trasformare ed editare testo. Sono gli strumenti che userai d
 **Laboratorio**: `./lab.sh 03` dalla radice della KB apre un container usa-e-getta con una cartella
 per ogni `.md`, già piena di testi, log e CSV su cui provare i comandi. Dettagli in [lab/](lab/).
 
-Area precedente: [../02-file-e-permessi/](../02-file-e-permessi/) · Prossima: [../04-processi/](../04-processi/)
+Area precedente: [../02-file-e-permessi/](../02-file-e-permessi/) · Prossima: [../04-processi/](../04-processi/) · Torna all'[indice](../README.md)

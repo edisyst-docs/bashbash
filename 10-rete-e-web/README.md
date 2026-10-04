@@ -15,4 +15,4 @@ I comandi di rete di base (`ip -br a`, `ss`, `dig +short`, `curl -I`) sono in [.
 **Laboratorio**: `./lab.sh 10` dalla radice della KB avvia una piccola rete (host, router, web) in cui provare
 `ip`, `traceroute`, `tcpdump`, `nmap`, i namespace, nginx e apache2. Dettagli in [lab/](lab/).
 
-Area precedente: [../09-strumenti/](../09-strumenti/) · Prossima: [../11-container-e-automazione/](../11-container-e-automazione/)
+Area precedente: [../09-strumenti/](../09-strumenti/) · Prossima: [../11-container-e-automazione/](../11-container-e-automazione/) · Torna all'[indice](../README.md)

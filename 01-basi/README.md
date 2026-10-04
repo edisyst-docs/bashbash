@@ -16,4 +16,4 @@ La shell interattiva: come muoversi, come trovare i comandi, come concatenarli.
 
 **Materiale**: [bashrc-esempio](bashrc-esempio) — esempio di `.bashrc` con alias e variabili personali.
 
-Prossima area: [../02-file-e-permessi/](../02-file-e-permessi/)
+Prossima area: [../02-file-e-permessi/](../02-file-e-permessi/) · Torna all'[indice](../README.md)

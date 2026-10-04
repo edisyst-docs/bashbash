@@ -5,14 +5,14 @@ Le 3 macchine devono essere collegate tra loro in una `rete Docker`.
 Nella macchina `master` deve essere configurato `Ansible` affinché possa lanciare i comandi alle altre 2 macchine.
 
 
-# Soluzione con docker-compose
+# Soluzione con docker compose
 Per creare una infrastruttura Docker con una macchina `master` che utilizza `Ansible` per gestire due macchine `slave`,
 è più conveniente utilizzare `Docker Compose`, che consente di gestire facilmente la configurazione della rete e dei container.
 
 Ecco i passaggi per configurare l'infrastruttura:
 
-### 1. Creare il file docker-compose.yml
-Nella directory principale del progetto, crea un file `docker-compose.yml`:
+### 1. Creare il file compose.yaml
+Nella directory principale del progetto, crea un file `compose.yaml`:
 ```yaml
 version: '3'
 services:
@@ -120,10 +120,10 @@ slave2 ansible_host=slave2
 ```
 
 
-## 5. Avviare i container docker-compose
+## 5. Avviare i container con docker compose
 Nella directory principale del progetto, esegui il comando:
 ```bash
-docker-compose up --build
+docker compose up --build
 docker ps   # Verifica che tutti i container siano in esecuzione
 ```
 
@@ -154,3 +154,5 @@ ansible-playbook /etc/ansible/playbook.yml # Esegui il playbook sulle slave
 Questa configurazione ti permette di avere una macchina master che utilizza Ansible per gestire due macchine slave,
 tutte collegate tramite una rete Docker.
 Ansible può quindi inviare comandi, installare pacchetti e gestire le slave come desiderato.
+
+Torna a [../](../)
