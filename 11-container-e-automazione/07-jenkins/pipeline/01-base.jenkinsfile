@@ -1,0 +1,43 @@
+// La struttura di una pipeline Declarative: agent, environment, options, stages, post.
+pipeline {
+    agent any                                          // qualunque esecutore libero (qui il controller)
+
+    environment {
+        SALUTO = 'Ciao'                                // variabile d'ambiente per tutti gli stage
+    }
+
+    options {
+        timestamps()                                   // orario su ogni riga del log
+        buildDiscarder(logRotator(numToKeepStr: '10')) // conserva solo gli ultimi 10 build
+        timeout(time: 5, unit: 'MINUTES')              // oltre, il build viene interrotto
+    }
+
+    stages {
+        stage('Informazioni') {
+            steps {
+                echo "Build #${env.BUILD_NUMBER} del job ${env.JOB_NAME}"   // doppi apici: interpola Groovy
+                sh 'echo "nodo: $NODE_NAME - workspace: $WORKSPACE"'          // singoli apici: interpola la shell
+                sh 'printenv | sort | grep -E "^(BUILD_(ID|NUMBER|URL)|JOB_NAME|NODE_NAME|WORKSPACE)="'
+            }
+        }
+        stage('File nel workspace') {
+            steps {
+                writeFile file: 'saluto.txt', text: "${SALUTO} dal build ${BUILD_NUMBER}\n"
+                sh 'cat saluto.txt && ls -l'
+                script {
+                    // sh restituisce l'output (returnStdout) o il codice di uscita (returnStatus) invece di fallire
+                    def righe = sh(script: 'wc -l < saluto.txt', returnStdout: true).trim()
+                    def esito = sh(script: 'grep -q Ciao saluto.txt', returnStatus: true)
+                    echo "saluto.txt ha ${righe} riga, grep ha restituito ${esito}"
+                }
+                archiveArtifacts artifacts: 'saluto.txt'       // resta scaricabile dalla pagina del build
+            }
+        }
+    }
+
+    post {
+        success { echo 'Finito senza errori' }
+        failure { echo 'Qualcosa è andato storto' }
+        always  { cleanWs() }                          // svuota il workspace
+    }
+}

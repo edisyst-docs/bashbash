@@ -1,0 +1,8 @@
+# Recording rule: query usate spesso calcolate una volta e salvate come nuove serie (nome livello:metrica:operazione).
+groups:
+  - name: registrazione
+    rules:
+      - record: instance:node_cpu_utilizzo:ratio
+        expr: 1 - avg by (instance, host) (rate(node_cpu_seconds_total{mode="idle"}[1m]))
+      - record: instance:node_memoria_utilizzo:ratio
+        expr: 1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes

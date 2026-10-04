@@ -1,0 +1,150 @@
+# Laboratorio dell'area 12: lo avvia ./lab.sh 12 dalla radice della KB.
+#
+#   server (systemd, node_exporter :9100, nginx :80, stub_status :8000)   <- lab.sh entra qui
+#      ^ scrape            ^ probe HTTP/TCP          ^ stub_status        ^ log
+#   prometheus :9090    blackbox :9115    nginx-exporter :9113          alloy :12345
+#      | alert                                                            | push
+#   alertmanager :9093 --email--> mailpit :8025 (web) / :1025 (SMTP)   loki :3100
+#   grafana :3000 --query--> prometheus, loki
+#
+# La configurazione di Prometheus e Alertmanager sta in un volume condiviso: il servizio "config" ci copia
+# lab/config/ alla partenza, server lo monta in /etc/monitoring in scrittura. Si modifica dal server e si ricarica
+# con curl -X POST http://prometheus:9090/-/reload, senza toccare la KB (montata in sola lettura).
+# Dal PC: Prometheus http://localhost:9090, Alertmanager http://localhost:9093, Grafana http://localhost:3000
+# (admin / laboratorio), Loki http://localhost:3100, Alloy http://localhost:12345, Mailpit http://localhost:8025.
+name: lab-12
+x-lab-entra: server
+
+# niente search domain del PC: con "ufficio.local" un nome come "server" diventerebbe server.ufficio.local,
+# che sulla rete aziendale può esistere davvero (musl e Go provano il dominio di ricerca prima del nome nudo)
+x-dns: &dns
+  dns_search: .
+
+services:
+  server:
+    <<: *dns
+    image: bashbash-osservabilita
+    build:
+      context: ../..
+      target: osservabilita
+    hostname: server
+    cgroup: private
+    cap_add: [SYS_ADMIN]
+    security_opt: ["apparmor:unconfined"]      # AppArmor vieterebbe il remount del cgroup (vedi il Dockerfile)
+    tmpfs:
+      - /run
+      - /run/lock
+      - /dati:size=64m                            # disco piccolo da riempire per far scattare l'alert
+    volumes:
+      - ../..:/kb:ro
+      - monitoring:/etc/monitoring
+      - serverlog:/var/log                           # condiviso con alloy per leggere journal e log nginx
+    depends_on:
+      config: {condition: service_completed_successfully}
+    healthcheck:                                  # "degraded" = partito, ma con qualche unit fallita
+      test: ["CMD-SHELL", "systemctl is-system-running | grep -qE '^(running|degraded)$$'"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  config:                                         # copia la configurazione nel volume e termina
+    <<: *dns
+    image: prom/prometheus:v3.15.0
+    entrypoint: ["sh", "-c", "cp -r /sorgente/prometheus /sorgente/alertmanager /etc/monitoring/ && chmod -R a+rwX /etc/monitoring"]
+    user: root
+    volumes:
+      - ./config:/sorgente:ro
+      - monitoring:/etc/monitoring
+
+  prometheus:
+    <<: *dns
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/monitoring/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=2d
+      - --web.enable-lifecycle                    # abilita POST /-/reload
+    ports: ["9090:9090"]
+    volumes:
+      - monitoring:/etc/monitoring:ro
+      - prometheus:/prometheus
+    depends_on:
+      config: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/ready"]
+      interval: 2s
+      retries: 30
+
+  alertmanager:
+    <<: *dns
+    image: prom/alertmanager:v0.34.1
+    command:
+      - --config.file=/etc/monitoring/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    ports: ["9093:9093"]
+    volumes:
+      - monitoring:/etc/monitoring:ro
+    depends_on:
+      config: {condition: service_completed_successfully}
+
+  blackbox:
+    <<: *dns
+    image: prom/blackbox-exporter:v0.28.0
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./config/blackbox:/etc/blackbox:ro
+
+  nginx-exporter:
+    <<: *dns
+    image: nginx/nginx-prometheus-exporter:1.5.3
+    command: ["--nginx.scrape-uri=http://server:8000/stub_status"]
+
+  grafana:
+    <<: *dns
+    image: grafana/grafana:13.2.3
+    ports: ["3000:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: laboratorio
+      GF_AUTH_ANONYMOUS_ENABLED: "true"          # si guarda senza login, per modificare serve admin
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboard:/var/lib/grafana/dashboards:ro
+
+  loki:
+    <<: *dns
+    image: grafana/loki:3.7.8
+    command: ["-config.file=/etc/loki/loki.yml"]
+    ports: ["3100:3100"]
+    volumes:
+      - ./config/loki:/etc/loki:ro
+      - loki:/loki
+    # niente healthcheck: l'immagine di Loki è distroless (né shell, né wget né curl).
+    # Non serve: se Loki non è ancora pronto, alloy ritenta l'invio da solo.
+
+  alloy:
+    <<: *dns
+    image: grafana/alloy:v1.20.1
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345      # interfaccia web: grafico dei componenti e del loro stato
+      - --storage.path=/var/lib/alloy/data           # dove tiene le posizioni di lettura dei file
+      - /etc/alloy/config.alloy
+    ports: ["12345:12345"]
+    volumes:
+      - ./config/alloy:/etc/alloy:ro
+      - serverlog:/var/log:ro                        # journal e log nginx del server
+    depends_on:
+      loki: {condition: service_started}
+      server: {condition: service_healthy}
+
+  mailpit:
+    <<: *dns
+    image: axllent/mailpit:v1.31.3
+    ports: ["8025:8025"]
+
+volumes:
+  monitoring:
+  prometheus:
+  loki:
+  serverlog:

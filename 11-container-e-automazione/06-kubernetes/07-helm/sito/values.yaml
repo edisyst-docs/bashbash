@@ -1,0 +1,13 @@
+# Valori di default del chart. Si sovrascrivono con -f altro-file.yaml o --set chiave=valore;
+# nei template si leggono come {{ .Values.repliche }}, {{ .Values.service.nodePort }}...
+repliche: 2
+
+immagine:
+  repository: nginx
+  tag: 1.27-alpine
+
+titolo: Ciao da Helm
+colore: "#2b6cb0"                      # tra virgolette: in YAML # inizia un commento
+
+service:
+  nodePort: 30084                      # 0 o vuoto = Service ClusterIP, senza porta sui nodi

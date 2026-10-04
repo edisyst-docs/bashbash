@@ -1,0 +1,95 @@
+# rules, workflow e variabili da scegliere quando si avvia la pipeline a mano (Build > Pipelines > New pipeline).
+workflow:                                        # se e quando creare la pipeline: la prima regola che corrisponde vince
+  name: "Rilascio $VERSIONE in $AMBIENTE"        # il titolo nella lista delle pipeline
+  rules:
+    - if: $CI_COMMIT_TITLE =~ /^wip/i            # commit che iniziano con "wip": nessuna pipeline
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS   # branch con una MR aperta: basta la pipeline della MR
+      when: never
+    - if: $CI_COMMIT_BRANCH                      # push su un branch
+    - if: $CI_COMMIT_TAG                         # push di un tag
+
+variables:
+  AMBIENTE:
+    value: sviluppo
+    options: [sviluppo, collaudo, produzione]    # New pipeline mostra un menu a tendina
+    description: Dove rilasciare
+  VERSIONE:
+    value: "1.0.0"
+    description: Versione da rilasciare, nel formato X.Y.Z
+
+stages:
+  - controlli
+  - rilascio
+
+default:
+  image: alpine:3.22
+
+valida-versione:
+  stage: controlli
+  script:
+    - echo "$VERSIONE" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "VERSIONE '$VERSIONE' non valida"; exit 1; }
+    - echo "versione $VERSIONE, ambiente $AMBIENTE"
+
+solo-main:
+  stage: controlli
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - echo "sul branch di default ($CI_DEFAULT_BRANCH)"
+
+solo-feature:
+  stage: controlli
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^feature\//      # regex: branch feature/qualcosa
+  script:
+    - echo "branch di sviluppo $CI_COMMIT_BRANCH"
+
+se-cambia-app:
+  stage: controlli
+  rules:
+    - changes:                                   # solo se il push tocca questi file
+        - app/**/*
+  script:
+    - echo "il codice in app/ è cambiato"
+
+se-esiste-dockerfile:
+  stage: controlli
+  rules:
+    - exists:
+        - app/Dockerfile
+  script:
+    - echo "c'è un Dockerfile, si potrebbe costruire l'immagine"
+
+avvio-manuale:
+  stage: controlli
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"           # avviata dal pulsante New pipeline
+  script:
+    - echo "pipeline avviata a mano da $GITLAB_USER_LOGIN"
+
+programmata:
+  stage: controlli
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"      # Build > Pipeline schedules
+  script:
+    - echo "esecuzione notturna"
+
+rilascio-tag:
+  stage: rilascio
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+  script:
+    - echo "rilascio del tag $CI_COMMIT_TAG"
+
+produzione:
+  stage: rilascio
+  rules:
+    - if: $AMBIENTE == "produzione"
+      when: manual                               # aspetta un clic sul pulsante "play"
+    - if: $AMBIENTE == "collaudo"                # in collaudo parte da solo, con 30 secondi di ritardo
+      when: delayed
+      start_in: 30 seconds
+  script:
+    - echo "rilascio $VERSIONE in $AMBIENTE"

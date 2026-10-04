@@ -1,0 +1,51 @@
+# services: database e cache avviati accanto al container del job, raggiungibili con un nome (alias).
+# image con entrypoint annullato per immagini che hanno un ENTRYPOINT proprio.
+stages:
+  - test
+
+postgres:
+  stage: test
+  image: postgres:17                             # per avere psql
+  services:
+    - name: postgres:17
+      alias: db                                  # il nome con cui il job lo raggiunge
+  variables:                                     # le variabili del job arrivano anche al servizio
+    POSTGRES_DB: app
+    POSTGRES_USER: app
+    POSTGRES_PASSWORD: segreta
+  script:
+    - until pg_isready -h db -U app; do sleep 1; done
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+    - psql -h db -U app -d app -c "create table t (id int); insert into t values (1), (2);"
+    - psql -h db -U app -d app -c "select count(*) from t;"
+
+mysql:
+  stage: test
+  image: mysql:9.7
+  services:
+    - name: mysql:9.7
+      alias: db
+  variables:
+    MYSQL_ROOT_PASSWORD: segreta
+    MYSQL_DATABASE: app
+  script:
+    - until mysqladmin ping -h db -uroot -psegreta --silent; do sleep 2; done
+    - mysql -h db -uroot -psegreta app -e "select version();"
+
+redis:
+  stage: test
+  image: redis:8
+  services:
+    - name: redis:8
+      alias: cache
+  script:
+    - redis-cli -h cache set saluto ciao
+    - redis-cli -h cache get saluto
+
+terraform:
+  stage: test
+  image:
+    name: hashicorp/terraform:1.16
+    entrypoint: [""]                             # l'immagine parte con "terraform": senza questo lo script non gira
+  script:
+    - terraform version

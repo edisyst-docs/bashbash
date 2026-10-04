@@ -1,0 +1,16 @@
+# Configurazione di nginx come template: all'avvio l'immagine ufficiale sostituisce ${MESSAGGIO} con la
+# variabile d'ambiente del Deployment e scrive il risultato in /etc/nginx/conf.d/default.conf.
+# $hostname (minuscolo) non è una variabile d'ambiente: resta così e lo riempie nginx con il nome del Pod.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sito-nginx
+data:
+  default.conf.template: |
+    server {
+        listen 80;
+        location / {
+            default_type text/plain;
+            return 200 "${MESSAGGIO} - pod $hostname\n";
+        }
+    }

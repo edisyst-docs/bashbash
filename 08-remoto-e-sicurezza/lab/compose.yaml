@@ -1,0 +1,63 @@
+# Laboratorio dell'area 08: lo avvia ./lab.sh 08 dalla radice della KB.
+#
+#   client ----- rete "esterna" ----- produzione ----- rete "interna" ----- db-interno
+#                        \------------ staging
+#
+# - client: dove si lavora (lab.sh ci entra). Ha ssh, scp, sftp, gpg
+# - produzione, staging, db-interno: server Ubuntu con systemd, sshd, ufw, fail2ban, nginx.
+#   Utenti "deploy" (password deploy) ed "edoardo" (password edoardo, con sudo). Li crea server.sh.
+# - db-interno sta solo sulla rete interna: dal client si raggiunge solo passando da produzione
+#   (ProxyJump), come un database dietro un bastion.
+# I server non sono --privileged: CAP_SYS_ADMIN per systemd, CAP_NET_ADMIN per ufw e fail2ban,
+# che agiscono solo sul firewall del loro container.
+name: lab-08
+x-lab-entra: client
+
+x-server: &server
+  image: bashbash-systemd
+  build:
+    context: ../..
+    target: systemd
+  cgroup: private
+  cap_add: [SYS_ADMIN, NET_ADMIN]
+  security_opt: ["apparmor:unconfined"]        # AppArmor vieterebbe il remount del cgroup (vedi il Dockerfile)
+  tmpfs: [/run, /run/lock]
+  volumes:
+    - ../..:/kb:ro
+  post_start:
+    - command: bash /kb/08-remoto-e-sicurezza/lab/server.sh
+  healthcheck:
+    test: ["CMD-SHELL", "systemctl is-system-running | grep -qE '^(running|degraded)$$' && id deploy"]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+
+services:
+  client:
+    image: bashbash
+    pull_policy: never
+    hostname: client
+    init: true
+    command: ["sleep", "infinity"]
+    volumes:
+      - ../..:/kb:ro
+    networks: [esterna]
+
+  produzione:
+    <<: *server
+    hostname: produzione
+    networks: [esterna, interna]
+
+  staging:
+    <<: *server
+    hostname: staging
+    networks: [esterna]
+
+  db-interno:
+    <<: *server
+    hostname: db-interno
+    networks: [interna]
+
+networks:
+  esterna:
+  interna:

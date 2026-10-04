@@ -1,0 +1,65 @@
+# Esempio 04: job in fila e in parallelo con needs, valori passati da un job all'altro, job che girano anche
+# quando qualcosa è fallito.
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+#
+#   versione ──┬── build-linux ──┬── riepilogo (sempre)
+#              └── build-arm  ───┤
+#                   verifica ────┘   (fallisce apposta se si sceglie "rompi")
+name: "Esempio 04: needs e output"
+
+on:
+  push:
+    paths: [.github/workflows/esempio-04-dipendenze.yml]
+  workflow_dispatch:
+    inputs:
+      rompi:
+        description: Fa fallire il job verifica
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  versione:
+    runs-on: ubuntu-24.04
+    outputs:                             # gli output del job: li leggono i job che hanno "needs: versione"
+      numero: ${{ steps.calcola.outputs.numero }}
+    steps:
+      - id: calcola
+        run: echo "numero=1.$GITHUB_RUN_NUMBER.0" >> "$GITHUB_OUTPUT"
+
+  build-linux:
+    needs: versione                      # parte dopo versione
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "build ${{ needs.versione.outputs.numero }} per $(uname -m)"
+
+  build-arm:
+    needs: versione                      # in parallelo con build-linux
+    runs-on: ubuntu-24.04-arm            # runner Arm64, gratuito per i repository pubblici
+    steps:
+      - run: echo "build ${{ needs.versione.outputs.numero }} per $(uname -m)"
+
+  verifica:
+    runs-on: ubuntu-24.04                # nessun needs: parte subito, insieme a versione
+    steps:
+      - env:
+          ROMPI: ${{ inputs.rompi }}
+        run: |
+          if [ "$ROMPI" = true ]; then echo "::error::verifica fallita (richiesto)"; exit 1; fi
+          echo "verifica ok"
+
+  riepilogo:
+    needs: [build-linux, build-arm, verifica]
+    if: always()                         # senza, un needs fallito fa saltare il job
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Esito dei job
+        run: |
+          echo "build-linux: ${{ needs.build-linux.result }}"
+          echo "build-arm:   ${{ needs.build-arm.result }}"
+          echo "verifica:    ${{ needs.verifica.result }}"
+      - name: Solo se qualcosa è andato storto
+        if: contains(needs.*.result, 'failure')
+        run: echo "::warning::almeno un job è fallito"

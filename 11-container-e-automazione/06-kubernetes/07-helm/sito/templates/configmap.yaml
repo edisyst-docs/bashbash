@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-pagina     # il nome della release come prefisso: più release convivono
+  labels:
+    {{- include "sito.labels" . | nindent 4 }}
+data:
+  index.html: |
+    <!doctype html>
+    <meta charset="utf-8">
+    <title>{{ .Values.titolo }}</title>
+    <body style="background: {{ .Values.colore }}; color: white; font-family: sans-serif; padding: 2em">
+    <h1>{{ .Values.titolo }}</h1>
+    <p>Release <b>{{ .Release.Name }}</b> nel namespace {{ .Release.Namespace }}, chart {{ .Chart.Name }}-{{ .Chart.Version }}</p>

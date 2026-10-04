@@ -1,0 +1,45 @@
+# Stack WordPress per Docker Swarm
+#   docker swarm init
+#   docker stack deploy -c wordpress-stack.yaml wp      -> http://localhost:8080
+#   docker stack rm wp
+# Il blocco deploy: vale solo in swarm (docker compose lo usa solo per replicas e limiti di risorse).
+services:
+  wordpress:
+    image: wordpress:6
+    ports:
+      - "8080:80"                    # ingress: la porta risponde su OGNI nodo e bilancia fra le repliche
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    networks: [wpnet]
+    deploy:
+      replicas: 2                    # il web server è senza stato: si può replicare
+      update_config:
+        parallelism: 1               # aggiornamento a rotazione, una replica alla volta
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - db_data:/var/lib/mysql
+    networks: [wpnet]
+    deploy:
+      replicas: 1                    # UNA sola: due MySQL con volumi separati sarebbero due database diversi
+      placement:
+        constraints: [node.role == manager] # resta sul nodo dove sta il suo volume
+
+volumes:
+  db_data:
+
+networks:
+  wpnet:
+    driver: overlay

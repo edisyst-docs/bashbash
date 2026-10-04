@@ -1,0 +1,91 @@
+// config.alloy - raccoglie i log dal server e li manda a Loki.
+// Legge il journal di systemd e i file di log di nginx.
+// Ogni blocco è un componente: "tipo" "nome" { argomenti }. I componenti si collegano con forward_to:
+//
+//   loki.source.journal "journal" ───────────────────────────────┐
+//   loki.source.file "nginx_access" ──> loki.process "nginx_access" ──┤──> loki.write "default" ──> Loki
+//   loki.source.file "nginx_error"  ──> loki.process "nginx_error"  ──┘
+//
+// Grafico dei componenti e del loro stato: http://localhost:12345
+// Documentazione: https://grafana.com/docs/alloy/latest/reference/components/
+
+// ---------------------------------------------------------------- journal di systemd
+// regole di relabeling: dalle etichette interne del journal (__journal_*) a etichette vere
+discovery.relabel "journal" {
+	targets = []
+
+	rule {
+		source_labels = ["__journal__systemd_unit"]
+		target_label  = "unit"                          // ssh.service, cron.service; i messaggi di systemd: init.scope
+	}
+
+	rule {
+		source_labels = ["__journal_priority_keyword"]
+		target_label  = "priority"                      // err, warning, info, ...
+	}
+}
+
+loki.source.journal "journal" {
+	path          = "/var/log/journal"                 // montato dal server via volume condiviso
+	relabel_rules = discovery.relabel.journal.rules
+	labels        = {job = "journal", host = "server"}
+	forward_to    = [loki.write.default.receiver]
+}
+
+// ---------------------------------------------------------------- access log di nginx
+loki.source.file "nginx_access" {
+	targets = [{
+		__path__ = "/var/log/nginx/access.log",        // il file da leggere
+		job      = "nginx",
+		host     = "server",
+		tipo     = "access",
+	}]
+	forward_to = [loki.process.nginx_access.receiver]
+}
+
+loki.process "nginx_access" {
+	stage.regex {
+		expression = `^(?P<ip>\S+) - \S+ \[(?P<ts>[^\]]+)\] "(?P<metodo>\S+) (?P<percorso>\S+) \S+" (?P<stato>\d{3}) (?P<bytes>\d+)`
+	}
+
+	stage.labels {
+		values = {metodo = "", stato = ""}              // "" = il campo estratto con lo stesso nome
+	}
+
+	stage.timestamp {
+		source = "ts"
+		format = "02/Jan/2006:15:04:05 -0700"          // formato Go
+	}
+
+	forward_to = [loki.write.default.receiver]
+}
+
+// ---------------------------------------------------------------- error log di nginx
+loki.source.file "nginx_error" {
+	targets = [{
+		__path__ = "/var/log/nginx/error.log",
+		job      = "nginx",
+		host     = "server",
+		tipo     = "error",
+	}]
+	forward_to = [loki.process.nginx_error.receiver]
+}
+
+loki.process "nginx_error" {
+	stage.regex {
+		expression = `^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[(?P<livello>\w+)\]`
+	}
+
+	stage.labels {
+		values = {livello = ""}
+	}
+
+	forward_to = [loki.write.default.receiver]
+}
+
+// ---------------------------------------------------------------- destinazione
+loki.write "default" {
+	endpoint {
+		url = "http://loki:3100/loki/api/v1/push"
+	}
+}

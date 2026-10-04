@@ -1,0 +1,11 @@
+# Un Dockerfile che "funziona", con gli errori più comuni: lo correggono Hadolint e Trivy (vedi ../trivy-hadolint.md).
+#   docker build -f Dockerfile.prima -t esempio:prima .
+FROM python:3.12.0-slim
+RUN apt-get update && apt-get install -y curl
+ENV API_TOKEN=tok-di-prova-123
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements-prima.txt
+RUN cd /app && python -m compileall .
+EXPOSE 5000
+CMD python app.py

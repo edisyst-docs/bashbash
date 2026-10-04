@@ -1,0 +1,77 @@
+# prometheus.yml - cosa interrogare, ogni quanto, dove mandare gli alert.
+# Dopo una modifica: promtool check config /etc/monitoring/prometheus/prometheus.yml
+#                    curl -X POST http://prometheus:9090/-/reload
+global:
+  scrape_interval: 10s                            # in produzione di solito 15s-60s; qui 10s per vedere subito i grafici
+  evaluation_interval: 10s                        # ogni quanto si calcolano le regole
+  external_labels:
+    ambiente: laboratorio                         # aggiunta a ogni alert e serie che esce da questo Prometheus
+
+rule_files:
+  - regole/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: [alertmanager:9093]
+
+scrape_configs:
+  - job_name: prometheus                          # Prometheus misura anche se stesso
+    static_configs:
+      - targets: [localhost:9090]
+
+  - job_name: alertmanager
+    static_configs:
+      - targets: [alertmanager:9093]
+
+  - job_name: grafana
+    static_configs:
+      - targets: [grafana:3000]
+
+  - job_name: node                                # node_exporter sul server: CPU, RAM, dischi, rete, systemd, textfile
+    static_configs:
+      - targets: [server:9100]
+        labels:
+          host: server                            # etichetta comune a tutti i job che riguardano questo server
+
+  - job_name: nginx
+    static_configs:
+      - targets: [nginx-exporter:9113]
+        labels:
+          host: server
+
+  # blackbox: Prometheus interroga blackbox:9115/probe?module=http_2xx&target=http://server/
+  # il relabel sposta l'indirizzo da sondare nel parametro target e mette blackbox come destinazione vera
+  - job_name: blackbox-http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: [http://server/, http://grafana:3000/api/health]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - source_labels: [__param_target]
+        regex: 'https?://([^:/]+).*'
+        target_label: host
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  - job_name: blackbox-tcp
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets: [server:22]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - source_labels: [__param_target]
+        regex: '([^:]+):.*'
+        target_label: host
+      - target_label: __address__
+        replacement: blackbox:9115

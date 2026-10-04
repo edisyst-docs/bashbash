@@ -1,0 +1,2 @@
+# Ignore file usato solo da "docker build -f Dockerfile.prima" (BuildKit lo preferisce a .dockerignore):
+# vuoto, come in un progetto che il .dockerignore non ce l'ha. Con COPY . . nell'immagine finisce tutto, anche .env

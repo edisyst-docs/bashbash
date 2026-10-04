@@ -1,1 +1,13 @@
 .idea
+
+# Terraform: provider scaricati e stato (contiene dati sensibili)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Cartelle sorgente degli appunti, solo nella radice: senza la / iniziale
+# ignorerebbero anche le sottocartelle omonime dei laboratori (es. master/ansible/)
+/ansible/
+/docker/
+/docker-compose/

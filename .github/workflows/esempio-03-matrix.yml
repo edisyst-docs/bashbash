@@ -1,0 +1,44 @@
+# Esempio 03: lo stesso job su più versioni e sistemi, in parallelo. I test dell'app su Python 3.12, 3.13, 3.14
+# (Linux e Windows) più la 3.15 ancora in prova, che può fallire senza far fallire il workflow.
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: "Esempio 03: matrix"
+
+on:
+  push:
+    paths: [.github/workflows/esempio-03-matrix.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test py${{ matrix.python }} su ${{ matrix.os }}   # il nome di ogni job della matrix
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.sperimentale }}         # se fallisce la 3.15 il workflow resta verde
+    strategy:
+      fail-fast: false                   # se un job fallisce gli altri continuano (default: vengono annullati)
+      max-parallel: 4
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+        python: ["3.12", "3.13", "3.14"]
+        sperimentale: [false]
+        exclude:
+          - os: windows-2025
+            python: "3.12"               # una combinazione che non interessa
+        include:
+          - os: ubuntu-24.04
+            python: "3.15"
+            sperimentale: true           # una riga in più, con le sue variabili
+    defaults:
+      run:
+        working-directory: 11-container-e-automazione/13-github-actions/app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+          allow-prereleases: ${{ matrix.sperimentale }}   # la 3.15 è ancora una release candidate
+      - run: pip install --quiet -r requirements.txt pytest
+      - run: python --version && pytest -q
+        shell: bash                      # su Windows il default è PowerShell: bash c'è (Git Bash)

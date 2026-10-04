@@ -1,0 +1,39 @@
+# Tre repliche di nginx. Il Deployment crea un ReplicaSet, che crea i Pod e ne mantiene sempre tre.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web                         # i Pod di questo Deployment sono quelli con la label app=web
+  strategy:
+    type: RollingUpdate                # sostituisce i Pod pochi alla volta (Recreate invece li ferma tutti prima)
+    rollingUpdate:
+      maxSurge: 1                      # durante l'aggiornamento al massimo 1 Pod in più di replicas...
+      maxUnavailable: 0                # ...e mai meno di replicas Pod pronti: nessuna interruzione
+  template:                            # il modello di ogni Pod
+    metadata:
+      labels:
+        app: web                       # deve corrispondere al selector
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.26-alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:              # il Pod riceve traffico solo quando nginx risponde davvero
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 2
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/conf.d # sostituisce il default.conf dell'immagine
+      volumes:
+        - name: config
+          configMap:
+            name: web-nginx

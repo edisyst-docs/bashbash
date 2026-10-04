@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "sito.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.repliche }}
+  selector:
+    matchLabels:
+      {{- include "sito.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sito.selector" . | nindent 8 }}
+      annotations:
+        # l'impronta della ConfigMap: se la pagina cambia, cambia il template del Pod e parte un rolling update
+        checksum/pagina: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.immagine.repository }}:{{ .Values.immagine.tag }}"
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 2
+          volumeMounts:
+            - name: pagina
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: pagina
+          configMap:
+            name: {{ .Release.Name }}-pagina

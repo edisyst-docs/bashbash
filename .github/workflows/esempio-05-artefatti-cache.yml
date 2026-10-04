@@ -1,0 +1,66 @@
+# Esempio 05: file passati fra job (artefatti) e file riusati fra un'esecuzione e l'altra (cache).
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: "Esempio 05: artefatti e cache"
+
+on:
+  push:
+    paths: [.github/workflows/esempio-05-artefatti-cache.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: 11-container-e-automazione/13-github-actions/app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip                     # cache di pip pronta: la chiave è l'hash dei requirements
+          cache-dependency-path: 11-container-e-automazione/13-github-actions/app/requirements.txt
+      - run: pip install -r requirements.txt pytest pytest-cov
+      - run: pytest --junitxml=report.xml --cov=. --cov-report=html:copertura
+      - name: Report come artefatto
+        if: always()                     # anche con i test falliti: è proprio quando serve
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: report-test
+          path: |
+            11-container-e-automazione/13-github-actions/app/report.xml
+            11-container-e-automazione/13-github-actions/app/copertura/
+          retention-days: 7              # il default è 90 giorni
+
+  cache-a-mano:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Cache di una cartella qualsiasi
+        id: cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/dati-lenti
+          key: dati-${{ runner.os }}-${{ hashFiles('11-container-e-automazione/13-github-actions/app/requirements.txt') }}
+          restore-keys: dati-${{ runner.os }}-   # se la chiave esatta non c'è, la più recente che comincia così
+      - name: Solo se la cache non c'era
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.cache/dati-lenti
+          sleep 5 && date > ~/.cache/dati-lenti/creati.txt   # un lavoro lento da non rifare ogni volta
+      - run: cat ~/.cache/dati-lenti/creati.txt   # alla seconda esecuzione: la data della prima
+
+  usa-il-report:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: report-test
+          path: report
+      - run: |
+          find report -maxdepth 2 | head
+          grep -o 'tests="[0-9]*"' report/report.xml

@@ -1,0 +1,28 @@
+# Alert sui servizi visti da fuori (blackbox) e da dentro (exporter di nginx).
+groups:
+  - name: servizi
+    rules:
+      - alert: SitoNonRaggiungibile
+        expr: probe_success == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} non risponde ({{ $labels.job }})"
+
+      - alert: SitoLento
+        expr: probe_duration_seconds{job="blackbox-http"} > 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} risponde in {{ $value | humanizeDuration }}"
+
+      # quando nginx è fermo scatta anche SitoNonRaggiungibile: Alertmanager tiene solo quello (inhibit_rules)
+      - alert: NginxGiu
+        expr: nginx_up == 0
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "l'exporter non legge lo stub_status di nginx su {{ $labels.host }}"

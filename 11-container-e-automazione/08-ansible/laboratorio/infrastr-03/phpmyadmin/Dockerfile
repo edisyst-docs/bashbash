@@ -1,0 +1,7 @@
+FROM phpmyadmin/phpmyadmin:5.2.3
+
+ENV PMA_HOST=mysql
+ENV PMA_PORT=3306
+ENV UPLOAD_LIMIT=100M
+
+EXPOSE 80

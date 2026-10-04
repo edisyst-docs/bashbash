@@ -1,0 +1,69 @@
+# Jenkins configurato da codice + Docker in Docker per le pipeline + tre agenti (profilo "agenti")
+#   docker compose up -d --build                  -> http://localhost:8080, utente admin / admin
+#   ./agenti.sh && docker compose --profile agenti up -d      (vedi jenkins.md)
+#   docker compose --profile agenti down -v                    (smonta tutto, dati compresi)
+services:
+  jenkins:
+    build: .
+    ports:
+      - "8080:8080"                              # interfaccia web, API e agenti (WebSocket)
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+      # la CLI docker di Jenkins parla con il demone del servizio "docker", in TLS
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+    volumes:
+      - jenkins_home:/var/jenkins_home           # configurazione, job, plugin, storico dei build
+      - docker_certs:/certs/client:ro            # certificati client generati da docker:dind
+      - ./casc.yaml:/lab/casc.yaml:ro            # configurazione come codice
+      - ./pipeline:/lab/pipeline:ro              # i Jenkinsfile di esempio e jobs.groovy
+      - ./app:/lab/app:ro                        # il codice che la pipeline 07 testa e impacchetta
+    depends_on:
+      docker:
+        condition: service_healthy
+
+  # Docker in Docker: un demone separato da quello del PC. Le pipeline possono costruire immagini e avviare
+  # container senza toccare i container dell'host (niente /var/run/docker.sock montato su Jenkins).
+  docker:
+    image: docker:29-dind
+    privileged: true                             # dind lo richiede: è un demone Docker completo
+    environment:
+      DOCKER_TLS_CERTDIR: /certs                 # genera i certificati TLS in /certs (server e client)
+    volumes:
+      - docker_certs:/certs/client
+      - jenkins_home:/var/jenkins_home           # stessi percorsi del controller: agent { docker } monta il workspace
+      - docker_data:/var/lib/docker              # immagini e cache di build del demone interno
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 5s
+      retries: 20
+
+  agent1: &agente
+    image: jenkins/inbound-agent:latest-jdk21
+    profiles: [agenti]
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: agent1
+      JENKINS_SECRET: ${AGENT1_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"                 # passa dalla porta 8080, non serve la 50000
+    depends_on: [jenkins]
+  agent2:
+    <<: *agente
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: agent2
+      JENKINS_SECRET: ${AGENT2_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"
+  agent3:
+    <<: *agente
+    environment:
+      JENKINS_URL: http://jenkins:8080
+      JENKINS_AGENT_NAME: agent3
+      JENKINS_SECRET: ${AGENT3_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"
+
+volumes:
+  jenkins_home:
+  docker_certs:
+  docker_data:

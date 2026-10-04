@@ -1,0 +1,39 @@
+# Esempio 09: non ripetersi. Un'Action composita (.github/actions/python-app/) e un workflow riusabile
+# (esempio-09-modello.yml) usati da questo workflow.
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: "Esempio 09: riuso"
+
+on:
+  push:
+    paths:
+      - .github/workflows/esempio-09-*.yml
+      - .github/actions/python-app/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  azione-composita:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: python
+        uses: ./.github/actions/python-app    # un'Action di questo repository: serve prima il checkout
+        with:
+          cartella: 11-container-e-automazione/13-github-actions/app
+      - run: |
+          echo "Python ${{ steps.python.outputs.versione }}"
+          cd 11-container-e-automazione/13-github-actions/app && pytest -q
+
+  workflow-riusabile:
+    uses: ./.github/workflows/esempio-09-modello.yml   # un job intero preso da un altro workflow
+    with:
+      cartella: 11-container-e-automazione/13-github-actions/app
+      python: "3.14"
+
+  dopo:
+    needs: workflow-riusabile
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "il modello ha usato Python ${{ needs.workflow-riusabile.outputs.versione }}"

@@ -1,0 +1,9 @@
+laravel_root_dir: /var/www/laravel
+laravel_url: "http://localhost"
+laravel_repo_url: "https://github.com/edisyst/manualsss.git"
+
+db_host: mysql
+db_port: 3306
+db_database: laravel_db
+db_username: root
+db_password: root

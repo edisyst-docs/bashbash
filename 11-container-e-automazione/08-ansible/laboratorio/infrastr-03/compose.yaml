@@ -1,0 +1,40 @@
+version: '3'
+services:
+
+  master:
+    build: ./master
+    container_name: master
+    networks:
+      - mynet
+    volumes:
+      - ./master/ansible:/etc/ansible
+
+  slave1:
+    build: ./slave
+    container_name: slave1
+    networks:
+      - mynet
+
+  slave2:
+    build: ./slave
+    container_name: slave2
+    networks:
+      - mynet
+
+  mysql:
+    build: ./mysql
+    container_name: mysql
+    networks:
+      - mynet
+
+  phpmyadmin:
+    build: ./phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge

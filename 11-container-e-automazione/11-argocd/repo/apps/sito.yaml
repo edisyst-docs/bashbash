@@ -1,0 +1,23 @@
+# La stessa Application di applicazioni/sito.yaml, ora definita in git e con la sincronizzazione automatica.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sito
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io # cancellando l'Application si cancellano anche le sue risorse
+spec:
+  project: default
+  source:
+    repoURL: http://gitea:3000/lab/gitops.git
+    targetRevision: main
+    path: sito
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sito
+  syncPolicy:
+    automated:
+      prune: true                      # cancella dal cluster quello che non è più in git
+      selfHeal: true                   # annulla le modifiche fatte a mano nel cluster
+    syncOptions:
+      - CreateNamespace=true

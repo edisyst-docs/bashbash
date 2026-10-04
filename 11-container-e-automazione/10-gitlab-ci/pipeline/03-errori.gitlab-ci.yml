@@ -1,0 +1,73 @@
+# Errori: allow_failure, retry, timeout, when (on_failure, always), after_script.
+# Da New pipeline scegliere ESITO=fallimento per vedere i job on_failure.
+variables:
+  ESITO:
+    value: successo
+    options: [successo, avviso, fallimento]
+    description: Come deve finire il job "principale"
+
+stages:
+  - test
+  - dopo
+
+default:
+  image: alpine:3.22
+
+principale:
+  stage: test
+  script:
+    - echo "esito richiesto -> $ESITO"
+    - '[ "$ESITO" != fallimento ]'               # exit 1 con ESITO=fallimento
+  after_script:
+    - echo "after_script vede l'esito anche se script fallisce -> $CI_JOB_STATUS"
+
+tollerato:
+  stage: test
+  allow_failure: true                            # fallisce ma la pipeline prosegue: "passed with warnings"
+  script:
+    - echo "questo job fallisce sempre"
+    - exit 1
+
+codici-uscita:
+  stage: test
+  allow_failure:
+    exit_codes: [42]                             # tollera solo il codice 42; un altro codice è un fallimento vero
+  script:
+    - if [ "$ESITO" = avviso ]; then echo "esco con 42"; exit 42; fi
+    - echo "nessun avviso"
+
+riprova:
+  stage: test
+  retry:
+    max: 2                                       # fino a 2 tentativi in più (il massimo è 2)
+    when: [script_failure, runner_system_failure]
+  script:
+    - n=$(shuf -i 0-2 -n 1)                      # fallisce una volta su tre: nella pagina del job compaiono i tentativi
+    - echo "estratto $n"
+    - '[ "$n" != 0 ]'
+
+troppo-lento:
+  stage: test
+  timeout: 30s                                   # oltre: il job viene interrotto e fallisce
+  allow_failure: true
+  script:
+    - sleep 120
+
+notifica-errore:
+  stage: dopo
+  when: on_failure                               # solo se un job degli stage precedenti è fallito (non tollerato)
+  script:
+    - echo "qualcosa è fallito nella pipeline $CI_PIPELINE_URL"
+
+pulizia:
+  stage: dopo
+  when: always                                   # sempre, qualunque sia l'esito
+  script:
+    - echo "pulizia"
+
+interrompibile:
+  stage: dopo
+  interruptible: true                            # un push nuovo sullo stesso branch può annullare questo job
+  script:
+    - sleep 20
+    - echo "finito"

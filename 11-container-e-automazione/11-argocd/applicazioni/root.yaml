@@ -1,0 +1,21 @@
+# App of apps: un'Application che contiene Application. Punta alla cartella apps/ del repository, dove ci sono
+# le definizioni di tutte le altre: da qui in poi aggiungere un'app al cluster = aggiungere un file in git.
+#   kubectl apply -f applicazioni/root.yaml           (è l'unico kubectl apply che resta)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: http://gitea:3000/lab/gitops.git
+    targetRevision: main
+    path: apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd                  # le Application figlie vanno create nel namespace di Argo CD
+  syncPolicy:
+    automated:
+      prune: true                      # un file tolto da apps/ = Application cancellata
+      selfHeal: true

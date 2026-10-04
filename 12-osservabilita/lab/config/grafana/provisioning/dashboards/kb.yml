@@ -1,0 +1,9 @@
+# Le dashboard JSON in /var/lib/grafana/dashboards compaiono nella cartella "Laboratorio"
+apiVersion: 1
+providers:
+  - name: kb
+    folder: Laboratorio
+    type: file
+    allowUiUpdates: true                          # si possono modificare dal browser (ma si perdono al riavvio)
+    options:
+      path: /var/lib/grafana/dashboards

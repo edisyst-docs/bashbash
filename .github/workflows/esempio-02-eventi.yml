@@ -1,0 +1,70 @@
+# Esempio 02: quando parte un workflow e con quali dati. Eventi, filtri, input manuali, condizioni.
+# Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: "Esempio 02: eventi e input"
+
+on:
+  push:
+    branches: ["**"]                     # tutti i rami (i nomi con / compresi); "main" solo main
+    paths:                               # solo se il push cambia almeno uno di questi file
+      - .github/workflows/esempio-02-eventi.yml
+  pull_request:
+    paths: [.github/workflows/esempio-02-eventi.yml]
+  workflow_dispatch:                     # a mano, dall'interfaccia o con: gh workflow run esempio-02-eventi.yml -f ambiente=produzione
+    inputs:
+      ambiente:
+        description: Dove rilasciare
+        type: choice
+        options: [staging, produzione]
+        default: staging
+      dettagli:
+        description: Stampa anche il contesto dell'evento
+        type: boolean
+        default: false
+      messaggio:
+        description: Un testo libero
+        type: string
+        default: ciao
+  # schedule:                            # a orario, in UTC, sempre sul ramo predefinito (qui spento: partirebbe ogni giorno)
+  #   - cron: "30 5 * * 1-5"
+
+permissions:
+  contents: read
+
+jobs:
+  evento:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Che evento è
+        env:
+          AMBIENTE: ${{ inputs.ambiente || 'nessuno (non è un avvio manuale)' }}
+        run: |
+          echo "evento: $GITHUB_EVENT_NAME"
+          echo "ref:    $GITHUB_REF  (ramo o tag: $GITHUB_REF_NAME)"
+          echo "ambiente scelto: $AMBIENTE"
+
+      - name: Solo negli avvii manuali con dettagli
+        if: github.event_name == 'workflow_dispatch' && inputs.dettagli
+        env:
+          INPUT: ${{ toJSON(github.event.inputs) }}  # dentro c'è anche "messaggio", testo libero: sempre via env
+        run: echo "$INPUT"
+
+      - name: Solo nelle pull request
+        if: github.event_name == 'pull_request'
+        env:                             # il nome del ramo lo sceglie chi apre la PR: mai dentro run con le graffe
+          DA: ${{ github.head_ref }}
+          VERSO: ${{ github.base_ref }}
+          NUMERO: ${{ github.event.number }}
+        run: echo "PR n. $NUMERO da $DA verso $VERSO"
+
+      - name: Un testo scritto da altri, in sicurezza
+        env:
+          MESSAGGIO: ${{ inputs.messaggio }}       # prima in una variabile...
+        run: |                                    # ...poi usato dalla shell: niente iniezione di comandi
+          echo "messaggio: $MESSAGGIO"
+
+  produzione:
+    needs: evento
+    if: inputs.ambiente == 'produzione'          # un job intero saltato: compare come "skipped"
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "rilascio in produzione (finto)"

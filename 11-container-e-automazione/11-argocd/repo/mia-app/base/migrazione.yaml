@@ -1,0 +1,28 @@
+# Hook di Argo CD: un Job che gira PRIMA di ogni sync (PreSync), come una migrazione del database.
+# Se fallisce, la sync si ferma e il Deployment non viene toccato.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrazione
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation  # cancella il Job precedente prima di ricrearlo
+spec:
+  backoffLimit: 0                      # un tentativo solo: se fallisce, fallisce la sync
+  activeDeadlineSeconds: 60            # anche se non parte (immagine inesistente): senza, Argo CD aspetterebbe per sempre
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrazione
+          image: localhost:5001/mia-app        # stessa immagine e stesso tag dell'app: lo cambia l'overlay
+          command: ["python", "-c"]
+          args:
+            - |
+              import os, time
+              print("migrazione del database per la versione", os.environ["VERSIONE"], flush=True)
+              time.sleep(5)
+              print("migrazione completata", flush=True)
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false

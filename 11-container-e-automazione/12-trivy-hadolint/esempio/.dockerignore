@@ -1,0 +1,7 @@
+# Fuori dal contesto di build: con "COPY . ." finirebbero nell'immagine
+.env
+*.json
+Dockerfile*
+.trivyignore.yaml
+trivy-ci.yaml
+.hadolint.yaml

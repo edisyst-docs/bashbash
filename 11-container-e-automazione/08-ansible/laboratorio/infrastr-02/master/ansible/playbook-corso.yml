@@ -1,0 +1,130 @@
+---
+- hosts: slave1
+#  tasks:
+##    - name: Prova PING
+##      ping:
+#    - name: Ensure Python is installed
+#      become: true
+#      apt:
+#        name: python3
+#        state: present
+#    - name: Test command
+#      command: echo "Hello from {{ inventory_hostname }}"
+
+  vars:
+    symfony_root_dir: /var/www/project
+
+
+  tasks:
+    - ping: ~
+
+    - name: Update Pacchetti APT
+      become: true
+      apt:
+        update_cache: yes
+
+    - name: Upgrade Pacchetti installati
+      become: true
+      apt:
+        upgrade: safe
+
+    - name: Installazione VIM
+      apt:
+        name: vim
+      become: true
+
+    - name: Installazione low-level utilities
+      become: true
+      apt:
+        name:
+          - zip
+          - unzip
+    #        state: latest
+
+    - name: Installazione git
+      become: true
+      apt:
+        name: git
+        state: latest
+
+    - name: Installazione NginX
+      become: true
+      apt:
+        name: nginx
+        state: latest
+
+    - name: Installazione MySQL
+      become: true
+      apt:
+        name: mysql-server
+        state: latest
+
+# il prossimo task mi dà errore
+# fatal: [slave1]: FAILED! => {"changed": false, "cmd": "/usr/bin/apt-key export B8DC7E53946656EFBCE4C1DD71DAEAAB4AD4CAB6",
+#- "msg": "E: gnupg, gnupg2 and gnupg1 do not seem to be installed, but one of them is required for this operation", "rc": 255,
+#  "stderr": "E: gnupg, gnupg2 and gnupg1 do not seem to be installed, but one of them is required for this operation\n",
+#  "stderr_lines": ["E: gnupg, gnupg2 and gnupg1 do not seem to be installed, but one of them is required for this operation"], "stdout": "", "stdout_lines": []}
+
+    - name: ADD PHP 7 PPA repo
+      become: true
+      apt_repository:
+        repo: 'ppa:ondrej/php'
+
+    - name: Installazione pacchetti per PHP 8.3
+      become: true
+      apt:
+        name:
+          - php7.1-cli
+          - php7.1-curl
+          - php7.1-fpm
+          - php7.1-intl
+          - php7.1-mysql
+          - php7.1-xml
+        state: latest
+
+    - name: Impostare Timezone su PHP8.3 CLI
+      become: true
+      lineinfile:
+        dest: /etc/php/7.1/cli/php.ini
+        regexp: "date.timezone ="
+        line: "date.timezone = UTC"
+
+    - name: Impostare Timezone su PHP8.3 FPM
+      become: true
+      lineinfile:
+        dest: /etc/php/7.1/fpm/php.ini
+        regexp: "date.timezone ="
+        line: "date.timezone = UTC"
+
+    - name: Creazione directory del progetto e settaggio permessi
+      become: true
+      file:
+        path: "{{ symfony_root_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+
+    - name: Checkout GIT repo
+      git:
+        dest: "{{ symfony_root_dir }}"
+        repo: "https://github.com/symfony/symfony-standard.git"
+        force: yes
+
+    - name: Download Composer
+      script: ~/scripts/install_composer.sh
+
+    - name: Spostare eseguibile di Composer
+      become: true
+      command: "mv composer.phar /usr/local/bin/composer"
+
+    - name: Settaggio permessi Composer
+      become: true
+      file:
+        path: /usr/local/bin/composer
+        mode: "a+x"
+
+    - name: Installazione Composer dipendenze
+      composer:
+        working_dir: "{{ symfony_root_dir }}"
+        no_dev: no

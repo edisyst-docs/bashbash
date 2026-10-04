@@ -1,0 +1,14 @@
+# Service di tipo LoadBalancer: in un cloud crea un bilanciatore vero, con un IP pubblico.
+# In kind lo crea cloud-provider-kind, come container Envoy (docker ps: kindccm-...).
+# Con Docker Desktop (Windows, Mac) la porta del Service viene pubblicata anche sul PC: localhost:8088.
+apiVersion: v1
+kind: Service
+metadata:
+  name: blu-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: blu
+  ports:
+    - port: 8088                       # la porta del bilanciatore (e del PC, con Docker Desktop)
+      targetPort: 80                   # la porta dei Pod

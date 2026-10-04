@@ -1,0 +1,57 @@
+# La propria applicazione, pronta per la produzione: probe, risorse, spegnimento pulito, sicurezza.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mia-app
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5              # quante versioni precedenti tenere per il rollback
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0                # mai meno di 3 repliche pronte durante un aggiornamento
+  selector:
+    matchLabels:
+      app: mia-app
+  template:
+    metadata:
+      labels:
+        app: mia-app
+    spec:
+      terminationGracePeriodSeconds: 20  # tempo fra SIGTERM e SIGKILL
+      containers:
+        - name: app
+          image: mia-app:1.0
+          imagePullPolicy: IfNotPresent  # l'immagine è già nei nodi (kind load): non cercarla su Docker Hub
+          ports:
+            - name: http               # porta con nome: le probe e il Service possono usare "http"
+              containerPort: 8000
+          readinessProbe:              # fallisce -> il Pod esce dal Service, ma non viene riavviato
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 2
+          livenessProbe:               # fallisce 3 volte di fila -> il container viene riavviato
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:                  # quanto il scheduler riserva al Pod sul nodo
+              cpu: 50m                 # 50 millicore = 5% di un core
+              memory: 32Mi
+            limits:                    # oltre la CPU viene rallentato, oltre la memoria viene ucciso (OOMKilled)
+              cpu: 250m
+              memory: 64Mi
+          lifecycle:
+            preStop:                   # prima del SIGTERM aspetta 5 s: nel frattempo il Pod viene tolto dal
+              sleep:                   # Service, così le richieste in arrivo non trovano la porta chiusa
+                seconds: 5
+          securityContext:
+            runAsNonRoot: true         # rifiuta di partire se l'immagine gira come root
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

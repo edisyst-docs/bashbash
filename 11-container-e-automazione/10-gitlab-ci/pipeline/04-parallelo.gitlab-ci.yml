@@ -1,0 +1,74 @@
+# Parallelismo: needs (grafo invece di stage in fila), parallel:matrix, parallel N.
+# Nella pagina della pipeline: "Group jobs by: Job dependencies" mostra il grafo dei needs.
+stages:
+  - build
+  - test
+  - pacchetto
+
+default:
+  image: alpine:3.22
+
+build-frontend:
+  stage: build
+  script:
+    - sleep 5
+    - mkdir -p dist && echo frontend > dist/frontend.txt
+  artifacts:
+    paths: [dist/]
+
+build-backend:
+  stage: build
+  script:
+    - sleep 30                                   # lento: senza needs tutto lo stage test lo aspetterebbe
+    - mkdir -p dist && echo backend > dist/backend.txt
+  artifacts:
+    paths: [dist/]
+
+test-frontend:
+  stage: test
+  needs: [build-frontend]                        # parte appena finisce build-frontend, e scarica solo i suoi artefatti
+  script:
+    - ls dist/
+    - cat dist/frontend.txt
+
+lint:
+  stage: test
+  needs: []                                      # nessuna dipendenza: parte subito, insieme allo stage build
+  script:
+    - echo "lint senza aspettare nessuno"
+
+matrice:
+  stage: test
+  image: python:$PY-slim                         # le variabili della matrice valgono anche in image
+  needs: []
+  parallel:
+    matrix:                                      # un job per ogni combinazione: 2 x 2 = 4
+      - PY: ["3.12", "3.13"]
+        DB: [mysql, postgres]
+  script:
+    - python --version
+    - echo "test con il database $DB"
+
+diviso:
+  stage: test
+  needs: []
+  parallel: 3                                    # 3 copie dello stesso job: per dividere una suite di test lunga
+  script:
+    - echo "parte $CI_NODE_INDEX di $CI_NODE_TOTAL"
+
+pacchetto:
+  stage: pacchetto
+  needs:
+    - build-frontend
+    - build-backend
+    - test-frontend
+    - job: matrice                               # una sola combinazione della matrice
+      parallel:
+        matrix:
+          - PY: "3.13"
+            DB: postgres
+  script:
+    - ls dist/
+    - tar czf pacchetto.tgz dist/
+  artifacts:
+    paths: [pacchetto.tgz]

@@ -1,0 +1,13 @@
+# Il Service di argocd-server da ClusterIP a NodePort: kind porta la 30443 del nodo su localhost:30443.
+# In un cluster vero si usa un Ingress o un LoadBalancer.
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+spec:
+  type: NodePort
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP                              # serve: kustomize unisce le porte su port + protocol
+      nodePort: 30443

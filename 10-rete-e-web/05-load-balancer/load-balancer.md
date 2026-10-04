@@ -1,0 +1,178 @@
+# Bilanciatori di carico in cascata con Docker
+
+Laboratorio: un bilanciatore **primario** riceve le richieste dei client e le passa a un **HAProxy secondario**,
+che le distribuisce a turno fra tre web server.
+```
+Client ---> Bilanciatore primario ---> HAProxy ---> web1, web2, web3
+            (HAProxy, Nginx, Caddy,     (nodi         (server
+             Envoy o Traefik)            multipli)     applicativi)
+```
+In produzione il primario è spesso un servizio del cloud (es. AWS ELB) e i secondari sono più istanze di HAProxy.
+Qui gira tutto in container sulla stessa rete Docker, dove ogni container raggiunge gli altri per **nome**.
+
+| Componente | Ruolo | Porta sul PC |
+|---|---|---|
+| `web1`, `web2`, `web3` | Nginx che risponde "risposta da webN" | 8081, 8082, 8083 |
+| `haproxy` | HAProxy secondario, `roundrobin` fra i web | 8080, statistiche su 8404 |
+| primario | uno a scelta tra cinque | 8000 |
+
+> **NOTA**: il primario è sulla 8000 e non sulla 80 perché su Windows la 80 è spesso già occupata (Laragon, IIS).
+
+## 1. A mano, passo per passo
+Per capire cosa succede, la prima volta conviene crearlo a mano con `docker run`. I comandi vanno lanciati
+dentro questa cartella. In PowerShell sostituire `"$(pwd)"` con `"${PWD}"`.
+
+```bash
+docker network create lb-net                            # rete comune: dentro, i container si trovano per nome
+
+for n in 1 2 3; do                                      # tre web server che rispondono con il proprio nome
+    docker run -d --name web$n --hostname web$n --network lb-net -p 808$n:80 nginx:alpine
+    docker exec web$n sh -c 'echo "risposta da $(hostname)" > /usr/share/nginx/html/index.html'
+done
+curl localhost:8081                                     # "risposta da web1": i web funzionano da soli
+
+docker run -d --name haproxy --network lb-net -p 8080:80 -p 8404:8404 \
+    -v "$(pwd)/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" haproxy:lts-alpine
+for i in 1 2 3 4 5 6; do curl -s localhost:8080; done   # web1, web2, web3, web1, web2, web3: il bilanciamento
+
+docker run -d --name primario --network lb-net -p 8000:80 \
+    -v "$(pwd)/haproxy-primario.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" haproxy:lts-alpine
+for i in 1 2 3; do curl -s localhost:8000; done         # stessa cosa passando dal primario
+```
+Smontare:
+```bash
+docker rm -f primario haproxy web1 web2 web3
+docker network rm lb-net
+```
+
+## 2. Con docker compose
+Il file [compose.yaml](compose.yaml) crea tutto insieme. Il primario si sceglie con un **profilo**:
+```bash
+docker compose --profile haproxy up -d   # oppure: nginx, caddy, envoy, traefik (uno alla volta: usano tutti la 8000)
+docker compose ps                        # cosa è partito
+for i in $(seq 6); do curl -s localhost:8000; done
+docker compose logs -f haproxy           # ogni richiesta con il server che l'ha servita
+docker compose --profile "*" down        # spegne tutto, qualunque profilo sia attivo
+```
+Per cambiare primario: `down` e poi `up` con l'altro profilo.
+
+## 3. HAProxy: la configurazione
+File [haproxy.cfg](haproxy.cfg), la parte essenziale:
+```
+frontend http_front             # dove ascolta: riceve le richieste
+    bind *:80
+    default_backend http_back
+
+backend http_back               # a chi le passa
+    balance roundrobin          # algoritmo: a turno. Altri: leastconn (al meno carico), source (stesso client -> stesso server)
+    server web1 web1:80 check   # nome, indirizzo:porta, check = health check continuo
+    server web2 web2:80 check
+    server web3 web3:80 check
+
+listen stats                    # frontend + backend in un blocco solo: qui la pagina di statistiche
+    bind *:8404
+    stats enable
+    stats uri /stats
+    stats refresh 10s
+```
+Il primario HAProxy ([haproxy-primario.cfg](haproxy-primario.cfg)) è identico, ma nel backend ha gli HAProxy secondari
+invece dei web server.
+
+Nel file completo ci sono anche tre righe che rendono il laboratorio robusto:
+```
+resolvers docker                  # il DNS interno di Docker...
+    nameserver dns 127.0.0.11:53
+defaults
+    option redispatch             # connessione a un server fallita: ritenta su un altro
+    retries 2
+    default-server check resolvers docker init-addr last,libc,none  # ...interrogato di continuo per ogni server
+```
+- **senza `resolvers`** HAProxy risolve `web1` una volta sola, all'avvio. Se un container viene ricreato o riparte
+  con un IP diverso, HAProxy continua a mandare le richieste al vecchio IP (che magari ora è di un altro container)
+- **senza `init-addr ... none`** HAProxy non parte se un nome non si risolve (un web server non ancora creato)
+- **senza `option redispatch`** nei secondi fra il guasto di un server e il suo check fallito, le richieste
+  mandate a quel server finiscono in errore
+
+### Monitorare in tempo reale
+Nel browser: http://localhost:8404/stats. Una riga per server, verde se il check passa, con richieste servite,
+errori e tempi. Da terminale:
+```bash
+curl -s 'localhost:8404/stats;csv' | cut -d, -f1,2,18 | column -t -s,  # backend, server, stato (UP/DOWN) in formato CSV
+docker compose exec haproxy wget -qO- 'localhost:8404/stats;csv' | head -3 # UGUALE da dentro il container (nell'immagine alpine c'è wget, non curl)
+```
+
+### Provare il failover
+```bash
+docker compose stop web2                 # "rompo" un server
+for i in $(seq 6); do curl -s localhost:8000; done   # solo web1 e web3, nessun errore: redispatch ritenta subito, il check lo esclude in pochi secondi
+curl -s 'localhost:8404/stats;csv' | grep web2 | cut -d, -f18 # DOWN (in transizione: "UP 1/3", cioè 1 check fallito su 3)
+docker compose start web2                # torna nel giro appena il check ripassa, anche se ha cambiato IP (grazie a resolvers)
+```
+
+### Verificare una configurazione prima di usarla
+```bash
+docker run --rm -v "$(pwd)/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" haproxy:lts-alpine \
+    haproxy -c -V -f /usr/local/etc/haproxy/haproxy.cfg # -V: stampa "Configuration file is valid" (senza, conta solo l'exit status)
+```
+
+### Varianti del backend
+```
+backend http_back
+    balance leastconn                       # al server con meno connessioni aperte: meglio di roundrobin con richieste lente
+    option httpchk GET /health              # check HTTP su un URL (il default è solo la connessione TCP)
+    http-check expect status 200
+    cookie SERVERID insert indirect nocache # sessioni "sticky": lo stesso browser torna sempre allo stesso server
+    server web1 web1:80 check weight 3 cookie w1 # weight: riceve il triplo delle richieste (server più potente)
+    server web2 web2:80 check cookie w2
+    server web3 web3:80 check backup        # usato SOLO se tutti gli altri sono giù
+```
+Le sessioni sticky servono quando l'applicazione tiene la sessione in memoria o su file locale; con sessioni
+condivise (Redis, database) non servono e il bilanciamento resta più uniforme.
+
+## 4. Gli altri bilanciatori primari
+Tutti fanno lo stesso lavoro: ricevono sulla porta 80 del container e passano a `haproxy:80`.
+
+| Profilo | File | Caratteristiche | Extra |
+|---|---|---|---|
+| `haproxy` | [haproxy-primario.cfg](haproxy-primario.cfg) | il più performante, configurazione esplicita | — |
+| `nginx` | [nginx.conf](nginx.conf) | web server che fa anche da proxy; `upstream` elenca i backend | — |
+| `caddy` | [Caddyfile](Caddyfile) | configurazione minima, HTTPS automatico con Let's Encrypt | — |
+| `envoy` | [envoy.yaml](envoy.yaml) | molto flessibile, base dei service mesh (Istio); YAML verboso | admin su http://localhost:9901 |
+| `traefik` | [traefik.yml](traefik.yml) + [traefik-dinamico.yml](traefik-dinamico.yml) | nato per i container: può leggere le rotte dalle label Docker | dashboard su http://localhost:8090 |
+
+Errori tipici, corretti nei file di questa cartella:
+- **Caddy**: `reverse_proxy / haproxy:80` inoltra solo il percorso `/` esatto, non `/pagina`. Senza matcher (`reverse_proxy haproxy:80`) inoltra tutto.
+- **Nginx**: il file va montato **al posto** di `/etc/nginx/nginx.conf`. Montato con un altro nome, nginx lo ignora e parte con la configurazione di default.
+- **Envoy**: le configurazioni con `config:` ed `envoy.router` sono dell'API v2, rimossa: le versioni recenti vogliono `typed_config` con il campo `@type`, e `load_assignment` al posto di `hosts`.
+- **Traefik**: la dashboard usa la porta 8080 del container; se anche HAProxy è pubblicato sulla 8080 del PC, le due porte vanno in conflitto.
+- **Traefik con le label** (sotto): le versioni fino alla 3.5 usano una versione dell'API di Docker troppo vecchia per Docker 29,
+  che la rifiuta: nei log `Error response from daemon` e ogni richiesta risponde `404 page not found`. Serve Traefik 3.6 o successivo.
+- **Nginx, Caddy, Envoy**: nginx risolve `haproxy` solo all'avvio (come HAProxy senza `resolvers`); se il secondario
+  viene ricreato con un altro IP, il primario nginx va riavviato. Caddy, Envoy (`LOGICAL_DNS`) e Traefik invece risolvono di continuo.
+
+## 5. Traefik con le label Docker
+Il punto di forza di Traefik: invece di un file di rotte, legge le **label** dei container attraverso il socket
+di Docker e si aggiorna da solo quando un container parte o si ferma. Al posto del provider `file`:
+```yaml
+  primario-traefik:
+    image: traefik:v3.6
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false    # espone solo i container con traefik.enable=true
+      - --entrypoints.web.address=:80
+      - --api.insecure=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # ATTENZIONE: chi controlla il socket controlla Docker (e quindi l'host)
+    ports: ["8000:80", "8090:8080"]
+
+  haproxy:
+    # ...come prima, più:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lab.rule=PathPrefix(`/`)
+      - traefik.http.routers.lab.entrypoints=web
+      - traefik.http.services.lab.loadbalancer.server.port=80
+```
+Per provarlo senza toccare `compose.yaml`: salvare i due blocchi in `override.yaml` (nel blocco del primario,
+`volumes: !override` e `ports: !override` sostituiscono le liste del file principale invece di aggiungersi) e lanciare
+`docker compose -f compose.yaml -f override.yaml --profile traefik up -d`.

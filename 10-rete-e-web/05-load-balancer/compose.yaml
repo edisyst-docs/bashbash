@@ -1,0 +1,82 @@
+# Laboratorio: bilanciatore primario -> HAProxy -> 3 web server
+#
+# Scegliere UN bilanciatore primario con il profilo (usano tutti la porta 8000 del PC):
+#   docker compose --profile haproxy up -d
+#   docker compose --profile nginx   up -d
+#   docker compose --profile caddy   up -d
+#   docker compose --profile envoy   up -d
+#   docker compose --profile traefik up -d
+# Spegnere tutto:
+#   docker compose --profile "*" down
+
+services:
+  # --- i tre server applicativi: ognuno risponde con il proprio nome ---
+  web1: &web
+    image: nginx:alpine
+    command: sh -c 'echo "risposta da $$(hostname)" > /usr/share/nginx/html/index.html && exec nginx -g "daemon off;"'
+    hostname: web1
+    ports: ["8081:80"]
+  web2:
+    <<: *web
+    hostname: web2
+    ports: ["8082:80"]
+  web3:
+    <<: *web
+    hostname: web3
+    ports: ["8083:80"]
+
+  # --- HAProxy secondario: distribuisce tra web1, web2, web3 ---
+  haproxy:
+    image: haproxy:lts-alpine
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "8080:80"                       # accesso diretto all'HAProxy secondario, saltando il primario
+      - "8404:8404"                     # statistiche
+    depends_on: [web1, web2, web3]
+
+  # --- bilanciatori primari: uno per profilo ---
+  primario-haproxy:
+    profiles: [haproxy]
+    image: haproxy:lts-alpine
+    volumes:
+      - ./haproxy-primario.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports: ["8000:80"]
+    depends_on: [haproxy]
+
+  primario-nginx:
+    profiles: [nginx]
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports: ["8000:80"]
+    depends_on: [haproxy]
+
+  primario-caddy:
+    profiles: [caddy]
+    image: caddy:alpine
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    ports: ["8000:80"]
+    depends_on: [haproxy]
+
+  primario-envoy:
+    profiles: [envoy]
+    image: envoyproxy/envoy:v1.33-latest
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "8000:10000"
+      - "9901:9901"                     # pannello di amministrazione
+    depends_on: [haproxy]
+
+  primario-traefik:
+    profiles: [traefik]
+    image: traefik:v3.6
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik-dinamico.yml:/etc/traefik/traefik-dinamico.yml:ro
+    ports:
+      - "8000:80"
+      - "8090:8080"                     # dashboard di Traefik
+    depends_on: [haproxy]

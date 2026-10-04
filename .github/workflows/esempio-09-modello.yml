@@ -1,0 +1,35 @@
+# Workflow riusabile dell'esempio 09: non parte da solo, lo chiamano altri workflow con "uses:".
+# Da un altro repository: uses: proprietario/repo/.github/workflows/esempio-09-modello.yml@<sha>
+name: "Esempio 09: modello riusabile"
+
+on:
+  workflow_call:
+    inputs:
+      cartella:
+        type: string
+        required: true
+      python:
+        type: string
+        default: "3.13"
+    outputs:
+      versione:
+        description: La versione di Python usata
+        value: ${{ jobs.test.outputs.versione }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    outputs:
+      versione: ${{ steps.python.outputs.versione }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: python
+        uses: ./.github/actions/python-app
+        with:
+          cartella: ${{ inputs.cartella }}
+          python: ${{ inputs.python }}
+      - run: pytest -q
+        working-directory: ${{ inputs.cartella }}

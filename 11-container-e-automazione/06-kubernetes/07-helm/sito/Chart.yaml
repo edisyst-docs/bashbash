@@ -1,0 +1,6 @@
+apiVersion: v2
+name: sito
+description: Sito statico con nginx, scritto a mano per imparare Helm
+type: application
+version: 0.1.0                         # versione del chart: si incrementa a ogni modifica dei template
+appVersion: "1.27"                     # versione dell'applicazione contenuta (qui nginx): è solo informativa

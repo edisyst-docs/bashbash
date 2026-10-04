@@ -1,0 +1,42 @@
+// Credenziali: stanno in Jenkins (qui le crea casc.yaml), mai nel Jenkinsfile. Nel log compaiono come ****.
+pipeline {
+    agent any
+
+    environment {
+        TOKEN = credentials('token-demo')              // Secret text: una variabile
+        LOGIN = credentials('login-demo')              // Username/password: LOGIN (utente:password), LOGIN_USR, LOGIN_PSW
+    }
+
+    stages {
+        stage('credentials() in environment') {
+            steps {
+                sh 'echo "token: $TOKEN"'                              // nel log: token: ****
+                sh 'echo "utente: $LOGIN_USR, password di ${#LOGIN_PSW} caratteri"'
+            }
+        }
+        stage('withCredentials') {
+            steps {
+                // la variabile esiste solo dentro il blocco
+                withCredentials([string(credentialsId: 'token-demo', variable: 'API_TOKEN')]) {
+                    sh 'test -n "$API_TOKEN" && echo "token disponibile: ${#API_TOKEN} caratteri"'
+                }
+                withCredentials([usernamePassword(credentialsId: 'login-demo',
+                                                  usernameVariable: 'UTENTE', passwordVariable: 'PASSWORD')]) {
+                    sh 'printf "%s\\n" "$UTENTE" > utente.txt && cat utente.txt'
+                }
+            }
+        }
+        stage('Da NON fare') {
+            steps {
+                // Doppi apici: Groovy mette il segreto nel testo del comando PRIMA di passarlo alla shell,
+                // e il comando completo è visibile (es. in ps) sul nodo. Jenkins lo segnala nel log con un Warning.
+                // Con i singoli apici invece la shell legge la variabile d'ambiente: nessuna copia del segreto.
+                sh "echo token lungo \$(printf %s ${TOKEN} | wc -c) caratteri"
+            }
+        }
+    }
+
+    post {
+        cleanup { cleanWs() }
+    }
+}

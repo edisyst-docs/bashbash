@@ -1,0 +1,44 @@
+# Laboratorio dell'area 09: lo avvia ./lab.sh 09 dalla radice della KB.
+#   shell  la shell in cui si lavora (immagine bashbash, KB in /kb in sola lettura)
+#   mysql  MySQL 9.7 LTS con il database app_db già popolato (mysql-init/)
+#   api    API HTTP finta per curl, wget e jq (api.py), raggiungibile come http://api
+# Nessuna porta è pubblicata sull'host: i servizi si vedono solo tra di loro.
+name: lab-09
+
+services:
+  shell:
+    image: bashbash
+    pull_policy: never
+    hostname: lab-09
+    volumes:
+      - ../..:/kb:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:9.7
+    environment:
+      MYSQL_ROOT_PASSWORD: lab
+      MYSQL_DATABASE: app_db
+    volumes:
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:                                  # via TCP: durante l'init il server temporaneo ascolta solo sul socket
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-plab", "--silent"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  api:
+    image: bashbash
+    pull_policy: never
+    command: ["python3", "/kb/09-strumenti/lab/api.py"]
+    volumes:
+      - ../..:/kb:ro
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 15

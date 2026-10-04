@@ -1,0 +1,71 @@
+# Laboratorio dell'area 10: lo avvia ./lab.sh 10 dalla radice della KB.
+#
+#   host (10.10.1.10) ---- rete "lan" ---- router ---- rete "dmz" ---- web (10.10.2.10)
+#                                     10.10.1.254  10.10.2.254
+#
+# - host: dove si lavora (lab.sh entra qui). Ubuntu con systemd, nginx (80) e apache2 (8080).
+#   CAP_NET_ADMIN per ip addr/route/link e tcpdump, CAP_SYS_ADMIN per systemd e ip netns.
+# - router: inoltra i pacchetti tra le due reti (ip_forward=1): traceroute verso web mostra un salto in mezzo
+# - web: un server nell'altra rete, con nginx che risponde "risposta da web" e apache2 sulla 8080
+# Niente --privileged e nessuna porta pubblicata: tutto resta dentro queste due reti.
+name: lab-10
+x-lab-entra: host
+
+x-systemd: &systemd
+  image: bashbash-systemd
+  build:
+    context: ../..
+    target: systemd
+  cgroup: private
+  cap_add: [SYS_ADMIN, NET_ADMIN]
+  security_opt: ["apparmor:unconfined"]        # AppArmor vieterebbe il remount del cgroup (vedi il Dockerfile)
+  tmpfs: [/run, /run/lock]
+  volumes:
+    - ../..:/kb:ro
+  healthcheck:
+    test: ["CMD-SHELL", "systemctl is-system-running | grep -qE '^(running|degraded)$$'"]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+
+services:
+  host:
+    <<: *systemd
+    hostname: host
+    networks:
+      lan: {ipv4_address: 10.10.1.10}
+    extra_hosts:                                  # "web" sta in un'altra rete: il DNS di Docker non lo risolverebbe
+      - "web:10.10.2.10"
+      - "router:10.10.1.254"
+    post_start:
+      - command: ip route add 10.10.2.0/24 via 10.10.1.254     # la dmz si raggiunge passando dal router
+
+  router:
+    image: bashbash
+    pull_policy: never
+    hostname: router
+    init: true
+    command: ["sleep", "infinity"]
+    cap_add: [NET_ADMIN]
+    sysctls:
+      net.ipv4.ip_forward: 1
+    networks:
+      lan: {ipv4_address: 10.10.1.254}
+      dmz: {ipv4_address: 10.10.2.254}
+
+  web:
+    <<: *systemd
+    hostname: web
+    networks:
+      dmz: {ipv4_address: 10.10.2.10}
+    post_start:
+      - command: ip route add 10.10.1.0/24 via 10.10.2.254     # e la risposta torna dal router
+      - command: bash -c 'echo "risposta da web" > /var/www/html/index.html'
+
+networks:
+  lan:
+    ipam:
+      config: [{subnet: 10.10.1.0/24}]
+  dmz:
+    ipam:
+      config: [{subnet: 10.10.2.0/24}]

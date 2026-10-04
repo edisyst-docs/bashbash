@@ -1,0 +1,109 @@
+// CI di un'applicazione Flask: test in un container Python, report JUnit, lint del Dockerfile, immagine Docker,
+// scansione delle vulnerabilità, smoke test. Hadolint e Trivy: ../../12-trivy-hadolint/trivy-hadolint.md
+pipeline {
+    agent any
+
+    environment {
+        IMMAGINE = "kb-app:${env.BUILD_NUMBER}"        // un tag per build: si sa sempre cosa è stato provato
+        // versione e digest fissi: a marzo 2026 sono state pubblicate immagini Trivy compromesse con tag "normali"
+        TRIVY = 'aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa'
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()                      // un build alla volta: usano lo stesso nome di container
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // In un progetto vero qui c'è "checkout scm": il Jenkinsfile sta nel repository dell'applicazione.
+                // Nel laboratorio il codice è montato nel controller in /lab/app: lo copio nel workspace.
+                sh 'rm -rf app && cp -r /lab/app app && ls app'
+            }
+        }
+        stage('Test') {
+            agent {
+                docker {
+                    image 'python:3.13-slim'
+                    reuseNode true                     // stesso nodo e stesso workspace dello stage precedente
+                }
+            }
+            steps {
+                dir('app') {
+                    // un virtualenv fuori dal workspace; i suoi programmi si chiamano con il percorso, senza activate
+                    sh '''
+                        python -m venv /tmp/venv
+                        /tmp/venv/bin/pip install --quiet --no-cache-dir -r requirements.txt pytest
+                        /tmp/venv/bin/pytest --junitxml=report.xml
+                    '''
+                }
+            }
+            post {
+                always { junit 'app/report.xml' }      // risultati e storico dei test nella pagina del job
+            }
+        }
+        stage('Lint Dockerfile') {
+            agent {
+                docker {
+                    image 'hadolint/hadolint:v2.15.1-debian'   // la variante con la shell: Jenkins ci esegue sh
+                    reuseNode true
+                }
+            }
+            steps {
+                // da warning in su il comando fallisce e ferma la pipeline; il report JUnit mostra le regole violate
+                sh 'hadolint --format junit --failure-threshold warning app/Dockerfile > hadolint.xml'
+            }
+            post {
+                always { junit testResults: 'hadolint.xml', allowEmptyResults: true }   // vuoto se il Dockerfile è pulito
+            }
+        }
+        stage('Immagine') {
+            steps {
+                script {
+                    def immagine = docker.build(env.IMMAGINE, 'app')   // docker build -t kb-app:N app
+                    immagine.tag('latest')                             // anche kb-app:latest
+                }
+            }
+        }
+        stage('Scansione immagine') {
+            steps {
+                // Trivy gira come container nel demone dind e legge l'immagine dal suo socket; il database delle
+                // vulnerabilità resta nel volume trivy-cache del demone, così si scarica una volta sola
+                sh '''
+                    TRIVY_RUN="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy $TRIVY"
+                    # 1. report: HIGH e CRITICAL con una correzione disponibile, come test JUnit (build UNSTABLE se ce ne sono)
+                    $TRIVY_RUN image --quiet --scanners vuln,secret --severity HIGH,CRITICAL --ignore-unfixed \\
+                        --format template --template @/contrib/junit.tpl "$IMMAGINE" > trivy.xml
+                    # 2. blocco: un CRITICAL correggibile ferma la pipeline (exit code 1)
+                    $TRIVY_RUN image --quiet --scanners vuln,secret --severity CRITICAL --ignore-unfixed \\
+                        --exit-code 1 "$IMMAGINE"
+                '''
+            }
+            post {
+                always { junit testResults: 'trivy.xml', allowEmptyResults: true }
+            }
+        }
+        stage('Smoke test') {
+            steps {
+                // il container gira nel demone docker:dind: le sue porte si raggiungono all'host "docker"
+                sh '''
+                    docker rm -f kb-app-test 2>/dev/null || true
+                    docker run -d --name kb-app-test -p 5000:5000 "$IMMAGINE"
+                    for i in $(seq 1 30); do curl -fsS http://docker:5000/health && break; sleep 1; done
+                    curl -fsS http://docker:5000/ | tee risposta.txt
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker rm -f kb-app-test || true'
+            archiveArtifacts artifacts: 'risposta.txt', allowEmptyArchive: true
+        }
+        success {
+            echo "Immagine pronta: ${env.IMMAGINE}"
+        }
+    }
+}

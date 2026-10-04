@@ -1,0 +1,56 @@
+// Stage in parallelo e matrice di combinazioni.
+pipeline {
+    agent none                                         // ogni stage sceglie il proprio esecutore
+
+    stages {
+        stage('Controlli in parallelo') {
+            failFast true                              // se uno fallisce, interrompe gli altri
+            parallel {
+                stage('Lint') {
+                    agent any
+                    steps { sh 'echo "lint su $NODE_NAME"; sleep 3' }
+                }
+                stage('Test unitari') {
+                    agent any
+                    steps { sh 'echo "test su $NODE_NAME"; sleep 5' }
+                }
+                stage('Sicurezza') {
+                    agent any
+                    steps { sh 'echo "audit su $NODE_NAME"; sleep 4' }
+                }
+            }
+        }
+        stage('Matrice') {
+            matrix {
+                agent any
+                axes {                                 // tutte le combinazioni: 2 x 2 = 4...
+                    axis {
+                        name 'PHP'
+                        values '8.3', '8.4'
+                    }
+                    axis {
+                        name 'DB'
+                        values 'mysql', 'postgres'
+                    }
+                }
+                excludes {                             // ...meno quelle escluse: 3
+                    exclude {
+                        axis {
+                            name 'PHP'
+                            values '8.3'
+                        }
+                        axis {
+                            name 'DB'
+                            values 'postgres'
+                        }
+                    }
+                }
+                stages {
+                    stage('Test') {
+                        steps { sh 'echo "PHP $PHP con $DB"; sleep 2' }  // gli assi sono variabili d'ambiente
+                    }
+                }
+            }
+        }
+    }
+}

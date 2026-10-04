@@ -1,0 +1,93 @@
+# CI completa di app/: test con report JUnit e copertura, cache di pip, lint del Dockerfile, immagine scansionata
+# con Trivy prima di arrivare nel Container Registry del progetto, smoke test dell'immagine appena pubblicata.
+# Hadolint e Trivy: ../../12-trivy-hadolint/trivy-hadolint.md
+# I job con image docker:29-cli usano il demone dind del laboratorio: DOCKER_HOST e i certificati li imposta il
+# runner (vedi configura.sh). Su GitLab.com o con un runner normale si aggiunge "services: [docker:29-dind]".
+stages:
+  - test
+  - build
+  - verifica
+
+variables:
+  IMMAGINE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA   # gitlab.localhost:5050/root/07-ci-app:abc1234
+  # versione e digest fissi: a marzo 2026 sono state pubblicate immagini Trivy compromesse con tag "normali"
+  TRIVY: aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+
+lint-dockerfile:
+  stage: test                                    # insieme ai test: nessuna dipendenza fra i due
+  image: hadolint/hadolint:v2.15.1-debian        # la variante con la shell: il runner ci esegue lo script
+  script:
+    # report per GitLab (widget Code Quality nelle MR), poi lo stesso controllo leggibile nel log: fallisce da warning in su
+    - hadolint --format gitlab_codeclimate --no-fail app/Dockerfile > hadolint.json
+    - hadolint --failure-threshold warning app/Dockerfile
+  artifacts:
+    when: always
+    reports:
+      codequality: hadolint.json
+
+test:
+  stage: test
+  image: python:3.13-slim
+  variables:
+    PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip    # la cache deve stare dentro la cartella del progetto
+  cache:
+    key:
+      files: [app/requirements.txt]              # cache nuova quando cambiano le dipendenze
+    paths: [.cache/pip]
+  script:
+    - pip install --quiet -r app/requirements.txt pytest pytest-cov
+    - cd app
+    - pytest --junitxml=report.xml --cov=. --cov-report=term --cov-report=xml:coverage.xml
+  coverage: '/^TOTAL.+?(\d+\%)$/'                # la percentuale letta dal log: compare nella lista dei job e nelle MR
+  artifacts:
+    when: always                                 # anche se i test falliscono: è proprio quando servono
+    reports:
+      junit: app/report.xml                      # scheda "Tests" della pipeline
+      coverage_report:
+        coverage_format: cobertura
+        path: app/coverage.xml                   # righe coperte evidenziate nel diff delle MR
+
+immagine:
+  stage: build
+  image: docker:29-cli
+  script:
+    # CI_REGISTRY_USER e CI_REGISTRY_PASSWORD: credenziali temporanee create da GitLab per questo job
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    # --provenance=false: niente attestazione, l'immagine è un manifest semplice. Con l'attestazione Docker 29
+    # pubblica un indice OCI, e il registry del laboratorio risponde "blob unknown to registry"
+    - docker build --pull --provenance=false -t "$IMMAGINE" -t "$CI_REGISTRY_IMAGE:latest" app
+    # Trivy prima del push: un'immagine con CRITICAL correggibili non arriva nel registry. Gira come container nel
+    # demone dind, legge l'immagine dal suo socket e tiene il database nel volume trivy-cache del demone
+    - TRIVY_RUN="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy $TRIVY"
+    # 1. report: HIGH e CRITICAL con una correzione disponibile, nella scheda Tests della pipeline
+    - $TRIVY_RUN image --quiet --scanners vuln,secret --severity HIGH,CRITICAL --ignore-unfixed
+        --format template --template @/contrib/junit.tpl "$IMMAGINE" > trivy.xml
+    # 2. blocco: un CRITICAL correggibile fa fallire il job (exit code 1), e il push non avviene
+    - $TRIVY_RUN image --quiet --scanners vuln,secret --severity CRITICAL --ignore-unfixed --exit-code 1 "$IMMAGINE"
+    - docker push "$IMMAGINE"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  artifacts:
+    when: always
+    reports:
+      junit: trivy.xml
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+smoke-test:
+  stage: verifica
+  image: docker:29-cli
+  needs: [immagine]
+  variables:
+    CONTAINER: smoke-$CI_JOB_ID
+  script:
+    - docker run -d --name "$CONTAINER" -p 5000 "$IMMAGINE"   # porta casuale sul demone dind
+    - PORTA=$(docker port "$CONTAINER" 5000 | head -1 | cut -d':' -f2)
+    - for i in $(seq 1 30); do wget -qO- "http://docker:$PORTA/health" && break; sleep 1; done
+    - wget -qO- "http://docker:$PORTA/" | tee risposta.txt
+    - grep -q "Ciao da Flask" risposta.txt
+  after_script:
+    - docker rm -f "$CONTAINER"
+  artifacts:
+    paths: [risposta.txt]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

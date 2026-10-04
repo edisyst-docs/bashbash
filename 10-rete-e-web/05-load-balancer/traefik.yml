@@ -1,0 +1,11 @@
+# Traefik come bilanciatore primario: configurazione statica
+entryPoints:
+  web:
+    address: ":80"
+
+api:
+  insecure: true                        # dashboard su :8080 senza autenticazione: solo per laboratorio
+
+providers:
+  file:
+    filename: /etc/traefik/traefik-dinamico.yml

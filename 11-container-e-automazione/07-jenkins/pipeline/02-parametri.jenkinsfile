@@ -1,0 +1,47 @@
+// Parametri e condizioni. Il primo build usa i default e fa conoscere i parametri a Jenkins:
+// dal secondo, nella pagina del job compare "Build with Parameters".
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'VERSIONE', defaultValue: '1.0.0', description: 'Versione da rilasciare (1.2.3)')
+        choice(name: 'AMBIENTE', choices: ['sviluppo', 'collaudo', 'produzione'], description: 'Dove rilasciare')
+        booleanParam(name: 'ESEGUI_TEST', defaultValue: true, description: 'Eseguire i test?')
+        text(name: 'NOTE', defaultValue: '', description: 'Note di rilascio, anche su più righe')
+    }
+
+    stages {
+        stage('Parametri') {
+            steps {
+                echo "Versione ${params.VERSIONE} in ${params.AMBIENTE}, test: ${params.ESEGUI_TEST}"
+                sh 'echo "anche come variabile d\'ambiente: $VERSIONE"'
+            }
+        }
+        stage('Controllo della versione') {
+            steps {
+                script {
+                    if (!(params.VERSIONE ==~ /\d+\.\d+\.\d+/)) {     // ==~ : la stringa intera corrisponde alla regex
+                        error "VERSIONE deve essere nel formato 1.2.3, non '${params.VERSIONE}'"
+                    }
+                }
+            }
+        }
+        stage('Test') {
+            when { expression { params.ESEGUI_TEST } }         // saltato (e segnato come tale) se falso
+            steps {
+                echo 'Eseguo i test'
+            }
+        }
+        stage('Rilascio in produzione') {
+            when {
+                allOf {
+                    expression { params.AMBIENTE == 'produzione' }
+                    not { expression { params.VERSIONE.startsWith('0.') } }
+                }
+            }
+            steps {
+                echo "Rilascio ${params.VERSIONE} in PRODUZIONE"
+            }
+        }
+    }
+}

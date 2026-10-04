@@ -1,0 +1,13 @@
+.env
+# gitlab-ci-local: stato, variabili segrete e artefatti copiati nella cartella di lavoro
+.gitlab-ci-local/
+.gitlab-ci-local-variables.yml
+out/
+dist/
+pacchetto.tgz
+build.env
+risposta.txt
+.cache/
+app/report.xml
+app/coverage.xml
+app/.coverage

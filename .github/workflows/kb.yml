@@ -1,0 +1,81 @@
+# CI della knowledge base: a ogni push e pull request controlla che gli script, i Dockerfile e i link siano a posto
+# e che tutti i laboratori partano davvero. Guida: 11-container-e-automazione/13-github-actions/github-actions.md
+name: KB
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:                             # un push nuovo sullo stesso ramo annulla il controllo ancora in corso
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SHELLCHECK: koalaman/shellcheck:v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+  HADOLINT: hadolint/hadolint:v2.15.1@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Script dei laboratori e dell'area 11
+        run: |
+          # gli esercizi di 05-scripting e zz-esempi restano fuori: sono esempi da studiare, alcuni sbagliati apposta
+          git ls-files '*.sh' | grep -vE '^(05-scripting/[^/]+\.sh|zz-esempi/)' > script.txt
+          echo "$(wc -l < script.txt) script"
+          echo "::add-matcher::.github/shellcheck-matcher.json"    # le righe di shellcheck diventano annotazioni
+          xargs -a script.txt docker run --rm -v "$PWD:/mnt" -w /mnt "$SHELLCHECK" --format gcc --severity warning
+
+  hadolint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      security-events: write             # per caricare il report nella scheda Security > Code scanning
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Tutti i Dockerfile
+        run: |
+          git ls-files | grep -E '(^|/)Dockerfile$' > dockerfile.txt
+          echo "$(wc -l < dockerfile.txt) Dockerfile"
+          # report SARIF con tutto (anche warning e info), poi il controllo che blocca da warning in su (come nel resto della KB)
+          xargs -a dockerfile.txt docker run --rm -v "$PWD:/mnt" -w /mnt "$HADOLINT" hadolint --format sarif --no-fail > hadolint.sarif
+          xargs -a dockerfile.txt docker run --rm -v "$PWD:/mnt" -w /mnt "$HADOLINT" hadolint --failure-threshold warning
+      - name: Report nella scheda Security
+        if: always() && github.event_name != 'pull_request'    # da una PR di un fork il token non può scrivere
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: hadolint.sarif
+          category: hadolint
+
+  link:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 .github/scripts/controlla-link.py
+
+  laboratori:
+    name: laboratorio ${{ matrix.area }}
+    needs: shellcheck                    # inutile costruire le immagini se gli script hanno errori
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false                   # un laboratorio rotto non deve nascondere gli altri
+      matrix:
+        area: ["02", "03", "05", "06", "08", "09", "10", "12"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: ./lab.sh ${{ matrix.area }}
+        env:
+          AREA: ${{ matrix.area }}
+        run: |
+          # lo stesso comando di chi studia: costruisce le immagini, avvia i servizi, lancia prepara.sh,
+          # esegue un comando nel laboratorio ed esce (e spegne tutto)
+          ./lab.sh "$AREA" -- 'echo "laboratorio pronto in $PWD"; ls; echo "$(find . -type f | wc -l) file"'

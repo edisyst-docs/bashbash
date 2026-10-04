@@ -1,0 +1,6 @@
+Release {{ .Release.Name }} (revisione {{ .Release.Revision }}) nel namespace {{ .Release.Namespace }}: {{ .Values.repliche }} repliche di {{ .Values.immagine.repository }}:{{ .Values.immagine.tag }}.
+{{- if .Values.service.nodePort }}
+Aprire http://localhost:{{ .Values.service.nodePort }}
+{{- else }}
+kubectl port-forward svc/{{ .Release.Name }} 8080:80    poi http://localhost:8080
+{{- end }}

@@ -1,0 +1,13 @@
+# blackbox.yml - i moduli: come sondare un indirizzo. Il target lo passa Prometheus nella richiesta.
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      preferred_ip_protocol: ip4
+      valid_status_codes: []                      # vuoto = qualsiasi 2xx
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      preferred_ip_protocol: ip4

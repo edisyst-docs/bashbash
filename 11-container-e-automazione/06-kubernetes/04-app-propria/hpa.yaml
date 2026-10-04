@@ -1,0 +1,20 @@
+# Autoscaling orizzontale: aggiunge o toglie repliche per tenere la CPU media al 50% delle requests.
+# Richiede metrics-server (vedi README). Mentre c'è l'HPA, il numero di repliche lo decide lui.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mia-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mia-app
+  minReplicas: 3
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50       # 50% di 50m = 25 millicore per Pod

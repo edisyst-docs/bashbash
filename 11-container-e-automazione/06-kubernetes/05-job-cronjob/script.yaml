@@ -1,0 +1,29 @@
+# Gli script bash eseguiti dal Job e dal CronJob, montati come file da una ConfigMap:
+# si modificano qui senza ricostruire nessuna immagine.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: script
+data:
+  elabora.sh: |
+    #!/usr/bin/env bash
+    # Elabora un blocco di numeri: il blocco è l'indice del Pod nel Job (0, 1, 2...)
+    set -euo pipefail
+    blocco=${JOB_COMPLETION_INDEX:?manca JOB_COMPLETION_INDEX}
+    da=$(( blocco * 1000 + 1 ))
+    a=$(( (blocco + 1) * 1000 ))
+    echo "$(date +%T) blocco $blocco ($da-$a) su $(hostname)"
+    sleep 5                                   # finge un lavoro lungo: si vedono girare 2 Pod alla volta
+    somma=$(seq "$da" "$a" | awk '{ s += $1 } END { print s }')
+    echo "$(date +%T) blocco $blocco: somma = $somma"
+  controllo.sh: |
+    #!/usr/bin/env bash
+    # Controlla che un sito risponda. Esce con 1 se non risponde: il Job risulta fallito.
+    set -euo pipefail
+    url=${URL:?manca URL}
+    if risposta=$(wget -q -T 5 -O- "$url"); then
+        echo "$(date '+%F %T') OK $url -> $risposta"
+    else
+        echo "$(date '+%F %T') ERRORE: $url non risponde" >&2
+        exit 1
+    fi

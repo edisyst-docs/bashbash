@@ -1,0 +1,57 @@
+# Struttura di base: stage, job, script, variabili, default, artefatti passati da uno stage all'altro.
+stages:                                          # l'ordine degli stage; i job di uno stage partono insieme
+  - prepara
+  - build
+  - verifica
+
+default:                                         # valori ereditati da tutti i job che non li ridefiniscono
+  image: alpine:3.22
+  before_script:
+    - echo "job $CI_JOB_NAME nello stage $CI_JOB_STAGE"
+
+variables:
+  APP: demo
+  SALUTO: "Ciao da $APP"                         # una variabile può usarne un'altra
+
+info:
+  stage: prepara
+  script:
+    - echo "progetto $CI_PROJECT_PATH, branch $CI_COMMIT_BRANCH, commit $CI_COMMIT_SHORT_SHA"
+    - echo "pipeline $CI_PIPELINE_ID, avviata da $CI_PIPELINE_SOURCE, runner $CI_RUNNER_DESCRIPTION"
+    - echo "cartella di lavoro $CI_PROJECT_DIR" && ls -la
+    - head -2 /etc/os-release
+    - env | grep '^CI_' | sort | sed -n 1,40p   # le prime 40 variabili predefinite (sed legge tutto: niente SIGPIPE con pipefail)
+
+saluto:
+  stage: build
+  variables:
+    APP: saluto                                  # sostituisce quella globale in questo job: SALUTO diventa "Ciao da saluto"
+  script:
+    - mkdir -p out
+    - echo "$SALUTO - job $CI_JOB_ID" | tee out/saluto.txt
+    - date > out/data.txt
+  after_script:                                  # gira anche se script fallisce, in una shell separata
+    - echo "after_script, esito del job $CI_JOB_STATUS"
+  artifacts:
+    paths:
+      - out/
+    expire_in: 1 week
+
+python:
+  stage: build
+  image: python:3.13-slim                        # un'immagine diversa solo per questo job
+  before_script: []                              # annulla quello di default
+  script:
+    - python --version
+    - python -c 'import platform; print(platform.platform())'
+
+leggi:
+  stage: verifica
+  script:
+    - cat out/saluto.txt                         # gli artefatti degli stage precedenti arrivano da soli
+    - test -s out/data.txt
+    - |
+      # più righe con "|": un'unica voce dello script
+      for f in out/*; do
+        echo "$f: $(wc -c < "$f") byte"
+      done

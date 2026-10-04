@@ -1,0 +1,20 @@
+# La prima Application, scritta a mano: "tieni il namespace sito uguale alla cartella sito/ del repository".
+#   kubectl apply -f applicazioni/sito.yaml
+# Senza syncPolicy.automated: Argo CD confronta e mostra le differenze, ma applica solo quando glielo si chiede.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sito
+  namespace: argocd                    # le Application stanno nel namespace di Argo CD, non in quello dell'app
+spec:
+  project: default                     # AppProject: quali repository e quali cluster/namespace può usare
+  source:                              # DA DOVE: repository, ramo (o tag, o commit), cartella
+    repoURL: http://gitea:3000/lab/gitops.git
+    targetRevision: main
+    path: sito
+  destination:                         # DOVE: cluster e namespace
+    server: https://kubernetes.default.svc   # il cluster in cui gira Argo CD
+    namespace: sito
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true           # crea il namespace sito se non esiste
