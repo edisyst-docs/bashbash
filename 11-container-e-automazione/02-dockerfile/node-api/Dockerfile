@@ -8,5 +8,6 @@ COPY package*.json ./
 RUN npm install --omit=dev
 COPY . .
 EXPOSE 3000
-USER node
+# UID numerico (l'utente node ha UID 1000): Kubernetes con runAsNonRoot non risolve i nomi
+USER 1000
 CMD ["node", "index.js"]

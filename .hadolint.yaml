@@ -1,0 +1,3 @@
+# Configurazione di Hadolint per tutti i Dockerfile della KB (la CI lo lancia dalla radice del repo)
+ignored:
+  - DL3008                           # versioni fisse in apt-get install: sulle immagini base aggiornate spesso è troppo rigido

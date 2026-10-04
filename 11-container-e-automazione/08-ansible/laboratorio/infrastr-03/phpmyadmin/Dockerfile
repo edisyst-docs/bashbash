@@ -1,4 +1,4 @@
-FROM phpmyadmin/phpmyadmin
+FROM phpmyadmin/phpmyadmin:5.2.3
 
 ENV PMA_HOST=mysql
 ENV PMA_PORT=3306

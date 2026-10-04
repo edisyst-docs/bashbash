@@ -5,6 +5,7 @@
 FROM python:3.12-alpine
 WORKDIR /app
 COPY app.py .
-# Se ci sono più CMD vale solo l'ULTIMO: questo viene ignorato
+# Se ci sono più CMD vale solo l'ULTIMO: questo viene ignorato (l'avviso DL4003 di Hadolint è proprio questo)
 CMD ["echo", "questo non viene stampato"]
+# hadolint ignore=DL4003
 CMD ["python", "app.py"]

@@ -1,21 +1,18 @@
-FROM ubuntu:latest
+FROM ubuntu:24.04
+
+# A failure before a pipe must fail the RUN too (hadolint DL4006)
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install necessary packages
 RUN apt-get update && \
-    apt-get install -y ansible openssh-client openssh-server sshpass && \
-    apt-get clean
+    apt-get install -y --no-install-recommends ansible openssh-client openssh-server sshpass && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create required directory for SSH
-RUN mkdir -p /run/sshd
-
-# Create Ansible directory
-RUN mkdir -p /etc/ansible
-
-# Generate SSH keys for the master
-RUN ssh-keygen -q -N "" -f /root/.ssh/id_rsa
-
-# Add ssh config to disable host key checking
-RUN echo "Host *\n\tStrictHostKeyChecking no\n" > /root/.ssh/config
+# Create the SSH and Ansible directories, generate the master's SSH keys
+# and disable host key checking
+RUN mkdir -p /run/sshd /etc/ansible && \
+    ssh-keygen -q -N "" -f /root/.ssh/id_rsa && \
+    printf 'Host *\n\tStrictHostKeyChecking no\n' > /root/.ssh/config
 
 # Copy the Ansible configuration files
 COPY ansible/ /etc/ansible/

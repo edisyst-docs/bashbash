@@ -9,6 +9,12 @@ FROM ubuntu:24.04 AS base
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
 
+# un errore prima di una pipe fa fallire tutto il RUN (DL4006); vale anche per gli stadi successivi
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# ambiente di studio: servono anche i pacchetti raccomandati (man-db, bash-completion, ca-certificates...),
+# quindi niente --no-install-recommends (DL3015)
+# hadolint ignore=DL3015
 RUN apt-get update && apt-get install -y \
     # shell e navigazione
     bash bash-completion man-db info less tree \
@@ -52,6 +58,7 @@ WORKDIR /kb
 # NON serve --privileged, quindi il container non vede i dischi della macchina.
 FROM base AS systemd
 
+# hadolint ignore=DL3015
 RUN apt-get update && apt-get install -y \
     systemd systemd-sysv dbus libpam-systemd rsyslog \
     openssh-server nginx apache2 \
@@ -85,22 +92,25 @@ CMD ["/usr/local/sbin/avvia-systemd"]
 # (binario in /usr/local/bin, utente di sistema, unit systemd) e i client promtool, amtool e logcli.
 FROM systemd AS osservabilita
 
+# hadolint non segue l'ereditarietà tra stadi: la SHELL con pipefail va ripetuta (DL4006)
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG NODE_EXPORTER=1.12.1
 ARG PROMETHEUS=3.15.0
 ARG ALERTMANAGER=0.34.1
 ARG LOKI=3.7.8
 ARG TARGETARCH
 
+WORKDIR /tmp
 RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \
     && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp \
     # TARGETARCH c'è solo con BuildKit; senza, l'architettura la dice dpkg (amd64, arm64)
     && arch=${TARGETARCH:-$(dpkg --print-architecture)} \
     && for p in node_exporter-$NODE_EXPORTER prometheus-$PROMETHEUS alertmanager-$ALERTMANAGER; do \
          curl -fsSL "https://github.com/prometheus/${p%-*}/releases/download/v${p##*-}/$p.linux-$arch.tar.gz" | tar xz || exit 1; \
        done \
     && curl -fsSL "https://github.com/grafana/loki/releases/download/v$LOKI/logcli-linux-$arch.zip" -o logcli.zip \
-    && unzip -q logcli.zip && mv logcli-linux-$arch logcli \
+    && unzip -q logcli.zip && mv "logcli-linux-$arch" logcli \
     && install -m 755 node_exporter-*/node_exporter prometheus-*/promtool alertmanager-*/amtool logcli /usr/local/bin/ \
     && rm -rf /tmp/* \
     && useradd --system --no-create-home --shell /usr/sbin/nologin node_exporter \
@@ -129,6 +139,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \
        '    listen 8000;' \
        '    location = /stub_status { stub_status; }' \
        '}' > /etc/nginx/conf.d/stato.conf
+WORKDIR /kb
 
 
 # ---------------------------------------------------------------- default

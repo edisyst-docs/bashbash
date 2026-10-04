@@ -44,9 +44,9 @@ jobs:
         run: |
           git ls-files | grep -E '(^|/)Dockerfile$' > dockerfile.txt
           echo "$(wc -l < dockerfile.txt) Dockerfile"
-          # report SARIF con tutto (anche warning e info), poi il controllo che blocca solo gli errori
+          # report SARIF con tutto (anche warning e info), poi il controllo che blocca da warning in su (come nel resto della KB)
           xargs -a dockerfile.txt docker run --rm -v "$PWD:/mnt" -w /mnt "$HADOLINT" hadolint --format sarif --no-fail > hadolint.sarif
-          xargs -a dockerfile.txt docker run --rm -v "$PWD:/mnt" -w /mnt "$HADOLINT" hadolint --failure-threshold error
+          xargs -a dockerfile.txt docker run --rm -v "$PWD:/mnt" -w /mnt "$HADOLINT" hadolint --failure-threshold warning
       - name: Report nella scheda Security
         if: always() && github.event_name != 'pull_request'    # da una PR di un fork il token non può scrivere
         uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
