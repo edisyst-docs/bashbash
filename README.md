@@ -43,6 +43,7 @@ Gli strumenti che userai dentro ogni script.
 3. [regex](03-testo-e-regex/03-regex.md) — BRE ed ERE
 4. [sed](03-testo-e-regex/04-sed.md) — stream editor, gruppi di cattura
 5. [vim](03-testo-e-regex/05-vim.md) — i 4 modi e i comandi di ciascuno
+6. [esercizi](03-testo-e-regex/06-esercizi.md) — 18 esercizi con verifica automatica su log, CSV, INI e `passwd`
 
 ### [04-processi/](04-processi/) — cosa gira e quanto consuma
 1. [ps e kill](04-processi/01-ps-e-kill.md) — `ps`, `pgrep`, segnali, `lsof`

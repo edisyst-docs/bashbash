@@ -25,5 +25,6 @@ bash /kb/03-testo-e-regex/lab/prepara.sh && cd ~/lab
 | `03-regex/` | `crontab`, `contatti.txt`, `file.txt` (nomi `.html`), `utenti.txt` (email valide e no), `testo.txt` (Linux/linux, Ciao/ciao, colour/color, scopo) | per i pattern della sezione ESEMPI: `grep -o 'PATTERN' testo.txt` |
 | `04-sed/` | `config` (commenti, "pattern", "ciao", "uno", "tre", blocco `Inizio`...`Fine`), `file.txt`, `altrofile.txt`, `geek.txt`, `.env`, `script.sh` con fine riga CRLF, `file` con spazi in coda e righe vuote, `laravel.log`, `log.json`, `progetto/` (repository git con `OldClass`) | dopo la sostituzione in `progetto/`, `git diff --stat` mostra i file toccati |
 | `05-vim/` | `testo.txt` (i primi 120 versi della Divina Commedia) | `vim testo.txt` |
+| `06-esercizi/` | `access.log`, `vendite.csv`, `contatti.txt`, `app.ini`, `passwd.txt`, `note.txt`, `verifica.sh`, `risposte/` | le risposte si scrivono in `risposte/NN.sh` e `./verifica.sh [N]` le confronta con la soluzione di riferimento ([soluzioni.sh](soluzioni.sh), che `verifica.sh` legge da `/kb`); i file originali non si modificano |
 
 Torna all'[indice dell'area](../README.md)
