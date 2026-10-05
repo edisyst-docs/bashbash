@@ -107,6 +107,9 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 5. [python](09-strumenti/05-python.md) — snippet al volo, `venv`, `pip`, moduli della libreria standard
 6. [postgresql](09-strumenti/06-postgresql.md) — `psql`, `pg_dump`/`pg_restore`, diagnostica, utente applicativo
 7. [redis](09-strumenti/07-redis.md) — `redis-cli`, chiavi, strutture dati, monitoraggio
+8. [make](09-strumenti/08-make.md) — `Makefile`, regole, variabili, `.PHONY`, regole a schema
+9. [bats](09-strumenti/09-bats.md) — test degli script bash, `bats-assert`, finti comandi
+10. [ricerca veloce](09-strumenti/10-ricerca-veloce.md) — `ripgrep`, `fd`, `fzf`, `bat`, `ncdu`
 
 ### [10-rete-e-web/](10-rete-e-web/) — reti e web server
 1. [indirizzi e configurazione](10-rete-e-web/01-indirizzi-e-configurazione.md) — CIDR e subnet, `ip addr`/`ip route`, netplan, da `ifconfig` a `ip`
@@ -176,7 +179,7 @@ servizi c'è anche un `lab/compose.yaml`:
 | 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
 | 07 | un controller di dominio Active Directory (Samba 4, `lab.test`) e un PC con `samba-tool`, `ldapsearch` e `kinit` per amministrarlo ed entrarci |
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban; indirizzi fissi e WireGuard per la VPN |
-| 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
+| 09 | MySQL 9.7 con un database popolato, un'API finta su `http://api` e un progetto di esempio per `make`, `bats` e gli strumenti di ricerca |
 | 10 | una rete con un router in mezzo (host, host2, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace, web server, DNS, posta, NFS/Samba e keepalived |
 | 12 | Prometheus, Alertmanager, Grafana, Loki, Alloy, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
 

@@ -190,6 +190,103 @@ if mysql -e 'SELECT 1' app_db > /dev/null 2>&1; then  # c'è il server: statisti
     mysqldump --single-transaction --set-gtid-purged=OFF app_db 2> /dev/null | gzip > app_db_2026-09-25.sql.gz
 fi
 
+# ---------------------------------------------------------------- 08-make e 09-bats
+# lo stesso progetto: Makefile, uno script con la sua funzione e i test (lab/materiale/make/)
+sezione 08-make
+cp -r "$LAB_SRC"/materiale/make/. .
+sezione 09-bats
+cp "$LAB_SRC"/materiale/make/saluta.sh "$LAB_SRC"/materiale/make/test.bats "$LAB_SRC"/materiale/bats/stato.sh "$LAB_SRC"/materiale/bats/stato.bats .
+
+# ---------------------------------------------------------------- 10-ricerca-veloce
+# un progetto con codice, note, log e cartelle da ignorare, in un repository git (rg e fd rispettano .gitignore)
+sezione 10-ricerca-veloce/progetto
+mkdir -p app/modelli app/controller tests docs logs node_modules/lib vendor/pacchetto
+cat > app/modelli/utente.py << 'EOF'
+class Utente:
+    """Un utente dell'applicazione."""
+
+    def __init__(self, nome, email):
+        self.nome = nome
+        self.email = email
+
+    # TODO: validare l'indirizzo email
+    def saluta(self):
+        return f"Ciao {self.nome}"
+
+    def salva(self, db):
+        # FIXME: manca la transazione
+        db.execute("INSERT INTO utenti VALUES (?, ?)", (self.nome, self.email))
+EOF
+cat > app/modelli/ordine.py << 'EOF'
+from app.modelli.utente import Utente
+
+
+class Ordine:
+    def __init__(self, utente: Utente, totale):
+        self.utente = utente
+        self.totale = totale
+
+    def importo_con_iva(self, iva=0.22):
+        return round(self.totale * (1 + iva), 2)
+
+    # TODO: gestire gli sconti
+    def descrizione(self):
+        return f"Ordine di {self.utente.nome}: {self.totale}"
+EOF
+cat > app/controller/login.js << 'EOF'
+// gestione del login
+export function login(utente, password) {
+  // TODO: limitare i tentativi
+  if (!utente || !password) {
+    throw new Error("credenziali mancanti");
+  }
+  return fetch("/api/login", { method: "POST", body: JSON.stringify({ utente, password }) });
+}
+
+export function logout() {
+  localStorage.removeItem("token");
+}
+EOF
+cat > app/controller/ordini.php << 'EOF'
+<?php
+// elenco degli ordini
+function elenca_ordini($db, $utente) {
+    // FIXME: la query non è parametrizzata
+    return $db->query("SELECT * FROM ordini WHERE utente = '$utente'");
+}
+EOF
+cat > tests/test_utente.py << 'EOF'
+from app.modelli.utente import Utente
+
+
+def test_saluta():
+    assert Utente("Anna", "anna@example.com").saluta() == "Ciao Anna"
+EOF
+cat > docs/README.md << 'EOF'
+# Progetto di prova
+
+Un'applicazione per gestire utenti e ordini. Per installarla vedi `docs/installazione.md`.
+TODO: scrivere la guida all'installazione.
+EOF
+printf 'function inutile() { return 1; }\n' > node_modules/lib/index.js
+printf '<?php // libreria di terzi\n' > vendor/pacchetto/Lib.php
+awk 'BEGIN { srand(7); split("INFO WARN ERROR", livelli, " "); for (i = 1; i <= 20000; i++) {
+        l = livelli[(i % 7 == 0) ? 3 : (i % 3 == 0) ? 2 : 1]
+        printf "2026-09-%02d 10:%02d:%02d %s richiesta %d da 10.0.%d.%d\n", 1 + i % 28, i % 60, (i * 7) % 60, l, i, i % 5, i % 250 } }' > logs/app.log
+printf 'node_modules/\nvendor/\nlogs/\n' > .gitignore
+git init -q . && git add -A && git -c user.name=lab -c user.email=lab@example.com commit -qm "progetto di prova"
+
+# una cartella con file di dimensioni diverse, per ncdu e du
+sezione 10-ricerca-veloce/spazio
+mkdir -p video cache/pip cache/thumbnails log documenti
+head -c 40M /dev/zero > video/registrazione.mp4
+head -c 18M /dev/zero > video/clip.mp4
+head -c 12M /dev/zero > cache/pip/pacchetti.whl
+for i in 1 2 3 4 5 6; do head -c 2M /dev/zero > "cache/thumbnails/img$i.jpg"; done
+head -c 9M /dev/zero > log/vecchio.log.1
+head -c 1M /dev/zero > log/app.log
+for i in 1 2 3; do head -c 300K /dev/zero > "documenti/relazione$i.pdf"; done
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 09 pronto in $DEST: una cartella per ogni .md"
     ls "$DEST" | sed 's/^/  /'
