@@ -554,4 +554,5 @@ docker compose start jenkins
 | `Scripts not permitted to use method ...` | metodo Groovy non approvato nella sandbox | approvarlo in *In-process Script Approval*, o spostare la logica in uno script |
 | `buildWithParameters` risponde 400 | il job non ha ancora parametri (manca il primo build) | un primo build con `/build` |
 | uno stage con `when { branch 'main' }` salta sempre | job non Multibranch: `BRANCH_NAME` non esiste | job Multibranch, o `when { expression { ... } }` |
+| `Failed to resolve 'pypi.org'` (o `Temporary failure in name resolution`) in uno stage con `agent { docker }`, mentre Jenkins stesso naviga | i container creati dentro `docker` (dind) usano di default i DNS pubblici `8.8.8.8` e `8.8.4.4`, che alcune reti bloccano | verifica: `docker exec 07-jenkins-docker-1 docker run --rm --dns 8.8.8.8 alpine nslookup pypi.org`. Si risolve con `command: ["--dns", "IP_DEL_RESOLVER"]` sul servizio `docker` nel `compose.yaml` (con Docker Desktop il resolver del PC è `192.168.65.7`) |
 | `npm ERR! EACCES` o simili in `agent { docker }` | l'utente 1000 non ha una home scrivibile | `args '-e HOME=/tmp'` |

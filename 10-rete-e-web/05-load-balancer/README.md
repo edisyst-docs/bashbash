@@ -11,4 +11,10 @@
 | [envoy.yaml](envoy.yaml) | Envoy come primario (API v3) |
 | [traefik.yml](traefik.yml), [traefik-dinamico.yml](traefik-dinamico.yml) | Traefik come primario |
 
+```bash
+docker compose --profile haproxy up -d   # poi http://localhost:8000 (oppure: nginx, caddy, envoy, traefik, uno alla volta)
+docker compose --profile "*" down        # pulizia, qualunque profilo sia attivo
+```
+Serve Docker; le porte 8000, 8080-8083 e 8404 del PC devono essere libere.
+
 Torna a [../](../)
