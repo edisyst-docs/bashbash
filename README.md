@@ -150,6 +150,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 5. [alerting](12-osservabilita/05-alerting.md) — regole e unit test, Alertmanager, inibizioni, silenzi con `amtool`
 6. [grafana](12-osservabilita/06-grafana.md) — dashboard, variabili, provisioning da codice, API
 7. [loki](12-osservabilita/07-loki.md) — log centralizzati con Loki e Grafana Alloy, LogQL, logcli, alert sui log
+8. [tracing](12-osservabilita/08-tracing.md) — OpenTelemetry, Alloy come collector, Tempo e TraceQL, Jaeger, strumentare in Python, campionamento
 
 ## Supporto (fuori dal percorso)
 

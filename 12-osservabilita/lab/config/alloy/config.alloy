@@ -89,3 +89,46 @@ loki.write "default" {
 		url = "http://loki:3100/loki/api/v1/push"
 	}
 }
+
+// ---------------------------------------------------------------- tracce (OpenTelemetry)
+// Alloy fa anche da OpenTelemetry Collector: riceve le tracce in formato OTLP, le raggruppa e le manda
+// a Tempo e a Jaeger insieme (un esportatore per destinazione).
+//
+//   otelcol.receiver.otlp "default" ──> otelcol.processor.batch "default" ──┬──> otelcol.exporter.otlp "tempo"
+//        (:4317 gRPC, :4318 HTTP)                                           └──> otelcol.exporter.otlp "jaeger"
+otelcol.receiver.otlp "default" {
+	grpc {
+		endpoint = "0.0.0.0:4317"
+	}
+	http {
+		endpoint = "0.0.0.0:4318"
+	}
+	output {
+		traces = [otelcol.processor.batch.default.input]
+	}
+}
+
+otelcol.processor.batch "default" {
+	timeout = "2s"                                    // invia dopo 2 secondi anche se il lotto non è pieno
+	output {
+		traces = [otelcol.exporter.otlp.tempo.input, otelcol.exporter.otlp.jaeger.input]
+	}
+}
+
+otelcol.exporter.otlp "tempo" {
+	client {
+		endpoint = "tempo:4317"
+		tls {
+			insecure = true                           // senza TLS: solo per il laboratorio
+		}
+	}
+}
+
+otelcol.exporter.otlp "jaeger" {
+	client {
+		endpoint = "jaeger:4317"
+		tls {
+			insecure = true
+		}
+	}
+}

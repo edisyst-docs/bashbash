@@ -13,8 +13,9 @@ Grafana mostra. I comandi per guardare un server "a mano" (`top`, `free`, `df`, 
 | 05 | [alerting](05-alerting.md) | Regole di alert e test con `promtool`, Alertmanager: route, raggruppamento, inibizioni, silenzi con `amtool`, receiver, API |
 | 06 | [grafana](06-grafana.md) | Installazione, dashboard e variabili, dashboard pronte, provisioning da codice, API e backup |
 | 07 | [loki](07-loki.md) | Log centralizzati con Loki e Grafana Alloy: architettura, `loki.yml`, `config.alloy`, stage, migrazione da Promtail, LogQL, logcli, alert sui log, confronto con ELK |
+| 08 | [tracing](08-tracing.md) | Tracce e span, OpenTelemetry e OTLP, Alloy come Collector, Tempo e TraceQL, Jaeger, strumentare un'applicazione Python, campionamento tail, collegamento con Loki |
 
-**Laboratorio**: `./lab.sh 12` dalla radice della KB avvia Prometheus, Alertmanager, Grafana, Loki, Alloy, gli exporter e un
+**Laboratorio**: `./lab.sh 12` dalla radice della KB avvia Prometheus, Alertmanager, Grafana, Loki, Tempo, Jaeger, Alloy, gli exporter e un
 server con systemd da monitorare (e rompere). Dettagli in [lab/](lab/).
 
 Area precedente: [../11-container-e-automazione/](../11-container-e-automazione/) · Torna all'[indice](../README.md)
