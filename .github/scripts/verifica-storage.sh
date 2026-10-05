@@ -117,9 +117,16 @@ sleep 8
 r findmnt /mnt/auto/dati
 r systemctl is-active autofs
 echo "--- systemd automount"
-mkdir -p /mnt/sd; echo "$L4 /mnt/sd ext4 noauto,x-systemd.automount,x-systemd.idle-timeout=5 0 0" >> /etc/fstab
-systemctl daemon-reload; r systemctl start mnt-sd.automount
+umount /mnt/auto/dati 2>/dev/null; systemctl stop autofs; sleep 1
+udevadm settle; ls -l /dev/disk/by-label/ 2>&1
+mkdir -p /mnt/sd; echo "LABEL=auto /mnt/sd ext4 noauto,x-systemd.automount,x-systemd.idle-timeout=5 0 0" >> /etc/fstab
+systemctl daemon-reload
+r systemctl start mnt-sd.automount
 r systemctl list-units --type=automount --no-pager
 r findmnt /mnt/sd
 r ls /mnt/sd
 r findmnt /mnt/sd
+sleep 8
+r findmnt /mnt/sd
+r systemctl status mnt-sd.automount --no-pager
+echo "--- debug"; journalctl -u mnt-sd.mount -u mnt-sd.automount --no-pager | tail -8
