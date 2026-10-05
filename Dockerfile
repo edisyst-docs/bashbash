@@ -29,7 +29,9 @@ RUN apt-get update && apt-get install -y \
     # scripting
     shellcheck bc python-is-python3 \
     # processi e risorse
-    procps lsof htop \
+    procps lsof htop strace ltrace sysstat \
+    # perf: il pacchetto cerca la versione del kernel dell'host, che nel container non c'è; il collegamento sotto lo aggira
+    linux-tools-common linux-tools-generic \
     # rete
     curl wget jq \
     iproute2 net-tools iputils-ping dnsutils \
@@ -39,7 +41,8 @@ RUN apt-get update && apt-get install -y \
     sudo adduser cron logrotate tmux \
     # git e client mysql
     git mysql-client pv \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s "$(ls /usr/lib/linux-tools/*/perf)" /usr/local/bin/perf
 
 # restic: l'ultima versione dal sito del progetto (apt ha una 0.16), con lo SHA-256 fissato per ogni architettura
 ARG RESTIC=0.19.1
