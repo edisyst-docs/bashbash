@@ -77,6 +77,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 8. [tmux](06-sistema/08-tmux.md) — sessioni, finestre, pane
 9. [crontab](06-sistema/09-crontab.md) — schedulare comandi ricorrenti, backup con rotazione
 10. [logrotate](06-sistema/10-logrotate/) — rotazione dei log, con script e configurazione
+11. [backup](06-sistema/11-backup/) — backup con `restic`: snapshot, rotazione, ripristino, timer systemd
 
 ### [07-windows/](07-windows/) — batch e PowerShell
 1. [batch](07-windows/01-batch.md) — sintassi `.bat`, con esempi completi

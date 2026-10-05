@@ -41,6 +41,20 @@ RUN apt-get update && apt-get install -y \
     git mysql-client pv \
     && rm -rf /var/lib/apt/lists/*
 
+# restic: l'ultima versione dal sito del progetto (apt ha una 0.16), con lo SHA-256 fissato per ogni architettura
+ARG RESTIC=0.19.1
+ARG RESTIC_SHA256_AMD64=f415415624dcc452f2a02b8c33641791a8c6d6d3b65bbb3543fcf9a25151585c
+ARG RESTIC_SHA256_ARM64=a5f64aaab53d51e311fa3829124c5b703f2d14cf187d8640b6be3b2b49376465
+ARG TARGETARCH
+WORKDIR /tmp
+RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
+    && curl -fsSL "https://github.com/restic/restic/releases/download/v$RESTIC/restic_${RESTIC}_linux_$arch.bz2" -o restic.bz2 \
+    && if [ "$arch" = arm64 ]; then sha=$RESTIC_SHA256_ARM64; else sha=$RESTIC_SHA256_AMD64; fi \
+    && echo "$sha  restic.bz2" | sha256sum -c - \
+    && bunzip2 restic.bz2 \
+    && install -m 755 restic /usr/local/bin/restic \
+    && rm -f /tmp/restic
+
 # utente non-root per testare permessi/sudo
 RUN useradd -m -s /bin/bash tester \
     && echo "tester:tester" | chpasswd \

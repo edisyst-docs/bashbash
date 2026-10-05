@@ -67,6 +67,8 @@ MAILTO=""
 0 1 * * * tar -czf /backup/etc_$(date +\%F).tar.gz /etc 2>/dev/null
 ```
 
+> Per un backup con storico, cifratura e ripristino a punto nel tempo: [11-backup/](11-backup/backup.md) (restic).
+
 Script di backup MySQL con rotazione (`/usr/local/bin/backup-db.sh`):
 ```bash
 #!/usr/bin/env bash
