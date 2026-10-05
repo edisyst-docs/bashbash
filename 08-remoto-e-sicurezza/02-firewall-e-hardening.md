@@ -122,6 +122,8 @@ awk -F: '$3 == 0 {print $1}' /etc/passwd    # utenti con UID 0: deve esserci sol
 sudo apt list --upgradable 2>/dev/null | grep -i security # aggiornamenti di sicurezza in sospeso
 ```
 
+Per vedere **cosa è stato toccato** (`auditd`), limitare i programmi (AppArmor, SELinux), avere un punteggio di configurazione (`lynis`) o cercare file infetti (ClamAV): [05-sicurezza-sistema.md](05-sicurezza-sistema.md).
+
 ## Checklist per un server nuovo
 1. `apt update && apt full-upgrade`, poi `unattended-upgrades`
 2. utente non root con sudo e chiave SSH (vedi [../06-sistema/02-utenti.md](../06-sistema/02-utenti.md))
