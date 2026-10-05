@@ -116,22 +116,18 @@ r findmnt /mnt/auto/dati
 sleep 8
 r findmnt /mnt/auto/dati
 r systemctl is-active autofs
-echo "--- systemd automount (tmpfs)"
-systemctl stop autofs; mkdir -p /mnt/sd
-echo "tmpfs /mnt/sd tmpfs noauto,size=16M,x-systemd.automount,x-systemd.idle-timeout=5 0 0" >> /etc/fstab
+echo "--- systemd automount"
+systemctl stop autofs; mkdir -p /srv/sd
+echo "LABEL=auto /srv/sd ext4 noauto,x-systemd.automount,x-systemd.idle-timeout=5 0 0" >> /etc/fstab
 systemctl daemon-reload
-r systemctl start mnt-sd.automount
+r systemctl start srv-sd.automount
 r systemctl list-units --type=automount --no-pager
-r findmnt /mnt/sd
-r ls /mnt/sd
-r findmnt /mnt/sd
+r findmnt /srv/sd
+r ls /srv/sd
+r findmnt /srv/sd
 sleep 8
-r findmnt /mnt/sd
-r systemctl status mnt-sd.automount --no-pager
-echo "--- systemd automount (device con LABEL, journal)"
-mkdir -p /mnt/sd2; echo "LABEL=auto /mnt/sd2 ext4 noauto,x-systemd.automount,x-systemd.idle-timeout=5 0 0" >> /etc/fstab
-systemctl daemon-reload
-systemctl start mnt-sd2.automount; echo rc=$?
-systemctl list-dependencies mnt-sd2.automount --no-pager 2>&1 | head
-systemctl status 'dev-disk-by\x2dlabel-auto.device' --no-pager 2>&1 | head -8
-udevadm info /dev/loop3 | grep -E 'SYSTEMD|TAGS|ID_FS_LABEL'
+r findmnt /srv/sd
+r systemctl status srv-sd.automount --no-pager
+r systemctl is-enabled srv-sd.automount
+echo "--- mount e systemd-mount"
+r systemd-mount --list --no-pager
