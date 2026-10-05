@@ -1,0 +1,12 @@
+# Un certificato di un'ora che si rinnova dopo un minuto: per vedere il rinnovo senza aspettare 60 giorni.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: breve
+  namespace: tls
+spec:
+  secretName: breve-tls
+  dnsNames: [breve.example.com]
+  duration: 1h                         # il minimo accettato
+  renewBefore: 59m                     # rinnova quando mancano 59 minuti: cioè dopo 1 minuto
+  issuerRef: { name: ca-lab, kind: ClusterIssuer }

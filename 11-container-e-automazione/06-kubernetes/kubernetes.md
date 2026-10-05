@@ -468,6 +468,20 @@ kubectl apply -k overlays/produzione
 **release**, di cui Helm tiene la storia per gli aggiornamenti e i rollback. È il modo standard per installare software
 di terzi (database, monitoraggio, controller). Chart scritto a mano e comandi in [07-helm/](07-helm/).
 
+## NetworkPolicy
+Di default ogni Pod raggiunge ogni altro Pod, in ogni namespace. Una **NetworkPolicy** è il firewall fra i Pod: sceglie i Pod con un `podSelector` (etichette) e dice chi può entrare
+(`ingress`) o uscire (`egress`). Le policy **si sommano** e non c'è un ordine: appena un Pod è scelto da una policy di ingresso, entra solo ciò che *almeno una* policy permette. Il *default deny* è una
+policy con `podSelector: {}` e nessuna regola. Serve un CNI che le applichi (Calico, Cilium; kindnet applica solo l'ingresso): con un altro la policy si crea ma non fa niente.
+Percorso `web → api → db` provato in [08-networkpolicy/](08-networkpolicy/).
+
+## Certificati: cert-manager
+**cert-manager** chiede i certificati TLS, li salva in un Secret e li rinnova prima della scadenza: si dichiara un `Certificate` (nomi, durata) e un `Issuer` (chi firma: una CA propria,
+Let's Encrypt). Un Ingress con l'annotazione `cert-manager.io/cluster-issuer` si procura il certificato da solo. Installazione, CA di laboratorio, rinnovo e diagnosi in [09-cert-manager/](09-cert-manager/).
+
+## CRD e operatori
+Una **CustomResourceDefinition** aggiunge un tipo a Kubernetes (`Certificate`, `Application`, `Sito`...) che poi si gestisce con `kubectl`; un **operatore** è il controller che lo realizza,
+con un ciclo di riconciliazione "stato desiderato contro stato reale". `kubectl get crd` elenca i tipi aggiunti, `kubectl explain TIPO.spec` ne mostra i campi. Un CRD e un operatore in bash in [10-operator-crd/](10-operator-crd/).
+
 ## Risolvere i problemi
 | Sintomo | Comando | Causa tipica |
 |---|---|---|
@@ -492,5 +506,8 @@ e la spiegazione di quello che succede; si possono tenere attivi tutti insieme, 
 | [05-job-cronjob/](05-job-cronjob/) | Job paralleli con indice e CronJob, con script bash in una ConfigMap | — |
 | [06-ingress-gateway/](06-ingress-gateway/) | LoadBalancer, Ingress e Gateway API con cloud-provider-kind; rilascio canary | 8088, variabile |
 | [07-helm/](07-helm/) | un chart scritto a mano, release dev e prod, upgrade e rollback, un chart pubblico | 30084, 30085 |
+| [08-networkpolicy/](08-networkpolicy/) | default deny e percorso `web → api → db`, altri namespace, perché l'egress con kindnet non vale | — |
+| [09-cert-manager/](09-cert-manager/) | una CA di laboratorio, un certificato per un sito HTTPS, rinnovo automatico, Ingress, diagnosi | — (`port-forward`) |
+| [10-operator-crd/](10-operator-crd/) | un CRD `Sito` con validazione e un operatore in bash che lo realizza | — |
 
 Alla fine: `kind delete cluster --name lab` elimina il cluster e tutto quello che contiene.

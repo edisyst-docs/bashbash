@@ -1,0 +1,9 @@
+# Default deny: podSelector vuoto = tutti i Pod del namespace; policyTypes Ingress senza regole = non entra nessuno.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nega-ingresso
+  namespace: shop
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]

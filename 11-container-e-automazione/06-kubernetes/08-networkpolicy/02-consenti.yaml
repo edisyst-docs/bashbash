@@ -1,0 +1,28 @@
+# Si apre solo il percorso web -> api -> db. Le regole si sommano a "nega-ingresso": ciò che nessuna regola permette resta chiuso.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-da-web
+  namespace: shop
+spec:
+  podSelector: { matchLabels: { app: api } }       # a chi si applica: ai Pod api
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app: web } }   # chi può entrare: i Pod web
+      ports:
+        - { port: 80, protocol: TCP }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-da-api
+  namespace: shop
+spec:
+  podSelector: { matchLabels: { app: db } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app: api } }
+      ports:
+        - { port: 80, protocol: TCP }

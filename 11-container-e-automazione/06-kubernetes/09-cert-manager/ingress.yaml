@@ -1,0 +1,18 @@
+# Con l'annotazione cert-manager.io/cluster-issuer l'Ingress si fa il certificato da solo (ingress-shim):
+# cert-manager crea un Certificate con i nomi di "hosts" e lo scrive nel Secret di "secretName".
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sito
+  namespace: tls
+  annotations:
+    cert-manager.io/cluster-issuer: ca-lab
+spec:
+  tls:
+    - hosts: [ingresso.example.com]
+      secretName: ingresso-tls
+  rules:
+    - host: ingresso.example.com
+      http:
+        paths:
+          - { path: /, pathType: Prefix, backend: { service: { name: sito, port: { number: 443 } } } }

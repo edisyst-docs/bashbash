@@ -1,0 +1,27 @@
+# Una CA tutta nostra, in tre pezzi: un emittente self-signed che firma il certificato della CA, e un emittente "ca" che usa quella CA.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ca-lab
+  namespace: cert-manager              # i ClusterIssuer cercano il Secret della CA nel namespace di cert-manager
+spec:
+  isCA: true
+  commonName: ca-lab
+  secretName: ca-lab-tls
+  privateKey: { algorithm: ECDSA, size: 256 }
+  issuerRef: { name: selfsigned, kind: ClusterIssuer }
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ca-lab
+spec:
+  ca:
+    secretName: ca-lab-tls
