@@ -94,4 +94,17 @@ Da sapere:
   è normale in un container, il tunnel funziona
 - con `ufw` attivo su `produzione` serve anche `ufw route allow in on wg0 to 10.20.2.0/24`, altrimenti i `curl` verso `db-interno` scadono
 
+## 05-sicurezza-sistema
+Non ci sono file da preparare: gli esempi creano i loro (`/srv/prova`, il file EICAR con `printf`). Si lavora su un server, per esempio `ssh edoardo@staging` (password `edoardo`, ha `sudo`), dopo `apt update && apt install lynis clamav clamav-daemon` (serve internet: l'installazione scarica circa 110 MB di firme).
+
+| Strumento | Nel laboratorio |
+|---|---|
+| `lynis` | funziona: `sudo lynis audit system --quick` dà un indice attorno a 62 (66 dopo l'hardening di `sshd` del `.md` 02) |
+| ClamAV | funziona: `clamscan -r`, `--move`, `clamd` e `clamdscan`. `clamd` occupa circa 1 GB di RAM: se Docker Desktop è stretto, usare solo `clamscan` |
+| `auditd` | **non funziona**: l'audit è del kernel della macchina, `auditctl` risponde `Operation not permitted` anche con `CAP_AUDIT_CONTROL` |
+| AppArmor | **non funziona**: `aa-status` dice `apparmor filesystem is not mounted` e i server girano con `apparmor:unconfined` |
+| SELinux | non c'è (Ubuntu usa AppArmor) |
+
+Per `auditd` e AppArmor serve una macchina vera o una VM Ubuntu: gli output del `.md` vengono da lì.
+
 Torna all'[indice dell'area](../README.md)
