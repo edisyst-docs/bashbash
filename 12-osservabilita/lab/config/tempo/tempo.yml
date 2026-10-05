@@ -1,0 +1,21 @@
+# tempo.yml - Tempo in modalità "monolitica": un solo processo, tracce su disco locale.
+server:
+  http_listen_port: 3200                   # API di ricerca e interfaccia per Grafana
+
+distributor:
+  receivers:
+    otlp:                                  # riceve le tracce in formato OpenTelemetry
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+storage:
+  trace:
+    backend: local                         # in produzione: s3, gcs o azure
+    local:
+      path: /var/tempo/blocks
+    wal:
+      path: /var/tempo/wal
+

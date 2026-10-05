@@ -5,13 +5,15 @@
 #   prometheus :9090    blackbox :9115    nginx-exporter :9113          alloy :12345
 #      | alert                                                            | push
 #   alertmanager :9093 --email--> mailpit :8025 (web) / :1025 (SMTP)   loki :3100
+#                                                                     tempo :3200 <-- alloy :4317/:4318 (OTLP) --> jaeger :16686
 #   grafana :3000 --query--> prometheus, loki
 #
 # La configurazione di Prometheus e Alertmanager sta in un volume condiviso: il servizio "config" ci copia
 # lab/config/ alla partenza, server lo monta in /etc/monitoring in scrittura. Si modifica dal server e si ricarica
 # con curl -X POST http://prometheus:9090/-/reload, senza toccare la KB (montata in sola lettura).
 # Dal PC: Prometheus http://localhost:9090, Alertmanager http://localhost:9093, Grafana http://localhost:3000
-# (admin / laboratorio), Loki http://localhost:3100, Alloy http://localhost:12345, Mailpit http://localhost:8025.
+# (admin / laboratorio), Loki http://localhost:3100, Tempo http://localhost:3200, Jaeger http://localhost:16686,
+# Alloy http://localhost:12345 (OTLP sulle porte 4317 e 4318), Mailpit http://localhost:8025.
 name: lab-12
 x-lab-entra: server
 
@@ -130,13 +132,34 @@ services:
       - --server.http.listen-addr=0.0.0.0:12345      # interfaccia web: grafico dei componenti e del loro stato
       - --storage.path=/var/lib/alloy/data           # dove tiene le posizioni di lettura dei file
       - /etc/alloy/config.alloy
-    ports: ["12345:12345"]
+    ports: ["12345:12345", "4317:4317", "4318:4318"]   # interfaccia web; OTLP gRPC e HTTP per le tracce
     volumes:
       - ./config/alloy:/etc/alloy:ro
       - serverlog:/var/log:ro                        # journal e log nginx del server
     depends_on:
       loki: {condition: service_started}
+      tempo: {condition: service_started}
+      jaeger: {condition: service_healthy}
       server: {condition: service_healthy}
+
+  tempo:                                          # database delle tracce
+    <<: *dns
+    image: grafana/tempo:3.0.0
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    ports: ["3200:3200"]
+    volumes:
+      - ./config/tempo:/etc/tempo:ro
+      - tempo:/var/tempo
+    # niente healthcheck: l'immagine è distroless (né shell, né wget né curl).
+
+  jaeger:                                         # interfaccia per cercare e guardare le tracce
+    <<: *dns
+    image: jaegertracing/jaeger:2.21.0
+    ports: ["16686:16686"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:16686/"]
+      interval: 2s
+      retries: 30
 
   mailpit:
     <<: *dns
@@ -147,4 +170,5 @@ volumes:
   monitoring:
   prometheus:
   loki:
+  tempo:
   serverlog:

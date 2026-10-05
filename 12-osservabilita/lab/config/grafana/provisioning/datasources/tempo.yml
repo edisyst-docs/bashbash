@@ -1,0 +1,18 @@
+# Datasource Tempo: Explore > Tempo per cercare le tracce (TraceQL) e aprirle come diagramma a cascata
+apiVersion: 1
+datasources:
+  - name: Tempo
+    uid: tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      tracesToLogsV2:                                # da uno span ai log di Loki dello stesso servizio
+        datasourceUid: loki
+        spanStartTimeShift: -5m
+        spanEndTimeShift: 5m
+        filterByTraceID: false
+        customQuery: true
+        query: '{host="server"}'
+      nodeGraph:
+        enabled: true

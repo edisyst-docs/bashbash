@@ -232,11 +232,124 @@ echo "inviato a Loki: $MSG"
 EOF
 chmod +x push.sh
 
+# ---------------------------------------------------------------- 08-tracing
+sezione 08-tracing
+cat > traccia.sh << 'EOF2'
+#!/usr/bin/env bash
+# traccia.sh - manda ad Alloy (OTLP/HTTP) una traccia finta di tre servizi: frontend -> api -> database.
+# Uso: ./traccia.sh [ok|lenta|errore] [ENDPOINT]        (default: ok, http://alloy:4318)
+#   ok      una richiesta di circa 140 ms
+#   lenta   la stessa richiesta, ma la query al database dura 2 secondi
+#   errore  la query al database fallisce: lo span è in errore e la richiesta risponde 500
+# Stampa l'ID della traccia: serve a Tempo (curl http://tempo:3200/api/traces/ID) e a Jaeger.
+set -euo pipefail
+ESITO=${1:-ok}
+OTLP=${2:-http://alloy:4318}
+
+id() { head -c "$1" /dev/urandom | od -An -tx1 | tr -d ' \n'; }       # N byte casuali in esadecimale
+TRACCIA=$(id 16); FE=$(id 8); API=$(id 8); DB=$(id 8); PAG=$(id 8)
+
+DB_MS=60; STATO_DB='{}'; HTTP=200; MSG_ERRORE=''
+case $ESITO in
+    ok) ;;
+    lenta) DB_MS=2000 ;;
+    errore) DB_MS=30; HTTP=500; STATO_DB='{"code":2,"message":"deadlock detected"}' ;;
+    *) echo "uso: $0 [ok|lenta|errore]" >&2; exit 2 ;;
+esac
+# durate in millisecondi, offset dall'inizio della richiesta
+API_FINE=$(( 10 + DB_MS + 40 + 20 ))
+TOTALE=$(( API_FINE + 10 ))
+INIZIO=$(( $(date +%s%N) - TOTALE * 1000000 ))
+t() { echo $(( INIZIO + $1 * 1000000 )); }                              # offset in ms -> timestamp in ns
+
+curl -s -o /dev/null -w "OTLP: HTTP %{http_code}\n" -X POST "$OTLP/v1/traces" -H 'Content-Type: application/json' -d "{
+ \"resourceSpans\": [
+  {\"resource\": {\"attributes\": [{\"key\":\"service.name\",\"value\":{\"stringValue\":\"frontend\"}}]},
+   \"scopeSpans\": [{\"scope\":{\"name\":\"traccia.sh\"},\"spans\": [
+     {\"traceId\":\"$TRACCIA\",\"spanId\":\"$FE\",\"name\":\"GET /ordini/42\",\"kind\":2,
+      \"startTimeUnixNano\":\"$(t 0)\",\"endTimeUnixNano\":\"$(t $TOTALE)\",
+      \"attributes\":[{\"key\":\"http.request.method\",\"value\":{\"stringValue\":\"GET\"}},
+                      {\"key\":\"http.response.status_code\",\"value\":{\"intValue\":\"$HTTP\"}}],
+      \"status\": $( [[ $HTTP == 500 ]] && echo '{"code":2}' || echo '{}' )}]}]},
+  {\"resource\": {\"attributes\": [{\"key\":\"service.name\",\"value\":{\"stringValue\":\"api\"}}]},
+   \"scopeSpans\": [{\"scope\":{\"name\":\"traccia.sh\"},\"spans\": [
+     {\"traceId\":\"$TRACCIA\",\"spanId\":\"$API\",\"parentSpanId\":\"$FE\",\"name\":\"GET /ordini/{id}\",\"kind\":2,
+      \"startTimeUnixNano\":\"$(t 5)\",\"endTimeUnixNano\":\"$(t $API_FINE)\",
+      \"attributes\":[{\"key\":\"http.route\",\"value\":{\"stringValue\":\"/ordini/{id}\"}}]},
+     {\"traceId\":\"$TRACCIA\",\"spanId\":\"$DB\",\"parentSpanId\":\"$API\",\"name\":\"SELECT ordini\",\"kind\":3,
+      \"startTimeUnixNano\":\"$(t 10)\",\"endTimeUnixNano\":\"$(t $((10 + DB_MS)))\",
+      \"attributes\":[{\"key\":\"db.system\",\"value\":{\"stringValue\":\"postgresql\"}},
+                      {\"key\":\"db.statement\",\"value\":{\"stringValue\":\"SELECT * FROM ordini WHERE id = \$1\"}}],
+      \"status\": $STATO_DB},
+     {\"traceId\":\"$TRACCIA\",\"spanId\":\"$PAG\",\"parentSpanId\":\"$API\",\"name\":\"POST /pagamenti/verifica\",\"kind\":3,
+      \"startTimeUnixNano\":\"$(t $((10 + DB_MS + 5)))\",\"endTimeUnixNano\":\"$(t $((10 + DB_MS + 45)))\"}]}]}
+ ]}"
+echo "traccia: $TRACCIA ($ESITO, $TOTALE ms)"
+EOF2
+chmod +x traccia.sh
+cat > app.py << 'EOF2'
+"""app.py - una piccola applicazione strumentata con OpenTelemetry: due "servizi", ordini e magazzino."""
+import random
+import time
+
+from opentelemetry import propagate, trace
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+
+def crea_tracer(servizio):
+    """Un TracerProvider per servizio: il nome (service.name) finisce su ogni span."""
+    provider = TracerProvider(resource=Resource.create({"service.name": servizio}))
+    provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint="http://alloy:4318/v1/traces")))
+    return provider, provider.get_tracer(servizio)
+
+
+prov_ordini, tracer_ordini = crea_tracer("ordini")
+prov_magazzino, tracer_magazzino = crea_tracer("magazzino")
+
+
+def magazzino(intestazioni, sku):
+    """Il secondo servizio: continua la traccia ricevuta nell'header traceparent."""
+    ctx = propagate.extract(intestazioni)
+    with tracer_magazzino.start_as_current_span("verifica giacenza", context=ctx, kind=trace.SpanKind.SERVER) as span:
+        span.set_attribute("sku", sku)
+        time.sleep(random.uniform(0.02, 0.05))
+        if sku == "ZZ9":
+            span.set_status(trace.Status(trace.StatusCode.ERROR, "esaurito"))
+            raise RuntimeError(f"{sku} esaurito")
+
+
+def crea_ordine(sku):
+    with tracer_ordini.start_as_current_span("POST /ordini", kind=trace.SpanKind.SERVER) as span:
+        span.set_attribute("sku", sku)
+        with tracer_ordini.start_as_current_span("valida", kind=trace.SpanKind.INTERNAL):
+            time.sleep(0.01)
+        with tracer_ordini.start_as_current_span("chiama magazzino", kind=trace.SpanKind.CLIENT):
+            intestazioni = {}
+            propagate.inject(intestazioni)          # aggiunge traceparent: "00-<id traccia>-<id span>-01"
+            print("header inviato:", intestazioni)
+            magazzino(intestazioni, sku)            # nella realtà: requests.get(url, headers=intestazioni)
+        span.add_event("ordine creato")             # un evento con il suo orario dentro lo span
+        return trace.format_trace_id(span.get_span_context().trace_id)
+
+
+for sku in ("A1", "ZZ9"):
+    try:
+        print(sku, "traccia", crea_ordine(sku))
+    except RuntimeError as errore:
+        print(sku, "errore:", errore)
+
+prov_ordini.shutdown()                              # svuota il lotto in sospeso prima di uscire
+prov_magazzino.shutdown()
+EOF2
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 12 pronto in $DEST: una cartella per ogni .md"
     echo "Questo è il server monitorato (node_exporter :9100, nginx :80). Dal PC: Prometheus http://localhost:9090,"
     echo "Alertmanager http://localhost:9093, Grafana http://localhost:3000 (admin / laboratorio),"
-    echo "Loki http://localhost:3100, Alloy http://localhost:12345, posta http://localhost:8025"
+    echo "Loki http://localhost:3100, Alloy http://localhost:12345, Tempo http://localhost:3200, Jaeger http://localhost:16686, posta http://localhost:8025"
     echo "Prova: cd 05-alerting && ./scenari.sh nginx"
     echo "Per ripartire da zero con i file: bash $LAB_SRC/prepara.sh"
 fi

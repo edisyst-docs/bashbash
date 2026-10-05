@@ -6,6 +6,7 @@ Un server da monitorare e tutto lo stack intorno, descritto da [compose.yaml](co
   systemd, nginx :80    ├─ stub_status :8000 <── nginx-exporter <──┤      ▲                (email)
   /dati da 64 MB        ├─ :80, :22  <────────── blackbox  <───────┘      └── grafana :3000
   /var/log ─────────────└────────────────────────── alloy :12345 ──push──> loki :3100 <──── grafana
+                                                  alloy :4318 (OTLP) ──> tempo :3200 <──── grafana  (e jaeger :16686)
 ```
 
 | Container | Cosa è |
@@ -16,8 +17,10 @@ Un server da monitorare e tutto lo stack intorno, descritto da [compose.yaml](co
 | `blackbox` | controlla da fuori `http://server/`, `http://grafana:3000/api/health` e `server:22` |
 | `nginx-exporter` | traduce lo `stub_status` di nginx in metriche |
 | `loki` | riceve e salva i log mandati da Alloy; configurazione in [config/loki/](config/loki/) |
-| `alloy` | legge journal e log nginx dal server e li manda a Loki; configurazione in [config/alloy/](config/alloy/) |
-| `grafana` | data source e dashboard *Server* caricate da [config/grafana/](config/grafana/); data source Loki e Prometheus |
+| `alloy` | legge journal e log nginx dal server e li manda a Loki; è anche il Collector OpenTelemetry: riceve le tracce (OTLP, `:4317` e `:4318`) e le manda a Tempo e a Jaeger; configurazione in [config/alloy/](config/alloy/) |
+| `tempo` | conserva le tracce e le cerca con TraceQL; configurazione in [config/tempo/](config/tempo/) |
+| `jaeger` | interfaccia e API per cercare le tracce (archivio in memoria) |
+| `grafana` | data source e dashboard *Server* caricate da [config/grafana/](config/grafana/); data source Loki, Prometheus e Tempo |
 | `mailpit` | un finto server di posta: raccoglie le email degli alert e le mostra nel browser |
 | `config` | parte, copia [config/](config/) nel volume condiviso e termina |
 
@@ -39,6 +42,9 @@ Dal browser del PC:
 | http://localhost:9093 | Alertmanager: alert, raggruppamenti, silenzi |
 | http://localhost:3000 | Grafana, `admin` / `laboratorio` (senza login si guarda soltanto): *Dashboards > Laboratorio > Server* |
 | http://localhost:3100 | Loki: `curl localhost:3100/ready`, `curl localhost:3100/loki/api/v1/labels` |
+| http://localhost:3200 | Tempo: `curl localhost:3200/ready`, `curl localhost:3200/api/search/tags` |
+| http://localhost:16686 | Jaeger: interfaccia web, API su `/api/v3/services` |
+| localhost:4317, :4318 | OTLP (gRPC e HTTP) di Alloy: ci si manda le tracce dal PC |
 | http://localhost:12345 | Alloy: grafo dei componenti e loro stato |
 | http://localhost:8025 | Mailpit: le email degli alert |
 
@@ -60,6 +66,7 @@ elencati qui sotto. Per ripartire da zero senza uscire: `bash /kb/12-osservabili
 | `05-alerting/` | `scenari.sh`, `test-regole.yml`, `backup.sh` | un guasto alla volta (tabella in [05-alerting.md](../05-alerting.md)); `promtool test rules test-regole.yml` |
 | `06-grafana/` | nessuno | si lavora dal browser; API con `curl -u admin:laboratorio http://grafana:3000/api/...` |
 | `07-loki/` | `query.sh`, `push.sh`, `config` (link) | `./query.sh '{job="nginx"}'`; `./push.sh "messaggio"`; `logcli labels` |
+| `08-tracing/` | `traccia.sh`, `app.py` | `./traccia.sh ok|lenta|errore` manda una traccia di tre servizi ad Alloy (`:4318`); `app.py` è un'app Python strumentata (serve `python3-venv` e `pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-http`) |
 
 Da sapere:
 - node_exporter nel container vede CPU e memoria del PC (o della VM di Docker Desktop): `./scenari.sh cpu` carica
