@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup restic ogni 2 minuti (in produzione: ogni notte alle 02:30)
+
+[Timer]
+OnCalendar=*:0/2
+# se la macchina era spenta all'ora prevista, parte appena si riaccende
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=Backup di /srv/sito con restic
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/restic-backup.sh
+# senza User= systemd non imposta $HOME e restic non trova dove tenere la cache: gliela do io
+CacheDirectory=restic
+Environment=RESTIC_CACHE_DIR=/var/cache/restic
+# priorità bassa: il backup non deve rallentare il sito
+Nice=10
+IOSchedulingClass=idle

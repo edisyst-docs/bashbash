@@ -1,0 +1,5 @@
+# /etc/restic-escludi - un pattern per riga: cosa NON finisce nel backup
+/srv/sito/cache
+/srv/sito/tmp
+*.log
+*.tmp
