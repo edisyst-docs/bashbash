@@ -12,8 +12,11 @@ Docker, Kubernetes, Jenkins, Ansible e Terraform hanno un'area tutta loro: [../1
 | 05 | [python](05-python.md) | Ispezione installazione, snippet al volo, venv, pip, moduli stdlib utili |
 | 06 | [postgresql](06-postgresql.md) | Client `psql`, `pg_dump`/`pg_restore`, diagnostica, utente applicativo |
 | 07 | [redis](07-redis.md) | `redis-cli`, chiavi, strutture dati, monitoraggio, amministrazione |
+| 08 | [make](08-make.md) | `Makefile`: regole, variabili, `.PHONY`, regole a schema, `-n`/`-j`, errori tipici |
+| 09 | [bats](09-bats.md) | Testare gli script bash: `@test`, `run`, `bats-assert`, finti comandi nel `PATH`, `setup`/`teardown` |
+| 10 | [ricerca veloce](10-ricerca-veloce.md) | `ripgrep`, `fd`, `fzf`, `bat` e `ncdu` al posto di `grep -r`, `find`, `cat` e `du` |
 
 **Laboratorio**: `./lab.sh 09` dalla radice della KB avvia un MySQL 9.7 con un database già popolato,
-un'API finta su `http://api` e un repository git con una storia da indagare. Dettagli in [lab/](lab/).
+un'API finta su `http://api` e un repository git con una storia da indagare; per `make`, `bats` e gli strumenti di ricerca ci sono un progetto di esempio e una cartella con file grandi. Dettagli in [lab/](lab/).
 
 Area precedente: [../08-remoto-e-sicurezza/](../08-remoto-e-sicurezza/) · Prossima: [../10-rete-e-web/](../10-rete-e-web/) · Torna all'[indice](../README.md)

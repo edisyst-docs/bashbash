@@ -67,4 +67,16 @@ richiede PHP, che nel container non c'è.
 - Per `mysql_config_editor`: `--host=mysql --user=root`, password `lab`.
 - Per vedere `SHOW PROCESSLIST` con una query lunga: `mysql -e 'SELECT SLEEP(60)' &`.
 
+## 08-make, 09-bats, 10-ricerca-veloce
+Niente servizi: sono strumenti della shell, e i file di lavoro li crea `prepara.sh`.
+- `08-make/`: il `Makefile` dell'esempio, tre testi in `src/`, `saluta.sh` e `test.bats`. `make` mostra l'aiuto, `make all` converte i testi, `make test` lancia `bats`, `make lint` lancia `shellcheck`, `make dist` crea un pacchetto in `dist/`
+- `09-bats/`: `saluta.sh` con `test.bats` (asserzioni, `--separate-stderr`, `source`, `skip`) e `stato.sh` con `stato.bats` (un finto `curl` nel `PATH`, `setup_file`)
+- `10-ricerca-veloce/progetto/`: un repository git con codice Python, JavaScript e PHP (con `TODO` e `FIXME`), `node_modules/` e `vendor/` ignorati, e `logs/app.log` di 20000 righe: per `rg`, `fd`, `fzf`, `bat`
+- `10-ricerca-veloce/spazio/`: 93 MB di file vuoti di dimensioni diverse (video, cache, log, documenti) per `du` e `ncdu`
+
+Da sapere:
+- `fd` e `bat` si chiamano `fdfind` e `batcat` (nomi di Debian e Ubuntu)
+- `ncdu`, `fzf` con l'anteprima e le scorciatoie di tastiera sono interattivi: nel laboratorio si provano a mano, e le scorciatoie di `fzf` (`key-bindings.bash`) non ci sono, perché l'immagine Ubuntu per container esclude `/usr/share/doc`
+- le cartelle del `.md` `10-ricerca-veloce` sono sotto `~/lab/10-ricerca-veloce/`
+
 Torna all'[indice dell'area](../README.md)

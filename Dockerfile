@@ -28,6 +28,8 @@ RUN apt-get update && apt-get install -y \
     acl plocate \
     # scripting
     shellcheck bc python-is-python3 \
+    # build, test e ricerca veloce (fdfind e batcat: i nomi Debian di fd e bat)
+    make bats bats-assert bats-support ripgrep fzf fd-find bat ncdu \
     # processi e risorse
     procps lsof htop strace ltrace sysstat \
     # perf: il pacchetto cerca la versione del kernel dell'host, che nel container non c'è; il collegamento sotto lo aggira
