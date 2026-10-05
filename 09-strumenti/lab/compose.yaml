@@ -1,6 +1,7 @@
 # Laboratorio dell'area 09: lo avvia ./lab.sh 09 dalla radice della KB.
 #   shell  la shell in cui si lavora (immagine bashbash, KB in /kb in sola lettura)
 #   mysql  MySQL 9.7 LTS con il database app_db già popolato (mysql-init/)
+#   rabbitmq, kafka, mongo  RabbitMQ, Kafka (un broker, KRaft) e MongoDB con il database app (mongo-init/)
 #   api    API HTTP finta per curl, wget e jq (api.py), raggiungibile come http://api
 # Nessuna porta è pubblicata sull'host: i servizi si vedono solo tra di loro.
 name: lab-09
@@ -16,6 +17,12 @@ services:
       mysql:
         condition: service_healthy
       api:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      mongo:
         condition: service_healthy
 
   mysql:
@@ -42,3 +49,50 @@ services:
       interval: 2s
       timeout: 2s
       retries: 15
+
+  rabbitmq:
+    image: rabbitmq:4.3-management
+    hostname: rabbitmq                            # RabbitMQ chiama il nodo "rabbit@HOSTNAME": con un nome fisso i dati restano coerenti
+    environment:
+      RABBITMQ_DEFAULT_USER: lab
+      RABBITMQ_DEFAULT_PASS: lab
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+  kafka:
+    image: apache/kafka:4.3.1                     # KRaft: un solo nodo è broker e controller insieme, senza ZooKeeper
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3                     # i topic creati al volo hanno 3 partizioni
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  mongo:
+    image: mongo:8.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: lab
+      MONGO_INITDB_ROOT_PASSWORD: lab
+    volumes:
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "-u", "app", "-p", "app", "--authenticationDatabase", "app", "app", "--eval", "db.utenti.countDocuments()"]   # riesce solo dopo che mongo-init ha creato l utente app
+      interval: 3s
+      timeout: 5s
+      retries: 40

@@ -43,6 +43,8 @@ RUN apt-get update && apt-get install -y \
     sudo adduser cron logrotate tmux \
     # git e client mysql
     git mysql-client pv \
+    # code e messaggi: amqp-publish/amqp-consume (RabbitMQ) e kcat (Kafka)
+    amqp-tools kcat \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s "$(ls /usr/lib/linux-tools/*/perf)" /usr/local/bin/perf
 
@@ -59,6 +61,25 @@ RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
     && bunzip2 restic.bz2 \
     && install -m 755 restic /usr/local/bin/restic \
     && rm -f /tmp/restic
+
+# mongosh e gli strumenti di backup di MongoDB (mongodump, mongorestore...): non sono in apt; SHA-256 fissato per architettura
+ARG MONGOSH=2.13.0
+ARG MONGOSH_SHA256_AMD64=b2089e67641a28aa621476c4d62c69f66b9a41484baba24d8a8b1f5f96e92d0b
+ARG MONGOSH_SHA256_ARM64=a124ec6680c70ceabc61696bbd110f0da05d7c52524ed402ae9511b5aec7fe32
+ARG MONGOTOOLS=100.13.0
+ARG MONGOTOOLS_SHA256_AMD64=49f00ac68f25451c3e936b06011df38009f8418dafb5aa425c2810e59fd02029
+ARG MONGOTOOLS_SHA256_ARM64=0dad172b672d574d03e11b6d2c6e3e8bf0306be9578865a637af11cad9e239ef
+RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
+    && if [ "$arch" = arm64 ]; then sh_arch=arm64; sh=$MONGOSH_SHA256_ARM64; tl_arch=arm64; th=$MONGOTOOLS_SHA256_ARM64; \
+       else sh_arch=x64; sh=$MONGOSH_SHA256_AMD64; tl_arch=x86_64; th=$MONGOTOOLS_SHA256_AMD64; fi \
+    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://github.com/mongodb-js/mongosh/releases/download/v$MONGOSH/mongosh-$MONGOSH-linux-$sh_arch.tgz" -o mongosh.tgz \
+    && echo "$sh  mongosh.tgz" | sha256sum -c - \
+    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-$tl_arch-$MONGOTOOLS.tgz" -o tools.tgz \
+    && echo "$th  tools.tgz" | sha256sum -c - \
+    && tar xzf mongosh.tgz && tar xzf tools.tgz \
+    && install -m 755 mongosh-*/bin/mongosh /usr/local/bin/ \
+    && install -m 755 mongodb-database-tools-*/bin/* /usr/local/bin/ \
+    && rm -rf /tmp/*
 
 # utente non-root per testare permessi/sudo
 RUN useradd -m -s /bin/bash tester \
