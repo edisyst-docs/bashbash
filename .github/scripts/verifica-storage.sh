@@ -12,12 +12,12 @@ h "FS su file immagine"
 truncate -s 64M disco.img
 r mkfs.ext4 -q -L dati disco.img
 dumpe2fs -h disco.img 2>/dev/null | grep -E 'Filesystem (volume name|features|state)|Block (count|size)|Inode count'
-r e2fsck -f disco.img
+r e2fsck -f -p disco.img
 truncate -s 128M disco.img
 r resize2fs disco.img
 dumpe2fs -h disco.img 2>/dev/null | grep -E 'Block count'
 r tune2fs -L archivio disco.img
-mkfs.xfs -q -f -L xfsdati xfs.img 2>&1 || { truncate -s 300M xfs.img; mkfs.xfs -q -L xfsdati xfs.img; }
+truncate -s 300M xfs.img; r mkfs.xfs -q -L xfsdati xfs.img
 xfs_info xfs.img 2>&1 | head -4
 
 h "loop device"
@@ -50,10 +50,14 @@ r lvs -o lv_name,lv_size,origin,data_percent
 umount /mnt/snap; r lvremove -y vg0/snap
 echo "--- pvmove"
 r pvs -o pv_name,pv_size,pv_used
-r pvmove $L1 $L2
+r vgextend vg0 $L3
+r pvmove $L1
 r vgreduce vg0 $L1
 r pvs -o pv_name,vg_name,pv_used
-echo "--- lvreduce non si fa con xfs; ext4: umount, e2fsck, resize"
+echo "--- xfs: si ingrandisce, non si riduce"
+mkdir -p /mnt/x; XL=$(losetup -f --show xfs.img); mount $XL /mnt/x; r df -h /mnt/x
+umount /mnt/x; losetup -d $XL; truncate -s 400M xfs.img; XL=$(losetup -f --show xfs.img); mount $XL /mnt/x; r xfs_growfs /mnt/x; r df -h /mnt/x; umount /mnt/x; losetup -d $XL
+echo "--- ext4: riduzione a freddo"
 umount /mnt/dati
 r e2fsck -f -y /dev/vg0/dati
 r lvreduce -r -y -L 100M vg0/dati
@@ -93,8 +97,9 @@ mdadm --stop /dev/md1
 
 h "smartctl"
 r smartctl --scan
-r smartctl -i /dev/sda
-r smartctl -H /dev/sda
+r smartctl -i /dev/nvme0
+r smartctl -H /dev/nvme0
+r smartctl -a /dev/nvme0
 
 h "autofs"
 mkfs.ext4 -q -L auto $L4; mkdir -p /srv/dati-auto
@@ -113,7 +118,7 @@ r findmnt /mnt/auto/dati
 r systemctl is-active autofs
 echo "--- systemd automount"
 mkdir -p /mnt/sd; echo "$L4 /mnt/sd ext4 noauto,x-systemd.automount,x-systemd.idle-timeout=5 0 0" >> /etc/fstab
-systemctl daemon-reload; systemctl restart local-fs.target
+systemctl daemon-reload; r systemctl start mnt-sd.automount
 r systemctl list-units --type=automount --no-pager
 r findmnt /mnt/sd
 r ls /mnt/sd
