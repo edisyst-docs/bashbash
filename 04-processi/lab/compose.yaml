@@ -1,0 +1,18 @@
+# Laboratorio dell'area 04: lo avvia ./lab.sh 04 dalla radice della KB.
+#   shell  la shell in cui si lavora (immagine bashbash, KB in /kb in sola lettura)
+# I limiti sono di proposito: li legge `cat /sys/fs/cgroup/memory.max` e li fa scattare mangia-ram.py.
+# CAP_SYS_ADMIN serve a perf (senza, perf_event_open risponde "No permission to enable task-clock event"), CAP_SYS_PTRACE a strace -p su processi non figli.
+name: lab-04
+
+services:
+  shell:
+    image: bashbash
+    pull_policy: never
+    hostname: lab-04
+    cap_add: [SYS_ADMIN, SYS_PTRACE]
+    mem_limit: 256m
+    memswap_limit: 256m          # uguale a mem_limit: niente swap, la memoria finita fa intervenire l'OOM killer
+    cpus: 1
+    pids_limit: 200
+    volumes:
+      - ../..:/kb:ro

@@ -49,6 +49,7 @@ Gli strumenti che userai dentro ogni script.
 2. [jobs](04-processi/02-jobs.md) — `&`, `CTRL+Z`, `fg`, `bg`, `nohup`
 3. [top e htop](04-processi/03-top-htop.md) — monitoraggio interattivo
 4. [risorse](04-processi/04-risorse.md) — `free`, `du`, `df`, `nice`/`renice`, `/proc`
+5. [debug e prestazioni](04-processi/05-debug-e-prestazioni.md) — `strace`, `ltrace`, `ulimit`, cgroup e OOM, `perf`, `vmstat`, `pidstat`
 
 ### [05-scripting/](05-scripting/) — scrivere script bash
 Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso numero.
@@ -153,13 +154,14 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 
 ---
 
-Le aree 02, 03, 05, 06, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+Le aree 02, 03, 04, 05, 06, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
 servizi c'è anche un `lab/compose.yaml`:
 
 | Area | Cosa avvia |
 |---|---|
+| 04 | un container con limiti veri (256 MB di RAM senza swap, 1 CPU) e `strace`/`perf` abilitati, per OOM killer, throttling e processi appesi |
 | 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban |
 | 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
@@ -229,7 +231,7 @@ in [11-container-e-automazione/13-github-actions/](11-container-e-automazione/13
 | `shellcheck` | tutti gli script `.sh` dei laboratori e dell'area 11; restano fuori `05-scripting/*.sh` e `zz-esempi/`, che sono esempi da studiare (alcuni sbagliati apposta) |
 | `hadolint` | tutti i file chiamati `Dockerfile`; blocca da `warning` in su e manda il report completo a *Security > Code scanning* |
 | `link` | i link relativi nei `.md` ([.github/scripts/controlla-link.py](.github/scripts/controlla-link.py)): ogni file o cartella indicata deve esistere |
-| `laboratorio` | per le aree 02, 03, 05, 06, 08, 09, 10 e 12 lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio |
+| `laboratorio` | per le aree 02, 03, 04, 05, 06, 08, 09, 10 e 12 lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio |
 
 Il resto di `.github/` sono gli esempi della guida: i nove workflow `esempio-*.yml`, l'Action composita
 [python-app](.github/actions/python-app/) e il problem matcher di shellcheck. [.hadolint.yaml](.hadolint.yaml) è la
