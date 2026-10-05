@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# prepara.sh - crea (o ricrea da zero) il laboratorio dell'area 09: jq/curl, git, mysql
+# prepara.sh - crea (o ricrea da zero) il laboratorio dell'area 09: jq/curl, git, mysql, make/bats, ricerca, rabbitmq/kafka/mongodb
 #
 # Uso: bash prepara.sh [-q] [CARTELLA]     (default: ~/lab; -q non stampa il riepilogo)
 #
 # Per ogni .md dell'area crea una sottocartella con lo stesso nome. I servizi (MySQL e l'API
-# finta su http://api) li avvia compose.yaml: questo script prepara solo i file.
+# finta su http://api, RabbitMQ, Kafka e MongoDB) li avvia compose.yaml: questo script prepara solo i file.
 set -euo pipefail
 
 LAB_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # questa cartella (lab/)
@@ -287,9 +287,39 @@ head -c 9M /dev/zero > log/vecchio.log.1
 head -c 1M /dev/zero > log/app.log
 for i in 1 2 3; do head -c 300K /dev/zero > "documenti/relazione$i.pdf"; done
 
+# ---------------------------------------------------------------- 11-rabbitmq
+sezione 11-rabbitmq
+printf 'ridimensiona foto1.jpg\nridimensiona foto2.jpg\ninvia-email anna@example.com\ninvia-email bruno@example.com\nfattura 2026-0042\n' > lavori.txt
+cat > worker.sh << 'EOF'
+#!/usr/bin/env bash
+# worker.sh: amqp-consume lo lancia una volta per messaggio, con il corpo sullo stdin.
+# Se esce con 0 il messaggio è confermato (ack) e sparisce dalla coda; se esce con un errore resta in coda.
+read -r lavoro
+echo "elaboro: $lavoro"
+[[ $lavoro == fattura* ]] && { echo "errore su: $lavoro" >&2; exit 1; }
+exit 0
+EOF
+chmod +x worker.sh
+
+# ---------------------------------------------------------------- 12-kafka
+sezione 12-kafka
+# kcat legge l'indirizzo del broker da qui: niente -b a ogni comando. Non sovrascrive un file vero (senza il marcatore)
+mkdir -p "$HOME/.config"
+if [[ ! -e $HOME/.config/kcat.conf ]] || grep -q '^# lab-bashbash' "$HOME/.config/kcat.conf"; then
+    printf '# lab-bashbash: il broker Kafka del laboratorio\nbootstrap.servers=kafka:9092\n' > "$HOME/.config/kcat.conf"
+fi
+# chiave:valore, per -K: (le righe con la stessa chiave finiscono nella stessa partizione)
+printf 'anna:ordine 1\nbruno:ordine 2\nanna:ordine 3\ncarla:ordine 4\nbruno:ordine 5\nanna:ordine 6\n' > ordini.txt
+
+# ---------------------------------------------------------------- 13-mongodb
+sezione 13-mongodb
+printf '{"_id":10,"nome":"Gina","citta":"Bari","eta":33}\n{"_id":11,"nome":"Hugo","citta":"Bari","eta":47}\n' > nuovi.json
+printf 'nome,citta,eta\nIvo,Pisa,29\nLara,Pisa,36\n' > clienti.csv
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 09 pronto in $DEST: una cartella per ogni .md"
     ls "$DEST" | sed 's/^/  /'
     echo "Servizi: API finta su http://api, MySQL su host 'mysql' (credenziali in ~/.my.cnf)"
+    echo "         RabbitMQ su 'rabbitmq' (lab/lab), Kafka su 'kafka:9092', MongoDB su 'mongo' (app/app)"
     echo "Per ripartire da zero: bash $LAB_SRC/prepara.sh"
 fi

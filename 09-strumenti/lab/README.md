@@ -1,6 +1,6 @@
 # Laboratorio dell'area 09
 
-Qui non bastano dei file: servono un server MySQL e un'API HTTP. [compose.yaml](compose.yaml) avvia tre container
+Qui non bastano dei file: servono un server MySQL, un'API HTTP e tre servizi di messaggi e dati. [compose.yaml](compose.yaml) avvia sei container (compresa la shell)
 sulla stessa rete, senza pubblicare porte sull'host:
 
 | Servizio | Cosa è | Come si raggiunge dalla shell |
@@ -78,5 +78,24 @@ Da sapere:
 - `fd` e `bat` si chiamano `fdfind` e `batcat` (nomi di Debian e Ubuntu)
 - `ncdu`, `fzf` con l'anteprima e le scorciatoie di tastiera sono interattivi: nel laboratorio si provano a mano, e le scorciatoie di `fzf` (`key-bindings.bash`) non ci sono, perché l'immagine Ubuntu per container esclude `/usr/share/doc`
 - le cartelle del `.md` `10-ricerca-veloce` sono sotto `~/lab/10-ricerca-veloce/`
+
+## 11-rabbitmq, 12-kafka, 13-mongodb
+Tre servizi in più, sulla stessa rete, senza porte pubblicate sull'host:
+
+| Servizio | Cosa è | Come si raggiunge dalla shell |
+|---|---|---|
+| `rabbitmq` | RabbitMQ 4.3 con la gestione e le metriche Prometheus; utente `lab` / `lab` | AMQP `amqp://lab:lab@rabbitmq`, API `http://rabbitmq:15672/api`, metriche `http://rabbitmq:15692/metrics` |
+| `kafka` | Kafka 4.3.1 in modalità KRaft, **un solo broker**, topic creati al volo con 3 partizioni | `kcat` (l'indirizzo è in `~/.config/kcat.conf`), `kafka:9092` |
+| `mongo` | MongoDB 8.0 con il database `app` ([mongo-init/](mongo-init/01-app.js): `utenti`, `ordini`, un indice, l'utente `app`) e l'amministratore `lab` | `mongosh "mongodb://app:app@mongo/app?authSource=app"` |
+
+- `11-rabbitmq/`: `lavori.txt` (cinque lavori da mettere in coda) e `worker.sh`, il consumer da dare a `amqp-consume` (esce con 1 sulle fatture, e il messaggio resta in coda)
+- `12-kafka/`: `ordini.txt`, righe `chiave:valore` per `kcat -K:`
+- `13-mongodb/`: `nuovi.json` (JSON Lines) e `clienti.csv` per `mongoimport`
+
+Da sapere:
+- i tre servizi usano circa 700 MB di memoria (Kafka ~400, MongoDB ~200, RabbitMQ ~130), e `./lab.sh 09` li aspetta tutti (health check): l'avvio è di circa 20-30 secondi, più il download delle immagini la prima volta
+- `rabbitmqctl` e le utility `kafka-*.sh` stanno **nei container dei broker**: da un secondo terminale dell'host, dalla radice della KB,
+  `docker compose -f 09-strumenti/lab/compose.yaml exec rabbitmq rabbitmqctl ...` e `... exec kafka /opt/kafka/bin/kafka-topics.sh ...`
+- le interfacce web (gestione di RabbitMQ sulla 15672) e le sessioni interattive non sono state provate: per aprirle dall'host bisogna aggiungere `ports:` al servizio
 
 Torna all'[indice dell'area](../README.md)

@@ -110,6 +110,9 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 8. [make](09-strumenti/08-make.md) — `Makefile`, regole, variabili, `.PHONY`, regole a schema
 9. [bats](09-strumenti/09-bats.md) — test degli script bash, `bats-assert`, finti comandi
 10. [ricerca veloce](09-strumenti/10-ricerca-veloce.md) — `ripgrep`, `fd`, `fzf`, `bat`, `ncdu`
+11. [rabbitmq](09-strumenti/11-rabbitmq.md) — code, exchange, ack, dead letter, API HTTP, `rabbitmqctl`
+12. [kafka](09-strumenti/12-kafka.md) — topic, partizioni, offset, consumer group, `kcat`
+13. [mongodb](09-strumenti/13-mongodb.md) — `mongosh`, `find`, `aggregate`, indici, utenti, `mongodump`
 
 ### [10-rete-e-web/](10-rete-e-web/) — reti e web server
 1. [indirizzi e configurazione](10-rete-e-web/01-indirizzi-e-configurazione.md) — CIDR e subnet, `ip addr`/`ip route`, netplan, da `ifconfig` a `ip`
