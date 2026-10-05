@@ -42,6 +42,7 @@ Dal browser del PC:
 | http://localhost:12345 | Alloy: grafo dei componenti e loro stato |
 | http://localhost:8025 | Mailpit: le email degli alert |
 
+Per spegnere tutto basta uscire dalla shell: container e volumi vengono eliminati.
 Le porte devono essere libere sul PC: se una è occupata `lab.sh` si ferma con `port is already allocated`.
 Servono circa 1 GB di RAM.
 

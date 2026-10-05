@@ -15,6 +15,12 @@ Si lanciano con *Build Now* (o *Build with Parameters*) e si leggono in *Console
 | [08-approvazione](08-approvazione.jenkinsfile) | direttiva `input` con `submitter` e parametri, timeout dello stage | il build si ferma su *Input requested*: rispondere dalla pagina del build (o dalla vista degli stage). Intanto nessun esecutore è occupato |
 | [09-agenti](09-agenti.jenkinsfile) | `agent { label }`, `stash`/`unstash` fra nodi, rami paralleli su agenti diversi | richiede `./agenti.sh && docker compose --profile agenti up -d`; il file preparato su agent1 letto su agent2 e agent3 |
 
+Primo build con i parametri di default, provato su Jenkins avviato da zero (Docker Desktop su Windows): da `01-base` a
+`06-agente-docker` finiscono tutti in `SUCCESS`. `07-ci-app` richiede che i container dentro `docker` raggiungano
+internet (pip, Trivy); se la rete blocca i DNS pubblici fallisce su `pip install`: vedi *Problemi comuni* in
+[../jenkins.md](../jenkins.md). `08-approvazione` aspetta una risposta e `09-agenti` richiede gli agenti: non sono nei
+build automatici.
+
 Aggiungere un esempio: un nuovo file `NN-nome.jenkinsfile` qui, poi *Manage Jenkins > Configuration as Code >
 Reload existing configuration*.
 

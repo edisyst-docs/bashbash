@@ -13,6 +13,9 @@
 ```bash
 docker compose up -d && ./configura.sh    # poi http://gitlab.localhost:8929, root / Tiglio-Arancio-4729
 gitlab-ci-local --file pipeline/01-base.gitlab-ci.yml   # oppure in locale, senza GitLab
+docker compose down                       # ferma tutto, i volumi restano
+docker compose down -v && rm .env         # cancella anche i volumi (e il token, che non vale più)
 ```
+Serve Docker con ~6 GB di RAM e le porte 8929-8931 libere; il primo avvio richiede circa 5 minuti.
 
 Torna a [../](../)

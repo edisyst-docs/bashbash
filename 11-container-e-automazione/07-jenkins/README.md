@@ -14,6 +14,9 @@
 
 ```bash
 docker compose up -d --build     # poi http://localhost:8080, admin / admin
+docker compose --profile agenti down      # ferma tutto, i volumi restano
+docker compose --profile agenti down -v   # cancella anche i volumi: si riparte da zero
 ```
+Serve Docker; la porta 8080 del PC deve essere libera.
 
 Torna a [../](../)
