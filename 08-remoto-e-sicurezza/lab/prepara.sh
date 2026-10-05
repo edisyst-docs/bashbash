@@ -100,6 +100,35 @@ if [[ $EUID -eq 0 ]] && ! id utente > /dev/null 2>&1; then
     echo "utente:utente" | chpasswd
 fi
 
+# ---------------------------------------------------------------- 04-vpn-wireguard
+# i due file di configurazione del .md, con i segnaposto al posto delle chiavi
+sezione 04-vpn-wireguard
+cat > wg0-produzione.conf.example << 'EOT'
+[Interface]
+Address = 10.8.0.1/24
+ListenPort = 51820
+PrivateKey = <contenuto di server.key>
+PostUp = iptables -t nat -A POSTROUTING -s 10.8.0.0/24 ! -o wg0 -j MASQUERADE
+PostDown = iptables -t nat -D POSTROUTING -s 10.8.0.0/24 ! -o wg0 -j MASQUERADE
+
+[Peer]
+# client
+PublicKey = <contenuto di client.pub>
+AllowedIPs = 10.8.0.2/32
+EOT
+cat > wg0-client.conf.example << 'EOT'
+[Interface]
+Address = 10.8.0.2/24
+PrivateKey = <contenuto di client.key>
+
+[Peer]
+# produzione
+PublicKey = <contenuto di server.pub>
+Endpoint = produzione:51820
+AllowedIPs = 10.8.0.0/24, 10.20.2.0/24
+PersistentKeepalive = 25
+EOT
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 08 pronto in $DEST: una cartella per ogni .md"
     echo "Server: produzione, staging (dal client), db-interno (solo via produzione)"
