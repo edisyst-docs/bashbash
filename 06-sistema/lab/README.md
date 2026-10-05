@@ -34,6 +34,7 @@ All'uscita il container viene eliminato: utenti creati, servizi installati e cro
 | `08-tmux/` | `monitor.sh` | lo script del `.md`, con `/var/log/syslog` al posto del log di Laravel |
 | `09-crontab/` | `crontab-esempio` | `crontab 09-crontab/crontab-esempio`: dopo un minuto compare `09-crontab/orario.txt`, e `grep CRON /var/log/syslog` mostra le esecuzioni |
 | `10-logrotate/` | `genera_log.sh`, `mio_test` (la config), `logrotate.sh` | per `logrotate.sh` c'è già `/tmp/mylog` |
+| `11-backup/` | `restic-backup.sh`, `.service`, `.timer`, `restic.env.example`, `restic-escludi` | i file del `.md`; in `/srv/sito` c'è il "sito" da salvare (html e uploads da tenere, cache e log da escludere). restic 0.19.1 è già nell'immagine; per provare `sftp:` basta il `sshd` del container |
 
 Da sapere:
 - `journalctl -p err -b` mostra degli errori `bpf-firewall: Attaching egress BPF program ... failed`: dipendono dal

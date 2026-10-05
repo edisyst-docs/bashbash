@@ -160,6 +160,18 @@ EOF
 chmod +x genera_log.sh
 seq 1 200 | sed 's/^/riga di log /' > /tmp/mylog 2>/dev/null || true   # il log su cui lavora logrotate.sh
 
+# ---------------------------------------------------------------- 11-backup
+# il "sito" da salvare: html e uploads contano, cache e log no
+sezione 11-backup
+cp "$AREA/11-backup/"{restic-backup.sh,restic-backup.service,restic-backup.timer,restic.env.example,restic-escludi} .
+mkdir -p /srv/sito/{html,uploads,cache,log} 2>/dev/null || true
+if [[ -d /srv/sito/html ]]; then
+    echo '<h1>Il mio sito</h1>' > /srv/sito/html/index.html
+    seq 1 20000 > /srv/sito/uploads/catalogo.txt
+    echo 'file temporaneo' > /srv/sito/cache/pagina.tmp
+    echo 'accesso di prova' > /srv/sito/log/accessi.log
+fi
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 06 pronto in $DEST: una cartella per ogni .md"
     echo "Il container ha systemd: systemctl, journalctl, ssh, nginx, apache2 (porta 8080), cron, fail2ban"
