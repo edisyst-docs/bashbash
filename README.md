@@ -111,6 +111,10 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 3. [namespace](10-rete-e-web/03-namespace.md) — laboratorio: più host su una sola macchina con `ip netns`
 4. [apache e nginx](10-rete-e-web/04-apache-nginx.md) — siti, moduli, virtual host, Laravel con PHP-FPM, reverse proxy, HTTPS con `certbot`
 5. [load balancer](10-rete-e-web/05-load-balancer/) — laboratorio Docker con HAProxy, Nginx, Caddy, Envoy, Traefik
+6. [server dns](10-rete-e-web/06-dns-server.md) — `dnsmasq` e BIND, zone, secondario, `rndc`
+7. [posta](10-rete-e-web/07-posta-postfix.md) — Postfix e Dovecot, coda, rimbalzi, alias, IMAP
+8. [condivisioni](10-rete-e-web/08-condivisioni-nfs-samba.md) — NFS e Samba, `exports`, `root_squash`, `mount.cifs`
+9. [alta disponibilità](10-rete-e-web/09-alta-disponibilita-keepalived.md) — `keepalived`, IP virtuale e failover
 
 ### [11-container-e-automazione/](11-container-e-automazione/) — container, orchestrazione, CI/CD e infrastruttura come codice
 1. [docker](11-container-e-automazione/01-docker.md) — CLI: `run`, `exec`, `logs`, immagini, pulizia, porte, policy riavvio
@@ -169,7 +173,7 @@ servizi c'è anche un `lab/compose.yaml`:
 | 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban; indirizzi fissi e WireGuard per la VPN |
 | 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
-| 10 | una rete con un router in mezzo (host, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace e web server |
+| 10 | una rete con un router in mezzo (host, host2, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace, web server, DNS, posta, NFS/Samba e keepalived |
 | 12 | Prometheus, Alertmanager, Grafana, Loki, Alloy, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
 
 I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability

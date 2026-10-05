@@ -1,10 +1,11 @@
 # Laboratorio dell'area 10: lo avvia ./lab.sh 10 dalla radice della KB.
 #
-#   host (10.10.1.10) ---- rete "lan" ---- router ---- rete "dmz" ---- web (10.10.2.10)
+#   host (10.10.1.10) + host2 (10.10.1.11) ---- rete "lan" ---- router ---- rete "dmz" ---- web (10.10.2.10)
 #                                     10.10.1.254  10.10.2.254
 #
 # - host: dove si lavora (lab.sh entra qui). Ubuntu con systemd, nginx (80) e apache2 (8080).
 #   CAP_NET_ADMIN per ip addr/route/link e tcpdump, CAP_SYS_ADMIN per systemd e ip netns.
+# - host2: un secondo computer nella stessa rete lan (10.10.1.11): secondario DNS, seconda metà della coppia keepalived
 # - router: inoltra i pacchetti tra le due reti (ip_forward=1): traceroute verso web mostra un salto in mezzo
 # - web: un server nell'altra rete, con nginx che risponde "risposta da web" e apache2 sulla 8080
 # Niente --privileged e nessuna porta pubblicata: tutto resta dentro queste due reti.
@@ -31,6 +32,7 @@ x-systemd: &systemd
 services:
   host:
     <<: *systemd
+    cap_add: [SYS_ADMIN, NET_ADMIN, DAC_READ_SEARCH]   # DAC_READ_SEARCH: mount.cifs lo vuole (08-condivisioni-nfs-samba)
     hostname: host
     networks:
       lan: {ipv4_address: 10.10.1.10}
@@ -39,6 +41,17 @@ services:
       - "router:10.10.1.254"
     post_start:
       - command: ip route add 10.10.2.0/24 via 10.10.1.254     # la dmz si raggiunge passando dal router
+
+  host2:
+    <<: *systemd
+    hostname: host2
+    networks:
+      lan: {ipv4_address: 10.10.1.11}
+    extra_hosts:
+      - "web:10.10.2.10"
+      - "router:10.10.1.254"
+    post_start:
+      - command: ip route add 10.10.2.0/24 via 10.10.1.254
 
   router:
     image: bashbash
