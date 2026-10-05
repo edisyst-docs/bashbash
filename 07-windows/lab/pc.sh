@@ -4,8 +4,16 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get -o Acquire::Retries=5 update -qq
-apt-get -o Acquire::Retries=5 install -y -qq samba-common-bin smbclient krb5-user ldap-utils libsasl2-modules-gssapi-mit winbind dnsutils
+# la rete di un runner CI a volte fallisce a metà di apt: si riprova tutto (fino a 4 volte)
+for tentativo in 1 2 3 4; do
+    apt-get -o Acquire::Retries=5 update -qq \
+        && apt-get -o Acquire::Retries=5 install -y -qq samba-common-bin smbclient krb5-user ldap-utils libsasl2-modules-gssapi-mit winbind dnsutils \
+        && break
+    (( tentativo < 4 )) || exit 1
+    echo "apt non è riuscito (tentativo $tentativo): riprovo tra 5 secondi" >&2
+    sleep 5
+done
+
 
 cat > /etc/krb5.conf <<'KRB'
 [libdefaults]
