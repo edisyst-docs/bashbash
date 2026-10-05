@@ -10,8 +10,8 @@ PASSWORD='Passw0rd!2026'
 IP=10.30.0.10
 INOLTRO=$(sed -n 's/^nameserver //p' /etc/resolv.conf | head -1)        # il DNS di Docker: risolve internet per conto del dominio
 
-apt-get update -qq
-apt-get install -y -qq samba-ad-dc krb5-user ldap-utils libsasl2-modules-gssapi-mit smbclient dnsutils
+apt-get -o Acquire::Retries=5 update -qq
+apt-get -o Acquire::Retries=5 install -y -qq samba-ad-dc krb5-user ldap-utils libsasl2-modules-gssapi-mit smbclient dnsutils
 
 # i servizi "da file server" non vanno con il controller di dominio: lo fa samba-ad-dc
 systemctl disable --now smbd nmbd winbind 2> /dev/null || true

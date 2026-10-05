@@ -4,8 +4,8 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update -qq
-apt-get install -y -qq samba-common-bin smbclient krb5-user ldap-utils libsasl2-modules-gssapi-mit winbind dnsutils
+apt-get -o Acquire::Retries=5 update -qq
+apt-get -o Acquire::Retries=5 install -y -qq samba-common-bin smbclient krb5-user ldap-utils libsasl2-modules-gssapi-mit winbind dnsutils
 
 cat > /etc/krb5.conf <<'KRB'
 [libdefaults]
