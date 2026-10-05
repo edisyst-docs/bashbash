@@ -1,0 +1,62 @@
+# Laboratorio dell'area 07: lo avvia ./lab.sh 07 dalla radice della KB.
+#
+#   pc01 (10.30.0.5) ---- rete "ad" ---- dc1 (10.30.0.10)
+#
+# - dc1: un controller di dominio Active Directory (Samba 4) per il dominio lab.test (NetBIOS LAB), con DNS, Kerberos e LDAP.
+#   Ubuntu con systemd: lo installa e lo configura dc.sh al primo avvio (qualche minuto, serve internet).
+#   Utente amministratore: administrator, password Passw0rd!2026
+# - pc01: dove si lavora (lab.sh entra qui). Una macchina "del dominio" con gli strumenti per amministrarlo da remoto
+#   (samba-tool, ldapsearch, kinit, net ads) e per entrarci (net ads join). La configura pc.sh.
+# Né dc1 né pc01 sono --privileged: dc1 ha CAP_SYS_ADMIN solo per systemd. Nessuna porta pubblicata.
+name: lab-07
+x-lab-entra: pc01
+
+services:
+  dc1:
+    image: bashbash-systemd
+    build:
+      context: ../..
+      target: systemd
+    hostname: dc1
+    cgroup: private
+    cap_add: [SYS_ADMIN]
+    security_opt: ["apparmor:unconfined"]        # AppArmor vieterebbe il remount del cgroup (vedi il Dockerfile)
+    tmpfs: [/run, /run/lock]
+    volumes:
+      - ../..:/kb:ro
+    networks:
+      ad: {ipv4_address: 10.30.0.10}
+    post_start:
+      - command: bash /kb/07-windows/lab/dc.sh
+    healthcheck:                                  # pronto quando dc.sh ha finito e l'AD risponde
+      test: ["CMD-SHELL", "test -f /run/dc-pronto"]
+      interval: 3s
+      timeout: 3s
+      retries: 200
+
+  pc01:
+    image: bashbash
+    pull_policy: never
+    hostname: pc01
+    init: true
+    command: ["sleep", "infinity"]
+    dns: [10.30.0.10]                             # il DNS del dominio: serve per trovare il controller (record SRV)
+    dns_search: [lab.test]
+    volumes:
+      - ../..:/kb:ro
+    networks:
+      ad: {ipv4_address: 10.30.0.5}
+    depends_on:
+      dc1: {condition: service_healthy}
+    post_start:
+      - command: bash /kb/07-windows/lab/pc.sh
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /run/pc-pronto"]
+      interval: 3s
+      timeout: 3s
+      retries: 100
+
+networks:
+  ad:
+    ipam:
+      config: [{subnet: 10.30.0.0/24}]

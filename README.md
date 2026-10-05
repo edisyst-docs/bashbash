@@ -88,6 +88,9 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 4. [powershell scripting](07-windows/04-powershell-scripting.md) — variabili, condizioni, cicli, funzioni con `param()`, errori
 5. [WSL e winget](07-windows/05-wsl-e-winget.md) — gestione di WSL, interoperabilità, configurazione, `winget`
 6. [CMD rete e sistema](07-windows/06-cmd-rete-e-sistema.md) — `ipconfig`, `tracert`, `netstat`, `netsh`, `tasklist`, `net`, `systeminfo`
+7. [task scheduler](07-windows/07-task-scheduler.md) — `schtasks` e ScheduledTasks: azioni, trigger, codici di uscita
+8. [scoop e chocolatey](07-windows/08-scoop-e-chocolatey.md) — altri gestori di pacchetti, a confronto con `winget`
+9. [active directory](07-windows/09-active-directory.md) — dominio, utenti e gruppi, LDAP e Kerberos, join, GPO; con un controller di dominio Samba 4
 
 ### [08-remoto-e-sicurezza/](08-remoto-e-sicurezza/) — server remoti
 1. [ssh](08-remoto-e-sicurezza/01-ssh.md) — chiavi, `~/.ssh/config`, `scp`, `sftp`, tunnel, multiplexing, WinSCP
@@ -162,7 +165,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 
 ---
 
-Le aree 02, 03, 04, 05, 06, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+Le aree 02, 03, 04, 05, 06, 07, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
 servizi c'è anche un `lab/compose.yaml`:
@@ -171,6 +174,7 @@ servizi c'è anche un `lab/compose.yaml`:
 |---|---|
 | 04 | un container con limiti veri (256 MB di RAM senza swap, 1 CPU) e `strace`/`perf` abilitati, per OOM killer, throttling e processi appesi |
 | 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
+| 07 | un controller di dominio Active Directory (Samba 4, `lab.test`) e un PC con `samba-tool`, `ldapsearch` e `kinit` per amministrarlo ed entrarci |
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban; indirizzi fissi e WireGuard per la VPN |
 | 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
 | 10 | una rete con un router in mezzo (host, host2, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace, web server, DNS, posta, NFS/Samba e keepalived |
