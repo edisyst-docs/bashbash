@@ -51,7 +51,7 @@ ARG RESTIC_SHA256_ARM64=a5f64aaab53d51e311fa3829124c5b703f2d14cf187d8640b6be3b2b
 ARG TARGETARCH
 WORKDIR /tmp
 RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
-    && curl -fsSL "https://github.com/restic/restic/releases/download/v$RESTIC/restic_${RESTIC}_linux_$arch.bz2" -o restic.bz2 \
+    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://github.com/restic/restic/releases/download/v$RESTIC/restic_${RESTIC}_linux_$arch.bz2" -o restic.bz2 \
     && if [ "$arch" = arm64 ]; then sha=$RESTIC_SHA256_ARM64; else sha=$RESTIC_SHA256_AMD64; fi \
     && echo "$sha  restic.bz2" | sha256sum -c - \
     && bunzip2 restic.bz2 \
