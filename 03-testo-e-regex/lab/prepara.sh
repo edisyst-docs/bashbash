@@ -180,6 +180,55 @@ git -C progetto -c user.name=lab -c user.email=lab@example.com commit -qm "stato
 sezione 05-vim
 head -n 120 "$LAB_SRC/materiale/divina_commedia.txt" > testo.txt
 
+# ---------------------------------------------------------------- 06-esercizi
+sezione 06-esercizi
+access_log > access.log
+awk 'BEGIN { split("Roma Milano Napoli Torino", n, " "); split("penna quaderno zaino righello", p, " "); split("1.50 3.20 24.90 0.80", pr, " ")
+    print "data,negozio,prodotto,quantita,prezzo"
+    for (i = 0; i < 60; i++) printf "2026-09-%02d,%s,%s,%d,%s\n", 1 + i % 28, n[1 + i % 4], p[1 + (i * 3) % 4], 1 + (i * 7) % 9, pr[1 + (i * 3) % 4] }' > vendite.csv
+cat > contatti.txt << 'EOT'
+Anna Rossi <anna.rossi@example.com> tel: 333 1234567
+Bruno Verdi (bruno.verdi(at)example.com) tel: 340-7654321
+Carla Neri <carla@> tel: 06 1234567
+Dario Blu <dario@example> tel: 3471112233
+Elena Gialli <elena_g@mail.example.org> tel: 06 7654321
+Fabio Bruni <fabio-b@sub.dominio.it> tel: 328 9990001
+Gina Moro lavora con luigi @ example.com tel: 02 555 1212
+Hugo Fabbri <hugo.fabbri@example.co.uk> tel: 3665554433
+EOT
+cat > app.ini << 'EOT'
+; configurazione dell'applicazione
+[app]
+nome = demo
+debug = true
+
+# il database
+[db]
+host = localhost
+debug = true
+port = 5432
+
+; la cache
+[cache]
+debug = true
+ttl = 60
+EOT
+cat > passwd.txt << 'EOT'
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+anna:x:1000:1000:Anna Rossi:/home/anna:/bin/bash
+bruno:x:1001:1001:Bruno Verdi:/home/bruno:/bin/zsh
+carla:x:1002:1002:Carla Neri:/home/carla:/bin/bash
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+dario:x:1500:1500:Dario Blu:/home/dario:/bin/bash
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+EOT
+printf 'prima\nSTART\nuno\ndue\ntre\nEND\ndopo\nSTART\nquattro\nEND\nfine\n' > note.txt
+mkdir -p risposte
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 03 pronto in $DEST: una cartella per ogni .md"
     ls "$DEST" | sed 's/^/  /'

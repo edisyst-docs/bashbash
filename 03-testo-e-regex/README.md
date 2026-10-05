@@ -9,6 +9,7 @@ Cercare, filtrare, trasformare ed editare testo. Sono gli strumenti che userai d
 | 03 | [regex](03-regex.md) | BRE e ERE: metacaratteri, modificatori, esempi |
 | 04 | [sed](04-sed.md) | Stream editor: stampa, inserimento, sostituzione, gruppi di cattura |
 | 05 | [vim](05-vim.md) | I 4 modi di VIM e i comandi di ciascuno |
+| 06 | [esercizi](06-esercizi.md) | 18 esercizi con verifica automatica: `grep`, `awk`, `sed` e regex su log, CSV, file INI e `passwd` |
 
 **Laboratorio**: `./lab.sh 03` dalla radice della KB apre un container usa-e-getta con una cartella
 per ogni `.md`, già piena di testi, log e CSV su cui provare i comandi. Dettagli in [lab/](lab/).
