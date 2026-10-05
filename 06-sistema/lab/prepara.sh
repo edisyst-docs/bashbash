@@ -172,6 +172,14 @@ if [[ -d /srv/sito/html ]]; then
     echo 'accesso di prova' > /srv/sito/log/accessi.log
 fi
 
+# ---------------------------------------------------------------- 12-storage-avanzato
+# nel container si provano i filesystem su file immagine (mke2fs -d popola un'immagine da questa cartella);
+# LVM, RAID, SMART e automount richiedono un kernel e dei dischi veri: vedi il .md
+sezione 12-storage
+mkdir -p src
+seq 1 5000 > src/numeri.txt
+echo 'file di prova' > src/note.txt
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 06 pronto in $DEST: una cartella per ogni .md"
     echo "Il container ha systemd: systemctl, journalctl, ssh, nginx, apache2 (porta 8080), cron, fail2ban"

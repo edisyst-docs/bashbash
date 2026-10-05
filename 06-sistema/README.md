@@ -1,6 +1,6 @@
 # 06 - Sistema
 
-Amministrazione della macchina: utenti, pacchetti, dischi, schedulazione, log, backup.
+Amministrazione della macchina: utenti, pacchetti, dischi e storage, schedulazione, log, backup.
 
 | # | File | Contenuto |
 |---|---|---|
@@ -15,6 +15,7 @@ Amministrazione della macchina: utenti, pacchetti, dischi, schedulazione, log, b
 | 09 | [crontab](09-crontab.md) | Sintassi, crontab reale, `flock`, backup MySQL con rotazione |
 | 10 | [logrotate](10-logrotate/) | Rotazione dei log, con script e configurazione di esempio |
 | 11 | [backup](11-backup/) | Backup con restic: snapshot cifrati e deduplicati, rotazione, controllo, ripristino; timer systemd e cron |
+| 12 | [storage avanzato](12-storage-avanzato.md) | File immagine e loop, `resize2fs`, LVM (PV, VG, LV, snapshot, `pvmove`), RAID con `mdadm`, `smartctl`, autofs e `x-systemd.automount` |
 
 **Laboratorio**: `./lab.sh 06` dalla radice della KB apre un container Ubuntu con systemd come PID 1:
 `systemctl`, `journalctl`, timer, cron e servizi veri (ssh, nginx, apache2, fail2ban). Dettagli in [lab/](lab/).

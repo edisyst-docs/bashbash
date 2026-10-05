@@ -33,6 +33,8 @@ cat /etc/fstab | grep -v '#'                   # mostra i dischi montati automat
 cat /etc/systemd/system/snap-snapd-21759.mount # esempio di configurazione di un disco montato via systemd
 ```
 
+Per ingrandire un volume a caldo, spostarlo fra dischi, mettere più dischi in RAID, leggere lo stato SMART o montare solo all'accesso (`x-systemd.automount`, autofs): [12-storage-avanzato.md](12-storage-avanzato.md).
+
 ## Esempi pratici
 ```bash
 findmnt                          # albero dei mount: più leggibile di mount
