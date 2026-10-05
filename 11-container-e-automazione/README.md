@@ -9,7 +9,7 @@ Docker, compose, swarm e Kubernetes; CI/CD con Jenkins, GitLab e GitHub Actions,
 | 03 | [volumi e reti](03-volumi-e-reti.md) | Volumi con nome, bind mount, rete bridge e host, overlay, DNS interno, NAT |
 | 04 | [compose](04-compose/) | `compose.yaml`, variabili, healthcheck, init DB; lab php+mysql, mysql+phpmyadmin, postgres |
 | 05 | [swarm](05-swarm/) | Cluster, servizi, repliche, aggiornamenti a rotazione, rollback, reti overlay, stack |
-| 06 | [kubernetes](06-kubernetes/) | Architettura, kind, `kubectl`, Deployment, Service, ConfigMap e Secret, storage, probe, HPA, Ingress e Gateway, Helm; 7 laboratori |
+| 06 | [kubernetes](06-kubernetes/) | Architettura, kind, `kubectl`, Deployment, Service, ConfigMap e Secret, storage, probe, HPA, Ingress e Gateway, Helm, NetworkPolicy, cert-manager, CRD e operatori; 10 laboratori |
 | 07 | [jenkins](07-jenkins/) | Laboratorio configurato da codice (JCasC, Docker in Docker, agenti), Jenkinsfile Declarative, 9 pipeline di esempio, API REST |
 | 08 | [ansible](08-ansible/) | Inventory, playbook, moduli, group_vars; laboratorio Docker master→slave |
 | 09 | [terraform](09-terraform/) | Infrastructure as Code: HCL, variabili, `for_each`, moduli, stato, import; esempi Docker, AWS e Kubernetes |

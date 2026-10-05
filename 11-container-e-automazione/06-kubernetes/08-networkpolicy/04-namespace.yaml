@@ -1,0 +1,17 @@
+# Da altri namespace: namespaceSelector sulle etichette del namespace. Qui web accetta traffico dal namespace "monitoring".
+# podSelector e namespaceSelector nello STESSO elemento di from = AND (Pod con quell'etichetta, in quel namespace);
+# in due elementi separati (due trattini) = OR.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-da-monitoring
+  namespace: shop
+spec:
+  podSelector: { matchLabels: { app: web } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: monitoring } }
+          podSelector: { matchLabels: { app: prometheus } }
+      ports:
+        - { port: 80, protocol: TCP }

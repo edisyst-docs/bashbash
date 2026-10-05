@@ -1,0 +1,8 @@
+# Una risorsa del tipo nuovo: si crea, si legge e si cancella con kubectl come un Deployment.
+apiVersion: lab.example.com/v1
+kind: Sito
+metadata:
+  name: vetrina
+spec:
+  titolo: Benvenuti nella vetrina
+  repliche: 2

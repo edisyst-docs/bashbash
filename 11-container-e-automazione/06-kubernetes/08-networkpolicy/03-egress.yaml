@@ -1,0 +1,21 @@
+# Anche l'uscita si può chiudere: i Pod api possono parlare solo con db, più il DNS. Senza la regola DNS
+# non si risolve nemmeno il nome "db": è l'errore più comune con le policy di egress.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-uscita
+  namespace: shop
+spec:
+  podSelector: { matchLabels: { app: api } }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector: { matchLabels: { app: db } }
+      ports:
+        - { port: 80, protocol: TCP }
+    - to:                                       # il DNS del cluster (CoreDNS, nel namespace kube-system)
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: kube-system } }
+          podSelector: { matchLabels: { k8s-app: kube-dns } }
+      ports:
+        - { port: 53, protocol: UDP }
+        - { port: 53, protocol: TCP }

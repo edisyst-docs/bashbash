@@ -1,0 +1,56 @@
+# Un nginx con HTTPS: il certificato lo chiede cert-manager con una risorsa Certificate, e finisce nel Secret "sito-tls".
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sito
+  namespace: tls
+spec:
+  secretName: sito-tls                 # dove cert-manager scrive tls.crt, tls.key e ca.crt
+  dnsNames: [sito.example.com]
+  duration: 2160h                      # 90 giorni
+  renewBefore: 720h                    # rinnovo automatico 30 giorni prima della scadenza
+  privateKey: { algorithm: ECDSA, size: 256, rotationPolicy: Always }
+  issuerRef: { name: ca-lab, kind: ClusterIssuer }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: nginx-tls, namespace: tls }
+data:
+  default.conf: |
+    server {
+      listen 8443 ssl;
+      server_name sito.example.com;
+      ssl_certificate     /certs/tls.crt;
+      ssl_certificate_key /certs/tls.key;
+      location / { return 200 "HTTPS ok da $hostname\n"; add_header Content-Type text/plain; }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: sito, namespace: tls }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: sito } }
+  template:
+    metadata: { labels: { app: sito } }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.29-alpine
+          ports: [{ containerPort: 8443 }]
+          volumeMounts:
+            - { name: conf, mountPath: /etc/nginx/conf.d }
+            - { name: certs, mountPath: /certs, readOnly: true }
+      volumes:
+        - { name: conf, configMap: { name: nginx-tls } }
+        - { name: certs, secret: { secretName: sito-tls } }     # il Pod parte solo quando il Secret esiste
+---
+apiVersion: v1
+kind: Service
+metadata: { name: sito, namespace: tls }
+spec: { selector: { app: sito }, ports: [{ port: 443, targetPort: 8443 }] }

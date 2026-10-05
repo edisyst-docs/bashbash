@@ -118,7 +118,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 3. [volumi e reti](11-container-e-automazione/03-volumi-e-reti.md) — volumi, bind mount, bridge, host, DNS interno, NAT
 4. [compose](11-container-e-automazione/04-compose/) — `compose.yaml`, healthcheck, init DB; lab php+mysql, phpmyadmin, postgres
 5. [swarm](11-container-e-automazione/05-swarm/) — cluster, servizi, repliche, aggiornamenti a rotazione, stack
-6. [kubernetes](11-container-e-automazione/06-kubernetes/) — cluster locale con kind, `kubectl`, Deployment, Service, ConfigMap, storage, probe, autoscaling, Ingress e Gateway, Helm; 7 laboratori
+6. [kubernetes](11-container-e-automazione/06-kubernetes/) — cluster locale con kind, `kubectl`, Deployment, Service, ConfigMap, storage, probe, autoscaling, Ingress e Gateway, Helm, NetworkPolicy, cert-manager, CRD e operatori; 10 laboratori
 7. [jenkins](11-container-e-automazione/07-jenkins/) — laboratorio configurato da codice, Jenkinsfile Declarative, 9 pipeline di esempio, API REST e CLI
 8. [ansible](11-container-e-automazione/08-ansible/) — inventory, playbook, moduli; laboratorio Docker master→slave
 9. [terraform](11-container-e-automazione/09-terraform/) — infrastruttura come codice: HCL, moduli, stato, import; esempi Docker, AWS, Kubernetes
