@@ -11,8 +11,12 @@ I comandi di rete di base (`ip -br a`, `ss`, `dig +short`, `curl -I`) sono in [.
 | 03 | [03-namespace.sh](03-namespace.sh) | Script che crea e smonta tre host collegati a un bridge |
 | 04 | [apache e nginx](04-apache-nginx.md) | Siti e moduli, verifica e reload, virtual host, Laravel con PHP-FPM, reverse proxy, HTTPS con `certbot` |
 | 05 | [load balancer](05-load-balancer/) | Laboratorio Docker: HAProxy dietro HAProxy, Nginx, Caddy, Envoy o Traefik |
+| 06 | [server dns](06-dns-server.md) | `dnsmasq` e BIND: record, MX, zone inversa, cache, secondario con `AXFR`, serial e `NOTIFY`, `rndc` |
+| 07 | [posta](07-posta-postfix.md) | Postfix e Dovecot: MX, `main.cf` e `postconf`, coda, rimbalzi, relay, alias, IMAP; conversazioni SMTP e IMAP a mano |
+| 08 | [condivisioni](08-condivisioni-nfs-samba.md) | NFS (`exports`, v3 e v4, `root_squash`) e Samba (utenti, gruppi, `mount.cifs`) |
+| 09 | [alta disponibilità](09-alta-disponibilita-keepalived.md) | `keepalived` e VRRP: IP virtuale, controllo del servizio, failover e preempt |
 
-**Laboratorio**: `./lab.sh 10` dalla radice della KB avvia una piccola rete (host, router, web) in cui provare
+**Laboratorio**: `./lab.sh 10` dalla radice della KB avvia una piccola rete (host, host2, router, web) in cui provare
 `ip`, `traceroute`, `tcpdump`, `nmap`, i namespace, nginx e apache2. Dettagli in [lab/](lab/).
 
 Area precedente: [../09-strumenti/](../09-strumenti/) · Prossima: [../11-container-e-automazione/](../11-container-e-automazione/) · Torna all'[indice](../README.md)
