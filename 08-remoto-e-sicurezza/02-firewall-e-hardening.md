@@ -31,6 +31,7 @@ sudo ufw limit OpenSSH                                      # rate limit: blocca
 sudo ufw status numbered                                    # regole numerate...
 sudo ufw delete 3                                           # ...per eliminarle per numero
 sudo ufw app list                                           # profili disponibili
+sudo ufw route allow in on wg0 to 10.20.2.0/24                 # pacchetti INOLTRATI (la policy "routed" è deny): serve a un router o a un peer VPN, vedi 04-vpn-wireguard.md
 sudo ufw disable                                            # disattiva (le regole restano salvate)
 ```
 > **ATTENZIONE**: Docker scrive le sue regole direttamente nel firewall del kernel e **scavalca ufw**:

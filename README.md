@@ -93,6 +93,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 1. [ssh](08-remoto-e-sicurezza/01-ssh.md) — chiavi, `~/.ssh/config`, `scp`, `sftp`, tunnel, multiplexing, WinSCP
 2. [firewall e hardening](08-remoto-e-sicurezza/02-firewall-e-hardening.md) — `ufw`, sshd, `fail2ban`, aggiornamenti automatici
 3. [gpg](08-remoto-e-sicurezza/03-gpg.md) — cifrare e firmare file, chiavi pubbliche e private
+4. [vpn wireguard](08-remoto-e-sicurezza/04-vpn-wireguard.md) — tunnel cifrato fra macchine, `wg-quick`, `AllowedIPs`, NAT, `ufw route`
 
 ### [09-strumenti/](09-strumenti/) — CLI di uso quotidiano
 1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale, download con `wget`
@@ -165,7 +166,7 @@ servizi c'è anche un `lab/compose.yaml`:
 |---|---|
 | 04 | un container con limiti veri (256 MB di RAM senza swap, 1 CPU) e `strace`/`perf` abilitati, per OOM killer, throttling e processi appesi |
 | 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
-| 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban |
+| 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban; indirizzi fissi e WireGuard per la VPN |
 | 09 | MySQL 9.7 con un database popolato e un'API finta su `http://api` |
 | 10 | una rete con un router in mezzo (host, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace e web server |
 | 12 | Prometheus, Alertmanager, Grafana, Loki, Alloy, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |

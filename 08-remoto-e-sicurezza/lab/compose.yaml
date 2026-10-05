@@ -38,26 +38,38 @@ services:
     pull_policy: never
     hostname: client
     init: true
+    cap_add: [NET_ADMIN]                       # per creare l'interfaccia wg0 (area 08, 04-vpn-wireguard)
     command: ["sleep", "infinity"]
     volumes:
       - ../..:/kb:ro
-    networks: [esterna]
+    networks:
+      esterna: {ipv4_address: 10.20.1.5}
 
   produzione:
     <<: *server
     hostname: produzione
-    networks: [esterna, interna]
+    networks:
+      esterna: {ipv4_address: 10.20.1.10}
+      interna: {ipv4_address: 10.20.2.10}
+    sysctls:
+      net.ipv4.ip_forward: 1                   # produzione fa da router verso la rete interna (VPN)
 
   staging:
     <<: *server
     hostname: staging
-    networks: [esterna]
+    networks:
+      esterna: {ipv4_address: 10.20.1.30}
 
   db-interno:
     <<: *server
     hostname: db-interno
-    networks: [interna]
+    networks:
+      interna: {ipv4_address: 10.20.2.20}
 
 networks:
   esterna:
+    ipam:
+      config: [{subnet: 10.20.1.0/24}]       # subnet fisse: la VPN (04-vpn-wireguard) instrada verso la rete interna
   interna:
+    ipam:
+      config: [{subnet: 10.20.2.0/24}]

@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y \
     curl wget jq \
     iproute2 net-tools iputils-ping dnsutils \
     traceroute iputils-tracepath mtr-tiny whois iftop tcpdump nmap netcat-openbsd ipcalc \
-    openssh-client gnupg \
+    openssh-client gnupg wireguard-tools \
     # sistema e terminale
     sudo adduser cron logrotate tmux \
     # git e client mysql
