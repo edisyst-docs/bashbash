@@ -283,6 +283,31 @@ EOF
 chmod +x script.sh trap-err.sh lock.sh interrompi.sh
 for n in 1 2 3 4 5; do echo "id,valore" > "dati$n.csv"; done
 
+# ---------------------------------------------------------------- 13-esercizi
+sezione 13-esercizi
+mkdir -p palestra risposte
+(
+    cd palestra
+    printf 'prima riga\nseconda riga\nterza riga\n' > testo.txt
+    printf 'uno\ndue\n' > "con spazio.txt"
+    : > vuoto.txt
+    printf 'nome,eta,punti\nanna,31,120\nbruno,45,80\ncarla,28,200\n' > dati.csv
+    printf 'Il gatto e il cane.\nIl gatto dorme; il cane no.\nGatto, gatto!\n' > parole.txt
+    mkdir -p misto vuota
+    touch misto/a.txt misto/b.txt misto/c.sh misto/pagina.php misto/Makefile misto/backup.tar.gz misto/.nascosto
+    mkdir -p misto/sotto; touch misto/sotto/z.txt
+    # un comando che fallisce le prime due volte e poi riesce: per riprova.sh
+    cat > flaky.sh << 'EOT'
+#!/usr/bin/env bash
+n=$(cat conta.n 2> /dev/null || echo 0)
+echo $((n + 1)) > conta.n
+[[ $((n + 1)) -ge 3 ]]
+EOT
+    chmod +x flaky.sh
+)
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 05 pronto in $DEST: una cartella per ogni .md"
     ls "$DEST" | sed 's/^/  /'

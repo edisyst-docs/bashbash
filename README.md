@@ -68,6 +68,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 10. [quoting](05-scripting/10-quoting.md) — apici singoli, doppi, `$'...'`, `printf`
 11. [funzioni](05-scripting/11-funzioni.md) — argomenti, valori di ritorno, `local`, librerie
 12. [trap e debug](05-scripting/12-trap-e-debug.md) — `trap`, `set -Eeuo pipefail`, `bash -x`, `shellcheck`
+13. [esercizi](05-scripting/13-esercizi.md) — 16 esercizi: si scrive lo script, `verifica.sh` lo prova con più casi
 
 ### [06-sistema/](06-sistema/) — amministrazione della macchina
 1. [filesystem](06-sistema/01-filesystem.md) — la struttura di Debian/Ubuntu, cartella per cartella

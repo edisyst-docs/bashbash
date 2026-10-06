@@ -33,6 +33,7 @@ bash /kb/05-scripting/lab/prepara.sh && cd ~/lab
 | `10-quoting/` | `uno.txt`, `due.txt`, `leggimi.md`, `note.md`, `src/` con una cartella `cache dir`, `dst/` | glob con e senza virgolette, `rsync "${opzioni[@]}"`, tabella con `printf` |
 | `11-funzioni/` | `lib.sh` (la libreria del `.md`), `esempi/`, `app.conf`, `img/*.jpg` | `source lib.sh`, `albero esempi`, `export -f` con `xargs` |
 | `12-trap-e-debug/` | `script.sh` (con difetti per `bash -x` e `shellcheck`), `trap-err.sh`, `lock.sh`, `interrompi.sh`, `dati1..5.csv` | `./lock.sh &` e poi di nuovo `./lock.sh`; `./interrompi.sh` e CTRL+C a metà |
+| `13-esercizi/` | `palestra/` (`testo.txt`, `con spazio.txt`, `dati.csv`, `parole.txt`, `misto/`, `flaky.sh`...), `risposte/`, `verifica.sh` | le risposte sono **script** in `risposte/NN.sh`; `./verifica.sh [N]` li lancia su più casi ([casi.txt](casi.txt)) in una copia nuova della palestra e li confronta con [soluzioni/](soluzioni/): output, codice d'uscita, presenza di stderr, file lasciati in `TMPDIR` |
 
 Gli esempi che parlano di server, MySQL, `systemctl` o API esterne (`curl https://api.example.com`)
 restano da provare su una macchina vera.

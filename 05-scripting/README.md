@@ -17,6 +17,7 @@ così restano affiancati nell'elenco.
 | 10 | [quoting](10-quoting.md) | | Apici singoli e doppi, `$'...'`, array come argomenti, `printf` |
 | 11 | [funzioni](11-funzioni.md) | | Argomenti, `return` e output, `local`, nameref, libreria riutilizzabile |
 | 12 | [trap e debug](12-trap-e-debug.md) | | `trap`, lock con `flock`, `set -Eeuo pipefail`, `bash -x`, `PS4`, `shellcheck` |
+| 13 | [esercizi](13-esercizi.md) | 16 esercizi in cui si scrive uno script: `verifica.sh` lo prova con più casi (argomenti, stdin, file mancanti, nomi con spazi, `trap`) |
 
 Gli script di questa cartella sono appunti in forma di codice, quasi tutti commentati:
 si scommenta il blocco da provare. Per script completi e funzionanti vedi [../zz-esempi/](../zz-esempi/).
