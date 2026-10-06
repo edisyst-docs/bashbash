@@ -133,6 +133,12 @@ HTTPServer(("127.0.0.1", 3000), H).serve_forever()
 EOF
 chmod +x backend.py
 
+# ---------------------------------------------------------------- 10-esercizi
+sezione 10-esercizi
+mkdir -p risposte
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 10 pronto in $DEST: una cartella per ogni .md"
     echo "Rete: questo host 10.10.1.10 -> router 10.10.1.254 -> web 10.10.2.10 (prova: traceroute -n web)"

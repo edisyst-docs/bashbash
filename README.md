@@ -129,6 +129,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 7. [posta](10-rete-e-web/07-posta-postfix.md) — Postfix e Dovecot, coda, rimbalzi, alias, IMAP
 8. [condivisioni](10-rete-e-web/08-condivisioni-nfs-samba.md) — NFS e Samba, `exports`, `root_squash`, `mount.cifs`
 9. [alta disponibilità](10-rete-e-web/09-alta-disponibilita-keepalived.md) — `keepalived`, IP virtuale e failover
+10. [esercizi](10-rete-e-web/10-esercizi.md) — 16 esercizi su una rete vera, con verifica automatica dello stato
 
 ### [11-container-e-automazione/](11-container-e-automazione/) — container, orchestrazione, CI/CD e infrastruttura come codice
 1. [docker](11-container-e-automazione/01-docker.md) — CLI: `run`, `exec`, `logs`, immagini, pulizia, porte, policy riavvio
