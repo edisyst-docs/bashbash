@@ -13,6 +13,7 @@ Operare sui file e decidere chi può farlo.
 | 07 | [diff e rsync](07-diff-e-rsync.md) | `diff`, `cmp`, `comm`, `patch`, `rsync` |
 | 08 | [permessi](08-permessi.md) | Notazione ottale, `chmod`, bit speciali, `umask` |
 | 09 | [proprietari](09-proprietari.md) | `chown`, `chgrp`, gruppi condivisi, setgid su cartella |
+| 10 | [esercizi](10-esercizi.md) | 20 esercizi con verifica automatica: `find`, `chmod`, link, `tar`, redirezioni, `comm` e `rsync` su una palestra che si rifà a ogni controllo |
 
 **Laboratorio**: `./lab.sh 02` dalla radice della KB apre un container usa-e-getta con una cartella
 per ogni `.md`, già piena dei file che servono ai comandi. Dettagli in [lab/](lab/).

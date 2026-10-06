@@ -34,6 +34,7 @@ Creare, cercare, trasferire file e decidere chi può farlo.
 7. [diff e rsync](02-file-e-permessi/07-diff-e-rsync.md) — `diff`, `patch`, `rsync`
 8. [permessi](02-file-e-permessi/08-permessi.md) — notazione ottale, `chmod`, bit speciali, `umask`
 9. [proprietari](02-file-e-permessi/09-proprietari.md) — `chown`, `chgrp`, gruppi condivisi
+10. [esercizi](02-file-e-permessi/10-esercizi.md) — 20 esercizi con verifica automatica su una palestra di file
 
 ### [03-testo-e-regex/](03-testo-e-regex/) — cercare e trasformare testo
 Gli strumenti che userai dentro ogni script.
