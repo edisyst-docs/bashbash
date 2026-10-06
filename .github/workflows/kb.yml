@@ -72,8 +72,38 @@ jobs:
       fail-fast: false                   # un laboratorio rotto non deve nascondere gli altri
       matrix:
         area: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "zz-esempi"]
+        include:                         # oltre a bashbash, lo stadio del Dockerfile che il laboratorio costruirebbe da solo
+          - {area: "06", target: systemd}
+          - {area: "07", target: systemd}
+          - {area: "08", target: systemd}
+          - {area: "10", target: systemd}
+          - {area: "12", target: osservabilita}
+          - {area: "09", target: dati}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Le immagini si costruiscono qui, con la cache dei layer di GitHub Actions: senza, ogni job rifaceva da zero
+      # l'apt install e i download (circa 50 s su 60). lab.sh trova l'immagine già presente e non la ricostruisce.
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Immagine bashbash
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          tags: bashbash
+          load: true                                            # nel Docker locale, dove la cerca lab.sh
+          cache-from: type=gha,scope=bashbash
+          cache-to: type=gha,scope=bashbash,mode=max
+      - name: Immagine bashbash-${{ matrix.target }}
+        if: matrix.target != ''
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          tags: bashbash-${{ matrix.target }}
+          load: true
+          cache-from: |
+            type=gha,scope=bashbash
+            type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,scope=${{ matrix.target }},mode=max
       - name: ./lab.sh ${{ matrix.area }}
         env:
           AREA: ${{ matrix.area }}
