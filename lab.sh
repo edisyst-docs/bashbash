@@ -41,7 +41,7 @@ if [[ -z $CARTELLA || ! -f $KB/$CARTELLA/lab/prepara.sh ]]; then
     muori "nessun laboratorio per '$AREA'"
 fi
 
-docker info > /dev/null 2>&1 || muori "Docker non risponde: avvia Docker Desktop (o il demone)"
+docker info > /dev/null 2>&1 || muori "Docker non risponde: avvia Docker Desktop (o il demone) e aspetta che sia pronto. Altri problemi: zz-risorse/problemi-lab.md"
 if (( BUILD )) || ! docker image inspect "$IMMAGINE" > /dev/null 2>&1; then
     docker build -t "$IMMAGINE" "$KB"
 fi
@@ -82,7 +82,7 @@ if [[ -f $COMPOSE ]]; then
     stato=0
     if [[ -n $ENTRA ]]; then
         echo "Avvio i servizi del laboratorio (la prima volta costruisce le immagini)..." >&2
-        compose up -d --wait "${BUILD_COMPOSE[@]}" || muori "i servizi non sono partiti: docker compose -f \"$COMPOSE\" logs"
+        compose up -d --wait "${BUILD_COMPOSE[@]}" || muori "i servizi non sono partiti: docker compose -f \"$COMPOSE\" logs (porte occupate e altri problemi: zz-risorse/problemi-lab.md)"
         compose exec "${TTY_COMPOSE[@]}" "${AMBIENTE[@]}" "$ENTRA" bash -c "$AVVIO" || stato=$?
     else
         compose run --rm "${BUILD_COMPOSE[@]}" "${TTY_COMPOSE[@]}" "${AMBIENTE[@]}" shell bash -c "$AVVIO" || stato=$?
