@@ -7,5 +7,6 @@ nome=$1
 cognome=$2
 telefono=$3
 email=$4
-echo "$nome|$cognome|$telefono|$email" >> $RUBRICA
-echo "Inserito record n. $(wc -l $RUBRICA | cut -c 1-8)"
+echo "$nome|$cognome|$telefono|$email" >> "$RUBRICA"
+# wc -l < file stampa solo il numero (con "wc -l file" stamperebbe anche il nome del file)
+echo "Inserito record n. $(wc -l < "$RUBRICA")"
