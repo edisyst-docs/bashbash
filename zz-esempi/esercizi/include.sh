@@ -12,30 +12,31 @@ if [ $# -eq 0 ]; then
     exit 1 # gli exit status vanno da 0 a 255: "exit -1" diventerebbe 255
 fi
 # controllo se il file in ingresso e' un file regolare
-if [ ! -f $1 ]; then
+if [ ! -f "$1" ]; then
     echo "ERRORE: il file $1 non esiste o non è un file regolare" 1>&2
     exit 1
 fi
-
 # controllo l'estensione del file (modo 1: utilizzando grep)
-r=$(echo $1 | grep "\.[ch]")
+# "$" ancora il pattern alla fine del nome: senza, "prova.cpp" passerebbe (contiene ".c")
+r=$(echo "$1" | grep "\.[ch]$")
 if [ "$r" != "$1" ]; then
     echo "ERRORE: il file $1 non ha estensione .c o .h" 1>&2
     exit 2
 fi
 # controllo l'estensione del file (modo 2: utilizzando le espressioni regolari bash)
-if [[ ! $1 =~ .*\.[ch] ]]; then
+if [[ ! $1 =~ \.[ch]$ ]]; then
     echo "ERRORE: il file $1 non ha estensione .c o .h" 1>&2
     exit 2
 fi
 
 # per ogni linea verifico se c'e' un match con una espressione regolare bash
-while read line; do
-    if  [[ $line =~ \ *#\ *include\ *\"(.*)\"\ * ]]; then
+# "^": l'#include deve stare a inizio riga (dopo gli spazi): una riga commentata (// #include <x.h>) non conta
+while read -r line; do
+    if  [[ $line =~ ^[[:space:]]*#[[:space:]]*include[[:space:]]*\"(.*)\" ]]; then
 	echo "Il file \"$1\" contiene l'include locale:  ${BASH_REMATCH[1]}"
     else
-	if [[ $line =~ \ *#\ *include\ *\<(.*)\>\ * ]]; then
+	if [[ $line =~ ^[[:space:]]*#[[:space:]]*include[[:space:]]*\<(.*)\> ]]; then
 	    echo "Il file \"$1\" contiene l'include globale: ${BASH_REMATCH[1]}"
 	fi
     fi
-done < $1
+done < "$1"

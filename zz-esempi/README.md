@@ -31,4 +31,7 @@ Esercizi di scripting, ognuno con l'enunciato nei commenti in cima al file e un 
 | [include.sh](esercizi/include.sh) | Trova gli `#include` locali e globali in un sorgente C |
 | [spaziodisco.sh](esercizi/spaziodisco.sh) | Lista ordinata per dimensione dei file di una directory |
 
+**Laboratorio**: `./lab.sh zz-esempi` dalla radice della KB apre una shell usa-e-getta con i file su cui provare gli script e `verifica.sh`, che li prova con 31 casi. Provandoli sono emersi (e sono stati corretti) alcuni difetti: vedi [esercizi/](esercizi/) e [rubrica/](rubrica/). Dettagli in [lab/](lab/).
+
+
 Torna all'[indice](../README.md)

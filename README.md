@@ -173,7 +173,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 
 ---
 
-Le aree 01, 02, 03, 04, 05, 06, 07, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+Le aree 01, 02, 03, 04, 05, 06, 07, 08, 09, 10 e 12, e la cartella `zz-esempi`, hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
 servizi c'è anche un `lab/compose.yaml`:
@@ -248,7 +248,7 @@ in [11-container-e-automazione/13-github-actions/](11-container-e-automazione/13
 
 | Job | Cosa controlla |
 |---|---|
-| `shellcheck` | tutti gli script `.sh` dei laboratori e dell'area 11; restano fuori `05-scripting/*.sh` e `zz-esempi/`, che sono esempi da studiare (alcuni sbagliati apposta) |
+| `shellcheck` | tutti gli script `.sh` dei laboratori e dell'area 11; restano fuori `05-scripting/*.sh` e gli script di `zz-esempi/esercizi/` e `zz-esempi/rubrica/`, che sono esempi da studiare (alcuni sbagliati apposta); `zz-esempi/lab/` invece è controllato, e il job del laboratorio `zz-esempi` lancia anche `verifica.sh` |
 | `hadolint` | tutti i file chiamati `Dockerfile`; blocca da `warning` in su e manda il report completo a *Security > Code scanning* |
 | `link` | i link relativi nei `.md` ([.github/scripts/controlla-link.py](.github/scripts/controlla-link.py)): ogni file o cartella indicata deve esistere |
 | `laboratorio` | per le aree 02, 03, 04, 05, 06, 08, 09, 10 e 12 lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio |
