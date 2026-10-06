@@ -160,7 +160,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 
 ## Laboratori: provare i comandi
 
-**Prerequisiti:** Docker Desktop installato e avviato. Nient'altro.
+**Prerequisiti:** Docker Desktop installato e avviato. Nient'altro. Se qualcosa non parte (Docker spento, porte occupate, percorsi di Git Bash, spazio su disco): [zz-risorse/problemi-lab.md](zz-risorse/problemi-lab.md).
 
 **Allestimento (una tantum):** la prima volta `./lab.sh <area>` costruisce l'immagine Docker (~1 min); le volte successive parte in pochi secondi.
 
