@@ -36,6 +36,7 @@ All'uscita il container viene eliminato: utenti creati, servizi installati e cro
 | `10-logrotate/` | `genera_log.sh`, `mio_test` (la config), `logrotate.sh` | per `logrotate.sh` c'è già `/tmp/mylog` |
 | `11-backup/` | `restic-backup.sh`, `.service`, `.timer`, `restic.env.example`, `restic-escludi` | i file del `.md`; in `/srv/sito` c'è il "sito" da salvare (html e uploads da tenere, cache e log da escludere). restic 0.19.1 è già nell'immagine; per provare `sftp:` basta il `sshd` del container |
 | `12-storage/` | `src/` (due file da mettere in un'immagine con `mke2fs -d`) | si provano i filesystem su file (`mkfs.ext4`, `e2fsck`, `resize2fs`, `tune2fs`, `debugfs`). `losetup` risponde `cannot find an unused loop device`; LVM, RAID, `smartctl` e automount si provano su una VM Ubuntu (vedi il `.md`) |
+| `13-esercizi/` | `risposte/`, `verifica.sh` | le risposte sono script in `risposte/NN.sh`; `./verifica.sh [N]` per ogni esercizio riporta il sistema allo stato di partenza, esegue la risposta, legge lo stato (utenti, mount, `systemctl`, journal, crontab...) e ripulisce; poi lo stesso con la soluzione di [soluzioni.sh](soluzioni.sh). **Agisce sul container: solo qui** |
 
 Da sapere:
 - `journalctl -p err -b` mostra degli errori `bpf-firewall: Attaching egress BPF program ... failed`: dipendono dal
