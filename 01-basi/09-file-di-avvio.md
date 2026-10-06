@@ -1,5 +1,7 @@
 # File di avvio della shell
 
+> **Laboratorio**: `./lab.sh 01`, poi `cd 09-file-di-avvio`. File pronti: `casa/` (una home finta con i file di avvio), `benv.sh` e `prova.sh`. Gli esempi sono stati eseguiti con bash 5.2.
+
 Quando bash parte legge alcuni file di configurazione. Quali, dipende da **come** è stata avviata.
 Da qui nasce il classico "l'alias funziona nel terminale ma non via SSH" (o viceversa).
 
@@ -25,6 +27,27 @@ shopt -q login_shell && echo "login" || echo "non-login"  # che tipo di shell è
 > **NOTA**: su Debian/Ubuntu il `~/.profile` di default contiene un blocco che fa `source ~/.bashrc`.
 > Per questo nella pratica `~/.bashrc` viene letto quasi sempre. Ma se crei un `~/.bash_profile`,
 > `~/.profile` non viene più letto e il `~/.bashrc` smette di caricarsi nelle login shell.
+
+### Provarlo: `prova.sh`
+Nel laboratorio `~/lab/09-file-di-avvio/` ha una **home finta** (`casa/`, con un `.profile`, `.bash_profile`, `.bash_login`, `.bashrc` e `.bash_logout` che dicono solo `[letto NOME]`) e `prova.sh`, che lancia bash in modi diversi con `HOME=casa`.
+Il risultato, con i file a loro posto:
+
+| Comando | File letti | Perché |
+|---|---|---|
+| `bash -lc "echo fatto"` | `.bash_profile` | login, non interattiva: legge il primo tra `.bash_profile`, `.bash_login`, `.profile` |
+| `echo "echo fatto" \| bash -i` | `.bashrc` | interattiva, non login |
+| `echo "echo fatto" \| bash -li` | `.bash_profile`, poi (all'uscita) `.bash_logout` | login e interattiva |
+| `bash -c "echo fatto"` | **niente** | non interattiva, non login: è la shell di uno script |
+| `BASH_ENV=$PWD/benv.sh bash -c "echo fatto"` | il file di `BASH_ENV` | l'unico modo di far leggere qualcosa a una shell non interattiva |
+| `bash --noprofile -lc "echo fatto"` | **niente** | login, ma senza profili |
+| `echo "echo fatto" \| bash --norc -i` | **niente** | interattiva, ma senza `.bashrc` |
+
+E la regola del **primo che esiste**: tolto `.bash_profile`, una login shell legge `.bash_login`; tolto anche quello, legge `.profile`. In nessuno dei casi `.bash_profile` e `.profile` vengono letti **insieme**:
+per questo, se si crea un `.bash_profile`, il `.profile` (e con lui il `.bashrc` che richiama) smette di caricarsi.
+
+> **ATTENZIONE**: le opzioni **lunghe** (`--norc`, `--noprofile`, `--login`) vanno messe **prima** di quelle corte: `bash -i --norc` dà `bash: --: invalid option` e stampa tutta la guida;
+> `bash --norc -i` funziona. E `bash -i` da un terminale legge `/etc/bash.bashrc` oltre al `~/.bashrc` (nel laboratorio con `HOME=casa` si vede solo il secondo).
+> `$-` in una shell interattiva contiene la `i` (`hiBHs` nella prova).
 
 ## Cosa mettere dove
 - **`~/.profile`**: variabili d'ambiente (`PATH`, `EDITOR`, `LANG`), cioè ciò che deve valere per tutta la sessione, anche per i programmi grafici. Viene letto una volta sola, al login.
@@ -83,5 +106,6 @@ Cron e `ssh host 'comando'` avviano shell non interattive. Cron non legge `.bash
 (caso speciale), ma il `.bashrc` di default di Debian/Ubuntu nelle prime righe esce subito se la shell non è interattiva:
 quindi in pratica niente alias né variabili definite lì. Inoltre gli alias non vengono espansi negli script.
 Negli script vanno scritti i percorsi completi o definite le variabili all'inizio. Vedi [../06-sistema/09-crontab.md](../06-sistema/09-crontab.md).
+(Il comportamento con `ssh host 'comando'` e con cron **non è stato provato** nel laboratorio, che non ha un server SSH né cron attivi: la parte verificata è il comportamento di una shell non interattiva, qui sopra.)
 
 Vedi anche: [05-alias.md](05-alias.md) e [bashrc-esempio](bashrc-esempio).

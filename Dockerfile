@@ -12,6 +12,10 @@ ENV LANG=C.UTF-8
 # un errore prima di una pipe fa fallire tutto il RUN (DL4006); vale anche per gli stadi successivi
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# l'immagine ubuntu è "minimizzata": dpkg scarta le pagine di manuale (e /usr/share/doc). Qui servono: man, apropos e
+# whatis degli esempi di 01-basi/03 non funzionerebbero. Tolta l'esclusione, i pacchetti che segue installa le portano
+RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes
+
 # ambiente di studio: servono anche i pacchetti raccomandati (man-db, bash-completion, ca-certificates...),
 # quindi niente --no-install-recommends (DL3015)
 # hadolint ignore=DL3015
@@ -47,6 +51,16 @@ RUN apt-get update && apt-get install -y \
     amqp-tools kcat \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s "$(ls /usr/lib/linux-tools/*/perf)" /usr/local/bin/perf
+
+# i pacchetti già presenti nell'immagine base (coreutils, bash, util-linux...) erano stati installati SENZA le pagine di
+# manuale: si reinstallano ora che l'esclusione è tolta, così "man ls" e "man bash" funzionano
+# hadolint ignore=DL3008,DL3015
+RUN apt-get update && apt-get install -y --reinstall \
+    coreutils bash findutils diffutils util-linux login passwd procps \
+    && rm -rf /var/lib/apt/lists/* \
+    # il wrapper "man" dell'immagine minimizzata (stampa solo un avviso) si toglie come fa unminimize
+    && rm -f /usr/bin/man && dpkg-divert --quiet --remove --rename /usr/bin/man \
+    && mandb -q
 
 # restic: l'ultima versione dal sito del progetto (apt ha una 0.16), con lo SHA-256 fissato per ogni architettura
 ARG RESTIC=0.19.1

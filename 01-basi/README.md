@@ -16,4 +16,6 @@ La shell interattiva: come muoversi, come trovare i comandi, come concatenarli.
 
 **Materiale**: [bashrc-esempio](bashrc-esempio) — esempio di `.bashrc` con alias e variabili personali.
 
+**Laboratorio**: `./lab.sh 01` dalla radice della KB apre una shell usa-e-getta con una cartella per ogni `.md`: file su cui provare `ls` e `xargs`, una home finta per i file di avvio, un modo per far girare `!!` e `!$` senza tastiera. Dettagli in [lab/](lab/).
+
 Prossima area: [../02-file-e-permessi/](../02-file-e-permessi/) · Torna all'[indice](../README.md)

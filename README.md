@@ -173,7 +173,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 
 ---
 
-Le aree 02, 03, 04, 05, 06, 07, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+Le aree 01, 02, 03, 04, 05, 06, 07, 08, 09, 10 e 12 hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
 servizi c'è anche un `lab/compose.yaml`:
@@ -184,9 +184,9 @@ servizi c'è anche un `lab/compose.yaml`:
 | 06 | un container con **systemd** come PID 1: `systemctl`, `journalctl`, timer, cron, ssh, nginx, apache2 |
 | 07 | un controller di dominio Active Directory (Samba 4, `lab.test`) e un PC con `samba-tool`, `ldapsearch` e `kinit` per amministrarlo ed entrarci |
 | 08 | un PC e tre server ssh (`produzione`, `staging`, `db-interno` solo via `ProxyJump`) con ufw e fail2ban; indirizzi fissi e WireGuard per la VPN |
-| 09 | MySQL 9.7 con un database popolato, un'API finta su `http://api` e un progetto di esempio per `make`, `bats` e gli strumenti di ricerca |
+| 09 | MySQL 9.7 con un database popolato, un'API finta su `http://api`, RabbitMQ, Kafka (un broker) e MongoDB, e un progetto di esempio per `make`, `bats` e gli strumenti di ricerca |
 | 10 | una rete con un router in mezzo (host, host2, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace, web server, DNS, posta, NFS/Samba e keepalived |
-| 12 | Prometheus, Alertmanager, Grafana, Loki, Alloy, gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
+| 12 | Prometheus, Alertmanager, Grafana, Loki, Tempo, Jaeger, Alloy (anche come Collector OpenTelemetry), gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
 
 I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability
 che servono (`SYS_ADMIN` per systemd, `NET_ADMIN` per rete e firewall) e AppArmor disattivato, perché systemd deve
