@@ -259,10 +259,26 @@ configurazione di Hadolint per tutto il repository (ignora `DL3008`, le versioni
 Prima di una pull request si può fare lo stesso controllo in locale: `python3 .github/scripts/controlla-link.py`.
 
 ## Trovare un comando
-Se non ricordi in che file sta un comando:
+Se non ricordi in che file sta un comando, `grep` (o `rg`, vedi [09-strumenti/10-ricerca-veloce.md](09-strumenti/10-ricerca-veloce.md)) sui `.md` dalla radice della KB. Tre ricerche, dalla più larga alla più mirata
+(i risultati sono quelli di questa versione della KB):
 ```bash
-grep -rn "nome_comando" --include="*.md" .
+grep -rlw "rsync" --include="*.md" .                          # -l: solo i FILE che ne parlano (12); -w: parola intera
+# ./02-file-e-permessi/07-diff-e-rsync.md
+# ./02-file-e-permessi/README.md
+# ./02-file-e-permessi/lab/README.md
+# ...
+grep -rnE '^(sudo )?journalctl ' --include="*.md" .           # le righe di CODICE che cominciano per il comando: gli esempi veri (24)
+# ./06-sistema/07-servizi.md:36:journalctl -u nginx                # tutti i log del servizio nginx
+# ./06-sistema/07-servizi.md:37:journalctl -u nginx -f             # in tempo reale, come tail -f
+grep -rnE '^#{1,3} .*\bcron\b' --include="*.md" .             # i TITOLI che nominano l'argomento
+# ./01-basi/09-file-di-avvio.md:81:## Perché cron e gli script non vedono i miei alias
+# ./06-sistema/07-servizi.md:75:### Timer systemd: alternativa a cron
+# ./07-windows/07-task-scheduler.md:1:# Task Scheduler: `cron` di Windows
 ```
+- Senza `-w` la ricerca di `cron` trova anche `sincronizzazione`, e `tar ` finisce dentro `start ` e `restart ` (18 file): per i nomi corti servono `-w` o `btarb`.
+- La ricerca dei titoli prende anche i commenti `# ...` dentro i blocchi di codice (nel secondo esempio di `cron`: `# cron usa /bin/sh di default`): i titoli veri sono quelli con `##`.
+- Il segnaposto `nome_comando` dei [comandi base](01-basi/04-comandi-base.md) non è un comando: cercarlo trova la sintassi, non un esempio.
+- Dentro un laboratorio la KB è in `/kb` (sola lettura): `grep -rlw rsync --include="*.md" /kb`. *(Non provato dalla shell del laboratorio: gli esempi sopra sono stati eseguiti dalla radice del repository.)*
 
 ## Convenzioni
 - Cartelle e file numerati nell'ordine di studio; il prefisso `zz-` marca il materiale di supporto.
