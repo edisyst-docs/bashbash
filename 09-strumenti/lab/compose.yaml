@@ -8,8 +8,10 @@ name: lab-09
 
 services:
   shell:
-    image: bashbash
-    pull_policy: never
+    image: bashbash-dati                          # bashbash + i client di RabbitMQ, Kafka e MongoDB (stadio "dati" del Dockerfile)
+    build:
+      context: ../..
+      target: dati
     hostname: lab-09
     volumes:
       - ../..:/kb:ro

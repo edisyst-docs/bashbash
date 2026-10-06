@@ -1,8 +1,10 @@
 # Immagini della KB. Senza --target si costruisce l'ultimo stadio, cioè la shell di sempre:
 #   docker build -t bashbash .                                  shell Ubuntu con gli strumenti della KB
 #   docker build --target systemd -t bashbash-systemd .         UGUALE + systemd come PID 1 e servizi veri
-# La seconda la costruisce da sola docker compose nei laboratori che ne hanno bisogno (06, 08, 10);
-# lo stadio osservabilita (la seconda + node_exporter) la costruisce il laboratorio 12.
+#   docker build --target dati -t bashbash-dati .               UGUALE alla prima + i client di RabbitMQ, Kafka e MongoDB
+# Le ultime due le costruisce da sola docker compose nei laboratori che ne hanno bisogno (systemd: 06, 07, 08, 10; dati: 09);
+# lo stadio osservabilita (systemd + node_exporter) la costruisce il laboratorio 12.
+# I client dei servizi di dati (circa 340 MB) stanno in uno stadio a parte: gli altri laboratori non li portano con sé.
 
 FROM ubuntu:24.04 AS base
 
@@ -47,8 +49,6 @@ RUN apt-get update && apt-get install -y \
     sudo adduser cron logrotate tmux \
     # git e client mysql
     git mysql-client pv \
-    # code e messaggi: amqp-publish/amqp-consume (RabbitMQ) e kcat (Kafka)
-    amqp-tools kcat \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s "$(ls /usr/lib/linux-tools/*/perf)" /usr/local/bin/perf
 
@@ -75,25 +75,6 @@ RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
     && bunzip2 restic.bz2 \
     && install -m 755 restic /usr/local/bin/restic \
     && rm -f /tmp/restic
-
-# mongosh e gli strumenti di backup di MongoDB (mongodump, mongorestore...): non sono in apt; SHA-256 fissato per architettura
-ARG MONGOSH=2.13.0
-ARG MONGOSH_SHA256_AMD64=b2089e67641a28aa621476c4d62c69f66b9a41484baba24d8a8b1f5f96e92d0b
-ARG MONGOSH_SHA256_ARM64=a124ec6680c70ceabc61696bbd110f0da05d7c52524ed402ae9511b5aec7fe32
-ARG MONGOTOOLS=100.13.0
-ARG MONGOTOOLS_SHA256_AMD64=49f00ac68f25451c3e936b06011df38009f8418dafb5aa425c2810e59fd02029
-ARG MONGOTOOLS_SHA256_ARM64=0dad172b672d574d03e11b6d2c6e3e8bf0306be9578865a637af11cad9e239ef
-RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
-    && if [ "$arch" = arm64 ]; then sh_arch=arm64; sh=$MONGOSH_SHA256_ARM64; tl_arch=arm64; th=$MONGOTOOLS_SHA256_ARM64; \
-       else sh_arch=x64; sh=$MONGOSH_SHA256_AMD64; tl_arch=x86_64; th=$MONGOTOOLS_SHA256_AMD64; fi \
-    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://github.com/mongodb-js/mongosh/releases/download/v$MONGOSH/mongosh-$MONGOSH-linux-$sh_arch.tgz" -o mongosh.tgz \
-    && echo "$sh  mongosh.tgz" | sha256sum -c - \
-    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-$tl_arch-$MONGOTOOLS.tgz" -o tools.tgz \
-    && echo "$th  tools.tgz" | sha256sum -c - \
-    && tar xzf mongosh.tgz && tar xzf tools.tgz \
-    && install -m 755 mongosh-*/bin/mongosh /usr/local/bin/ \
-    && install -m 755 mongodb-database-tools-*/bin/* /usr/local/bin/ \
-    && rm -rf /tmp/*
 
 # utente non-root per testare permessi/sudo
 RUN useradd -m -s /bin/bash tester \
@@ -193,6 +174,43 @@ RUN apt-get update && apt-get install -y --no-install-recommends stress-ng \
        '    listen 8000;' \
        '    location = /stub_status { stub_status; }' \
        '}' > /etc/nginx/conf.d/stato.conf
+WORKDIR /kb
+
+
+# ---------------------------------------------------------------- dati
+# La shell del laboratorio 09: la base + i client dei servizi di quell'area (RabbitMQ, Kafka, MongoDB). Sono circa 340 MB
+# (mongosh e gli strumenti di backup sono scaricati, non in apt) e servono a un solo laboratorio, per questo non stanno in "base":
+# gli altri laboratori e le immagini systemd non li portano con sé. La costruisce da solo docker compose (vedi 09-strumenti/lab).
+FROM base AS dati
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# amqp-publish e amqp-consume per RabbitMQ, kcat per Kafka
+# hadolint ignore=DL3008,DL3015
+RUN apt-get update && apt-get install -y amqp-tools kcat \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG TARGETARCH
+WORKDIR /tmp
+# mongosh e gli strumenti di backup di MongoDB (mongodump, mongorestore...): non sono in apt; SHA-256 fissato per architettura
+ARG MONGOSH=2.13.0
+ARG MONGOSH_SHA256_AMD64=b2089e67641a28aa621476c4d62c69f66b9a41484baba24d8a8b1f5f96e92d0b
+ARG MONGOSH_SHA256_ARM64=a124ec6680c70ceabc61696bbd110f0da05d7c52524ed402ae9511b5aec7fe32
+ARG MONGOTOOLS=100.13.0
+ARG MONGOTOOLS_SHA256_AMD64=49f00ac68f25451c3e936b06011df38009f8418dafb5aa425c2810e59fd02029
+ARG MONGOTOOLS_SHA256_ARM64=0dad172b672d574d03e11b6d2c6e3e8bf0306be9578865a637af11cad9e239ef
+RUN arch=${TARGETARCH:-$(dpkg --print-architecture)} \
+    && if [ "$arch" = arm64 ]; then sh_arch=arm64; sh=$MONGOSH_SHA256_ARM64; tl_arch=arm64; th=$MONGOTOOLS_SHA256_ARM64; \
+       else sh_arch=x64; sh=$MONGOSH_SHA256_AMD64; tl_arch=x86_64; th=$MONGOTOOLS_SHA256_AMD64; fi \
+    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://github.com/mongodb-js/mongosh/releases/download/v$MONGOSH/mongosh-$MONGOSH-linux-$sh_arch.tgz" -o mongosh.tgz \
+    && echo "$sh  mongosh.tgz" | sha256sum -c - \
+    && curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-$tl_arch-$MONGOTOOLS.tgz" -o tools.tgz \
+    && echo "$th  tools.tgz" | sha256sum -c - \
+    && tar xzf mongosh.tgz && tar xzf tools.tgz \
+    && install -m 755 mongosh-*/bin/mongosh /usr/local/bin/ \
+    && install -m 755 mongodb-database-tools-*/bin/* /usr/local/bin/ \
+    && rm -rf /tmp/*
+
 WORKDIR /kb
 
 

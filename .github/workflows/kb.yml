@@ -1,9 +1,10 @@
-# CI della knowledge base: a ogni push e pull request controlla che gli script, i Dockerfile e i link siano a posto
+# CI della knowledge base: a ogni pull request e a ogni push su main controlla che gli script, i Dockerfile e i link siano a posto
 # e che tutti i laboratori partano davvero. Guida: 11-container-e-automazione/13-github-actions/github-actions.md
 name: KB
 
 on:
   push:
+    branches: [main]                   # sui rami di lavoro basta la pull_request: con tutti e due ogni push partiva due volte
   pull_request:
   workflow_dispatch:
 
