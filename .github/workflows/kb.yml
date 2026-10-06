@@ -81,8 +81,8 @@ jobs:
           # lo stesso comando di chi studia: costruisce le immagini, avvia i servizi, lancia prepara.sh,
           # esegue un comando nel laboratorio ed esce (e spegne tutto)
           ./lab.sh "$AREA" -- 'echo "laboratorio pronto in $PWD"; ls; echo "$(find . -type f | wc -l) file"'
-      - name: Autotest degli esercizi (aree 02, 03, 04 e 05)
-        if: matrix.area == '02' || matrix.area == '03' || matrix.area == '04' || matrix.area == '05'
+      - name: Autotest degli esercizi (aree 02, 03, 04, 05 e 06)
+        if: matrix.area == '02' || matrix.area == '03' || matrix.area == '04' || matrix.area == '05' || matrix.area == '06'
         env:
           AREA: ${{ matrix.area }}
         run: |
@@ -93,6 +93,8 @@ jobs:
               03) dir=06-esercizi n=18 risposta='bash /kb/03-testo-e-regex/lab/soluzioni.sh %d' ;;
               # in 04 gli esercizi agiscono su processi vivi (lo scenario di scenario.sh) e uno è uno script che si avvia da solo
               04) ./lab.sh 04 -- 'cd 06-esercizi && bash /kb/04-processi/lab/autotest.sh'; exit ;;
+              # in 06 gli esercizi cambiano il sistema vero del container (systemd): utenti, unit, mount, crontab
+              06) ./lab.sh 06 -- 'cd 13-esercizi && bash /kb/06-sistema/lab/autotest.sh'; exit ;;
               # in 05 la risposta è uno script che riceve argomenti e stdin: ci pensa autotest.sh
               05) ./lab.sh 05 -- 'cd 13-esercizi && bash /kb/05-scripting/lab/autotest.sh'; exit ;;
           esac

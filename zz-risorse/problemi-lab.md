@@ -84,6 +84,8 @@ Quanta memoria serve: l'area 09 con RabbitMQ, Kafka e MongoDB usa circa 700 MB i
 
 ## Errori che passano da soli
 - **`dc1 hook exited with status 100`** (area 07): `apt` ha perso la rete durante l'installazione di Samba. Lo script ripete l'installazione fino a 4 volte; se compare lo stesso, basta rilanciare `./lab.sh 07`.
+- **`unable to apply cgroup configuration: failed to write ... cgroup.procs: device or resource busy`** subito dopo aver (ri)avviato Docker Desktop: il motore non è ancora stabile. Si spegne quello che resta
+  (`docker compose -f 06-sistema/lab/compose.yaml down -v --remove-orphans`) e si rilancia `./lab.sh`: la seconda volta è partito.
 - **I laboratori con systemd** (06, 07, 08, 10, 12) su un **Linux** con systemd uscivano con `exited (255)`: due systemd che si contendono lo stesso `/sys/fs/cgroup`. Il `compose.yaml` usa un cgroup privato (`cgroup: private`), e funziona; la storia è in
   [la guida a GitHub Actions](../11-container-e-automazione/13-github-actions/github-actions.md). Su Docker Desktop non succedeva.
 - **Prima richiesta lenta** di un servizio (Kafka, Samba AD, Grafana): i servizi hanno un controllo di salute (`healthcheck`) e `lab.sh` aspetta che tutti siano `healthy`; se l'attesa sembra lunga, `docker compose ... ps` mostra quale è ancora `starting`.

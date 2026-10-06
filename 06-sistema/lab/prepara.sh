@@ -180,6 +180,12 @@ mkdir -p src
 seq 1 5000 > src/numeri.txt
 echo 'file di prova' > src/note.txt
 
+# ---------------------------------------------------------------- 13-esercizi
+sezione 13-esercizi
+mkdir -p risposte
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 06 pronto in $DEST: una cartella per ogni .md"
     echo "Il container ha systemd: systemctl, journalctl, ssh, nginx, apache2 (porta 8080), cron, fail2ban"
