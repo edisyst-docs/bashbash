@@ -129,6 +129,15 @@ AllowedIPs = 10.8.0.0/24, 10.20.2.0/24
 PersistentKeepalive = 25
 EOT
 
+# ---------------------------------------------------------------- 06-esercizi
+sezione 06-esercizi
+mkdir -p palestra risposte
+printf 'echo "ciao da $(hostname)"\n' > palestra/script.sh
+printf 'dati riservati\n' > palestra/segreto.txt
+printf 'contratto di prova\n' > palestra/documento.txt
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 08 pronto in $DEST: una cartella per ogni .md"
     echo "Server: produzione, staging (dal client), db-interno (solo via produzione)"

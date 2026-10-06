@@ -103,6 +103,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 3. [gpg](08-remoto-e-sicurezza/03-gpg.md) — cifrare e firmare file, chiavi pubbliche e private
 4. [vpn wireguard](08-remoto-e-sicurezza/04-vpn-wireguard.md) — tunnel cifrato fra macchine, `wg-quick`, `AllowedIPs`, NAT, `ufw route`
 5. [sicurezza del sistema](08-remoto-e-sicurezza/05-sicurezza-sistema.md) — AppArmor, SELinux, `auditd`, `lynis`, ClamAV
+6. [esercizi](08-remoto-e-sicurezza/06-esercizi.md) — 16 esercizi su tre server veri, con verifica automatica del risultato
 
 ### [09-strumenti/](09-strumenti/) — CLI di uso quotidiano
 1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale, download con `wget`

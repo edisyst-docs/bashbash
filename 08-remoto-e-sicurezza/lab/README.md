@@ -107,4 +107,7 @@ Non ci sono file da preparare: gli esempi creano i loro (`/srv/prova`, il file E
 
 Per `auditd` e AppArmor serve una macchina vera o una VM Ubuntu: gli output del `.md` vengono da lì.
 
+## 06-esercizi
+`06-esercizi/` ha `palestra/` (`script.sh`, `segreto.txt`, `documento.txt`), `risposte/` e `verifica.sh`; le risposte sono script in `risposte/NN.sh`. `./verifica.sh [N]` crea la chiave `.chiave-esercizi` e la autorizza per `deploy` ed `edoardo` sui tre server (con le loro password, una volta sola), avvia un `ssh-agent`, e per ogni esercizio esegue la risposta in una copia nuova della palestra con un `GNUPGHOME` vuoto, legge lo stato (file, tunnel, regola `ufw` su `staging`, `wg0`...) e ripulisce; poi lo stesso con la soluzione di [soluzioni.sh](soluzioni.sh). **Agisce sui server e sul client del laboratorio: solo qui.** Mentre gira, aggiunge `/etc/ssh/ssh_config.d/99-esercizi.conf` (nessuna conferma al primo contatto con un server) e lo toglie alla fine.
+
 Torna all'[indice dell'area](../README.md)
