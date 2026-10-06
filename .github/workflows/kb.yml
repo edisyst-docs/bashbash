@@ -81,8 +81,8 @@ jobs:
           # lo stesso comando di chi studia: costruisce le immagini, avvia i servizi, lancia prepara.sh,
           # esegue un comando nel laboratorio ed esce (e spegne tutto)
           ./lab.sh "$AREA" -- 'echo "laboratorio pronto in $PWD"; ls; echo "$(find . -type f | wc -l) file"'
-      - name: Autotest degli esercizi (aree 02, 03, 04, 05, 06 e 10)
-        if: matrix.area == '02' || matrix.area == '03' || matrix.area == '04' || matrix.area == '05' || matrix.area == '06' || matrix.area == '10'
+      - name: Autotest degli esercizi (aree 02, 03, 04, 05, 06, 08 e 10)
+        if: contains(fromJSON('["02","03","04","05","06","08","10"]'), matrix.area)
         env:
           AREA: ${{ matrix.area }}
         run: |
@@ -95,6 +95,8 @@ jobs:
               04) ./lab.sh 04 -- 'cd 06-esercizi && bash /kb/04-processi/lab/autotest.sh'; exit ;;
               # in 06 gli esercizi cambiano il sistema vero del container (systemd): utenti, unit, mount, crontab
               06) ./lab.sh 06 -- 'cd 13-esercizi && bash /kb/06-sistema/lab/autotest.sh'; exit ;;
+              # in 08 gli esercizi usano i tre server veri (ssh con agente, tunnel, ufw) e il GPG/WireGuard del client
+              08) ./lab.sh 08 -- 'cd 06-esercizi && bash /kb/08-remoto-e-sicurezza/lab/autotest.sh'; exit ;;
               # in 10 gli esercizi cambiano la rete del container host (indirizzi, rotte, namespace, nginx)
               10) ./lab.sh 10 -- 'cd 10-esercizi && bash /kb/10-rete-e-web/lab/autotest.sh'; exit ;;
               # in 05 la risposta è uno script che riceve argomenti e stdin: ci pensa autotest.sh
