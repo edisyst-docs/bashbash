@@ -52,11 +52,14 @@ AllowUsers deploy edoardo
 ```bash
 sudo sshd -t                        # verifica la sintassi: NESSUN output = tutto ok
 sudo sshd -T | grep -Ei 'permitroot|passwordauth|allowusers' # configurazione EFFETTIVA dopo aver combinato tutti i file
+# permitrootlogin without-password        <- nel laboratorio, su `produzione` (valori predefiniti di Ubuntu: nessun AllowUsers, quindi nessuna riga)
+# passwordauthentication yes
 sudo systemctl reload ssh           # applica senza chiudere le sessioni aperte
 ```
 > **NOTA**: in sshd, per ogni opzione **vince il primo valore letto**. I file in `sshd_config.d/` vengono
 > inclusi all'inizio di `sshd_config` in ordine alfabetico: per questo il prefisso numerico basso (`10-`).
 > Su Ubuntu recenti un file `50-cloud-init.conf` può rimettere `PasswordAuthentication yes`: `sshd -T` lo rivela.
+> Provato nel laboratorio: con `50-cloud-init.conf` (`PasswordAuthentication yes`) e `10-hardening.conf` (`PasswordAuthentication no`) `sshd -T` stampa `passwordauthentication no`; tolto il `10-`, torna `yes`. (Il file `50-cloud-init.conf` l'ho creato io per la prova: il laboratorio non ha cloud-init.)
 >
 > **Prima** di disattivare le password verifica di entrare con la chiave: vedi [01-ssh.md](01-ssh.md).
 

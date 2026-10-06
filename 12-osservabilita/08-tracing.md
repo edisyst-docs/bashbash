@@ -156,7 +156,7 @@ curl -s -G http://jaeger:16686/api/v3/traces --data-urlencode 'query.service_nam
      | jq -c '[.result.resourceSpans[]?|.scopeSpans[]?.spans[]?|.name]'
 ```
 La ricerca di Jaeger è per **servizio**, operazione, tag e durata minima; è quella che si usa dall'interfaccia (`http://localhost:16686`, non aperta in questo laboratorio dal terminale). Il Jaeger del laboratorio usa la configurazione predefinita dell'immagine (archivio in
-memoria: un riavvio, non provato, dovrebbe perdere le tracce).
+memoria: un riavvio le perde, provato con `docker restart` del container `jaeger` dopo aver mandato una traccia: `/api/v3/services` passa da `["jaeger","frontend","api"]` a `["jaeger"]`; con Tempo il riavvio non è stato provato).
 
 | | Tempo | Jaeger |
 |---|---|---|
