@@ -9,6 +9,7 @@ Vedere cosa gira, fermarlo, metterlo in background, misurare quante risorse cons
 | 03 | [top e htop](03-top-htop.md) | `top` e `htop`, con i comandi interattivi |
 | 04 | [risorse](04-risorse.md) | `lshw`, `lscpu`, `free`, `du`, `df`, `watch`, `nice`/`renice`, `/proc` |
 | 05 | [debug e prestazioni](05-debug-e-prestazioni.md) | `vmstat`, `iostat`, `pidstat`, `strace`, `ltrace`, `/proc/PID`, `ulimit`, cgroup e OOM killer, `perf`, `systemd-analyze` |
+| 06 | [esercizi](06-esercizi.md) | 16 esercizi su processi vivi (`pgrep`, `ps`, `ss`, `kill`, `renice`, `/proc`, `trap`): lo scenario si avvia da solo e `verifica.sh` guarda lo stato dopo |
 
 **Script**: [02-contatore.sh](02-contatore.sh) — contatore infinito usato negli esempi di `02-jobs.md`.
 

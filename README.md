@@ -52,6 +52,7 @@ Gli strumenti che userai dentro ogni script.
 3. [top e htop](04-processi/03-top-htop.md) — monitoraggio interattivo
 4. [risorse](04-processi/04-risorse.md) — `free`, `du`, `df`, `nice`/`renice`, `/proc`
 5. [debug e prestazioni](04-processi/05-debug-e-prestazioni.md) — `strace`, `ltrace`, `ulimit`, cgroup e OOM, `perf`, `vmstat`, `pidstat`
+6. [esercizi](04-processi/06-esercizi.md) — 16 esercizi su processi vivi, con verifica automatica dello stato
 
 ### [05-scripting/](05-scripting/) — scrivere script bash
 Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso numero.
