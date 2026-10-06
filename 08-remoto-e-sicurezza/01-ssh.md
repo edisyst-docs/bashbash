@@ -131,6 +131,7 @@ ssh -R 9000:127.0.0.1:8000 server -N       # REMOTE: la porta 9000 del SERVER po
 ssh -D 1080 produzione -N                  # DYNAMIC: proxy SOCKS sulla 1080, il browser naviga "come se fosse" il server
 ssh -fNL 3307:127.0.0.1:3306 produzione    # -f: va in background dopo l'autenticazione
 ```
+Provato nel laboratorio con `-R`: un `python3 -m http.server 8000` sul client e `ssh -fNR 9000:127.0.0.1:8000 deploy@produzione`; dal server `curl -s http://127.0.0.1:9000/` restituisce la pagina del client, e `ss -tln` mostra la 9000 in ascolto **solo su `127.0.0.1` e `[::1]`**: da un'altra macchina non si raggiunge, a meno di impostare `GatewayPorts` sul server (non provato).
 
 ## Esempi pratici
 ```bash
