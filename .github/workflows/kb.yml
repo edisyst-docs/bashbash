@@ -81,15 +81,20 @@ jobs:
           # lo stesso comando di chi studia: costruisce le immagini, avvia i servizi, lancia prepara.sh,
           # esegue un comando nel laboratorio ed esce (e spegne tutto)
           ./lab.sh "$AREA" -- 'echo "laboratorio pronto in $PWD"; ls; echo "$(find . -type f | wc -l) file"'
-      - name: Autotest degli esercizi (aree 02 e 03)
-        if: matrix.area == '02' || matrix.area == '03'
+      - name: Autotest degli esercizi (aree 02, 03 e 05)
+        if: matrix.area == '02' || matrix.area == '03' || matrix.area == '05'
         env:
           AREA: ${{ matrix.area }}
         run: |
           # come risposta si dà a ogni esercizio la sua stessa soluzione di riferimento: verifica.sh deve dire OK a tutti,
           # altrimenti è rotto il verificatore (o la palestra), non lo studente
-          if [[ $AREA == 02 ]]; then cartella=02-file-e-permessi dir=10-esercizi n=20; else cartella=03-testo-e-regex dir=06-esercizi n=18; fi
-          ./lab.sh "$AREA" -- "cd $dir && for i in \$(seq 1 $n); do printf 'bash /kb/$cartella/lab/soluzioni.sh %d\n' \$i > risposte/\$(printf %02d \$i).sh; done; ./verifica.sh"
+          case $AREA in
+              02) dir=10-esercizi n=20 risposta='bash /kb/02-file-e-permessi/lab/soluzioni.sh %d' ;;
+              03) dir=06-esercizi n=18 risposta='bash /kb/03-testo-e-regex/lab/soluzioni.sh %d' ;;
+              # in 05 la risposta è uno script che riceve argomenti e stdin: ci pensa autotest.sh
+              05) ./lab.sh 05 -- 'cd 13-esercizi && bash /kb/05-scripting/lab/autotest.sh'; exit ;;
+          esac
+          ./lab.sh "$AREA" -- "cd $dir && for i in \$(seq 1 $n); do printf '$risposta\n' \$i > risposte/\$(printf %02d \$i).sh; done; ./verifica.sh"
       - name: verifica.sh (solo zz-esempi)
         if: matrix.area == 'zz-esempi'
         run: ./lab.sh zz-esempi -- 'cd esercizi && ./verifica.sh'      # 31 casi sugli script: esce con 1 se uno è ERRATO

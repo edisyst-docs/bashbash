@@ -1,0 +1,53 @@
+# casi.txt - i casi di prova di 13-esercizi.md. Formato, una riga per caso:  N|descrizione|argomenti|stdin
+# "argomenti" è una stringa che bash interpreta (virgolette comprese); "stdin" passa da printf '%b' (\n = a capo).
+1|un nome|Marco|
+1|un nome con uno spazio (un solo argomento)|"Anna Maria"|
+1|senza argomenti||
+2|un numero pari|4|
+2|un numero dispari|7|
+2|zero|0|
+2|un numero negativo dispari|-3|
+2|non è un numero|abc|
+2|senza argomenti||
+3|tre numeri|1 2 3|
+3|un numero solo|10|
+3|nessun argomento||
+3|numeri negativi|-5 5 7|
+4|tabellina del 3|3|
+4|tabellina del 12|12|
+5|un file|testo.txt|
+5|due file, uno con lo spazio, uno vuoto|"con spazio.txt" vuoto.txt|
+5|un file che non esiste in mezzo|testo.txt nonesiste.txt vuoto.txt|
+6|due righe|ciao\nmondo bello\n|ciao\nmondo bello\n
+6|spazi iniziali e backslash restano|  a\\b  c\n|  a\\b  c\n
+6|stdin vuoto||
+7|tre argomenti|a b c|
+7|un argomento con spazi|"uno due" tre|
+7|nessun argomento||
+8|le parole di parole.txt|parole.txt|
+9|la cartella misto|misto|
+9|una cartella vuota|vuota|
+10|la colonna 3 di dati.csv|dati.csv 3|
+10|la colonna 2 di dati.csv|dati.csv 2|
+10|file mancante|nonesiste.csv 1|
+11|tutte le opzioni|-v -n 3 file.txt|
+11|solo il file (valori predefiniti)|file.txt|
+11|opzioni raggruppate|-vn 5 file.txt|
+11|opzione sconosciuta|-x file.txt|
+11|file mancante|-v|
+12|5!|5|
+12|0!|0|
+12|10!|10|
+12|numero negativo|-1|
+12|non è un numero|x|
+13|esito buono|ok|
+13|un comando fallisce a metà|errore|
+14|riesce al terzo tentativo|5 ./flaky.sh|
+14|non ha abbastanza tentativi|2 ./flaky.sh|
+14|riesce subito|3 true|
+15|un file|testo.txt|
+15|una cartella|misto|
+15|non esiste|nonesiste|
+16|tre argomenti, uno con lo spazio|a "b c" d|
+16|un argomento vuoto|"" x|
+16|nessun argomento||
