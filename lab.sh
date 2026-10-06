@@ -4,7 +4,7 @@
 # Uso: ./lab.sh AREA [--tester] [--build] [-- COMANDO]
 #   AREA        numero dell'area (es. 02) o nome della cartella (es. 02-file-e-permessi)
 #   --tester    entra come utente tester (password: tester) invece che come root
-#   --build     ricostruisce le immagini (bashbash e, dove serve, bashbash-systemd)
+#   --build     ricostruisce le immagini (bashbash e, dove serve, bashbash-systemd o bashbash-dati)
 #   -- COMANDO  esegue COMANDO dentro il laboratorio ed esce, senza shell interattiva
 #
 # Il container parte da zero ogni volta: la KB è montata in /kb in SOLA LETTURA, i file

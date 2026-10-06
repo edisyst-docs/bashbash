@@ -191,7 +191,7 @@ servizi c'è anche un `lab/compose.yaml`:
 I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability
 che servono (`SYS_ADMIN` per systemd, `NET_ADMIN` per rete e firewall) e AppArmor disattivato, perché systemd deve
 rendere scrivibile il proprio cgroup. Funzionano con Docker Desktop e su Linux; la CI del repository li avvia tutti a
-ogni push ([.github/workflows/kb.yml](.github/workflows/kb.yml)).
+ogni pull request ([.github/workflows/kb.yml](.github/workflows/kb.yml)).
 ```bash
 ./lab.sh 03               # shell come root in ~/lab, con i file dell'area 03 già pronti
 cd 02-grep                # la cartella del .md che sto studiando
@@ -243,7 +243,7 @@ docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 
 ## CI del repository
 
-A ogni push e pull request GitHub Actions esegue [.github/workflows/kb.yml](.github/workflows/kb.yml) (la guida è
+A ogni pull request (e a ogni push su `main`) GitHub Actions esegue [.github/workflows/kb.yml](.github/workflows/kb.yml) (la guida è
 in [11-container-e-automazione/13-github-actions/](11-container-e-automazione/13-github-actions/)):
 
 | Job | Cosa controlla |

@@ -366,14 +366,14 @@ chiamato con `python: "3.14"`, restituisce la versione usata come output, e il j
 `il modello ha usato Python 3.14.8`. L'output passa da tre livelli: step → job del modello → `on.workflow_call.outputs`.
 
 ## La CI di questa KB
-[kb.yml](../../.github/workflows/kb.yml) gira a ogni push e pull request:
+[kb.yml](../../.github/workflows/kb.yml) gira a ogni pull request e a ogni push su `main` (sui rami di lavoro basta la pull request: con `push` e `pull_request` insieme ogni push partiva due volte, e i job raddoppiavano; un ramo senza pull request non è controllato):
 
 | Job | Cosa fa | Tempo |
 |---|---|---|
-| `shellcheck` | i 18 script dei laboratori e dell'area 11 (gli esercizi di `05-scripting` e `zz-esempi` restano fuori: alcuni sono sbagliati apposta) | 7 s |
-| `hadolint` | i 17 Dockerfile: blocca gli errori, e carica il report completo in *Security > Code scanning* | 15 s |
-| `link` | i link relativi di tutti i `.md` ([controlla-link.py](../../.github/scripts/controlla-link.py)): 787 controllati | 4 s |
-| `laboratori` | matrix sulle 8 aree con un laboratorio: `./lab.sh NN -- 'ls'`, lo stesso comando di chi studia | da 39 s (area 05) a 91 s (area 12), in parallelo |
+| `shellcheck` | i 31 script dei laboratori e dell'area 11 (gli esercizi di `05-scripting` e gli script di `zz-esempi/esercizi` e `zz-esempi/rubrica` restano fuori: sono materiale da studiare) | 6 s |
+| `hadolint` | i 20 Dockerfile: blocca gli errori, e carica il report completo in *Security > Code scanning* | 13 s |
+| `link` | i link relativi di tutti i `.md` ([controlla-link.py](../../.github/scripts/controlla-link.py)): 1093 controllati | 3 s |
+| `laboratori` | matrix sulle 12 aree con un laboratorio (01-10, 12 e `zz-esempi`): `./lab.sh NN -- 'ls'`, lo stesso comando di chi studia (per `zz-esempi` anche `verifica.sh`) | da 54 s (area 03) a 141 s (area 12), in parallelo; circa 15 minuti di runner in tutto, in gran parte a ricostruire l'immagine in ogni job (circa 50 s su 60 nell'area 02) |
 
 - **annotazioni**: `echo "::add-matcher::.github/shellcheck-matcher.json"` registra una regex
   ([shellcheck-matcher.json](../../.github/shellcheck-matcher.json)) che trasforma le righe `file:riga:colonna: warning:
