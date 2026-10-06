@@ -4,6 +4,7 @@ Knowledge base personale su bash, comandi da terminale Linux e scripting Windows
 
 Cartelle e file sono numerati nell'ordine in cui conviene studiarli: si parte da `01-basi/01-shell.md`
 e si prosegue in ordine. Le cartelle `zz-` non sono tappe del percorso, sono materiale di supporto.
+Per decidere cosa fare, in quanto tempo e come capire che un'area è chiusa: [percorso di studio](zz-risorse/percorso-di-studio.md).
 Ogni area e ogni cartella con materiale da studiare ha il proprio `README.md` con l'indice dei suoi file; le
 sottocartelle di supporto (`app/`, `config/`, `master/`…) sono descritte nel README della cartella che le contiene.
 
