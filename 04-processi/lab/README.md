@@ -28,6 +28,7 @@ All'uscita il container viene eliminato.
 | `01-ps-e-kill/`, `03-top-htop/`, `04-risorse/` | nessuno | si lavora sul container |
 | `02-jobs/` | `02-contatore.sh` | il contatore infinito degli esempi |
 | `05-debug-e-prestazioni/` | `cerca-config.sh`, `bloccato.sh`, `apri-file.py`, `mangia-ram.py`, `calcola.py`, `scrive-lento.sh`, `cpu.sh` | uno per ogni sezione del `.md`: la configurazione "persa" (`strace`), il processo appeso (`strace -p`), `EMFILE` (`ulimit`), l'OOM (cgroup), la funzione lenta (`perf`, `cProfile`), il disco lento (`strace -T`), il throttling della CPU |
+| `06-esercizi/` | `palestra/` (`lavora.sh`), `risposte/`, `verifica.sh`; i processi dello scenario li avvia [scenario.sh](scenario.sh) | le risposte sono script in `risposte/NN.sh`; `./verifica.sh [N]` riavvia lo scenario (`worker`, `ostinato`, `padre`/`figlio`, `ascolto`, `lento`, `fermo`, `scrittore`) a ogni esercizio, esegue la risposta e la soluzione di [soluzioni.sh](soluzioni.sh) e confronta stato e output |
 
 Da sapere:
 - `vmstat`, `mpstat`, `iostat` e `free` mostrano la macchina (o la VM di Docker), non i limiti del container: per quelli

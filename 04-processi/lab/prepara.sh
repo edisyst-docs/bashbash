@@ -117,6 +117,19 @@ timeout 60 bash -c 'while :; do :; done'
 EOF
 chmod +x ./*.sh ./*.py
 
+# ---------------------------------------------------------------- 06-esercizi
+sezione 06-esercizi
+mkdir -p palestra risposte
+# un lavoro da 1 secondo che lascia un file: per l'esercizio sul "wait"
+cat > palestra/lavora.sh << 'EOT'
+#!/usr/bin/env bash
+sleep 1
+echo "fatto $1" > "$1.out"
+EOT
+chmod +x palestra/lavora.sh
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 04 pronto in $DEST: una cartella per ogni .md"
     echo "Limiti del container: 256 MB di RAM senza swap, 1 CPU, 200 processi. Per ripartire da zero: bash $LAB_SRC/prepara.sh"
