@@ -44,6 +44,9 @@ Ogni macchina nasce pulita a ogni `./lab.sh 10`.
 | `08-condivisioni-nfs-samba` | `nfs-kernel-server` e `samba` su `web`, client `host` | `exportfs`, mount NFSv3 e v4, `root_squash`, Samba con utenti e gruppi, `mount.cifs` | il disco di un container è `overlayfs` e **non si esporta**: serve un `tmpfs` (e per la v4 un bind mount, vedi il `.md`). `host` ha `CAP_DAC_READ_SEARCH` per `mount.cifs` |
 | `09-alta-disponibilita-keepalived` | `keepalived` e nginx su `host` e `host2`, client `web` | VIP `10.10.1.100`, failover, preempt, `notify` | il VIP si prova da `web` (altra rete, via router); funziona il multicast VRRP sulla rete `lan` di Docker |
 
+## 10-esercizi
+`10-esercizi/` ha `risposte/` e `verifica.sh`; le risposte sono script in `risposte/NN.sh`. Per ogni esercizio `./verifica.sh [N]` riporta la rete di `host` allo stato di partenza, esegue la risposta, legge lo stato (indirizzi di `eth0`, MTU, rotte, namespace, `/etc/hosts`, risposta di nginx) e rimette tutto a posto; poi lo stesso con la soluzione di [soluzioni.sh](soluzioni.sh). **Agisce sul container `host`: solo qui.** `web` e `router` servono da bersaglio (`traceroute`, `nc`, `curl`, il reverse proxy).
+
 Non provato qui: il DHCP di `dnsmasq`, la cifratura (TLS, SPF, DKIM) di Postfix, i client Windows di Samba.
 
 Da sapere:

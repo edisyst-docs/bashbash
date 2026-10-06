@@ -15,6 +15,7 @@ I comandi di rete di base (`ip -br a`, `ss`, `dig +short`, `curl -I`) sono in [.
 | 07 | [posta](07-posta-postfix.md) | Postfix e Dovecot: MX, `main.cf` e `postconf`, coda, rimbalzi, relay, alias, IMAP; conversazioni SMTP e IMAP a mano |
 | 08 | [condivisioni](08-condivisioni-nfs-samba.md) | NFS (`exports`, v3 e v4, `root_squash`) e Samba (utenti, gruppi, `mount.cifs`) |
 | 09 | [alta disponibilità](09-alta-disponibilita-keepalived.md) | `keepalived` e VRRP: IP virtuale, controllo del servizio, failover e preempt |
+| 10 | [esercizi](10-esercizi.md) | 16 esercizi su una rete vera (`ipcalc`, `ip addr/route/link`, namespace con `veth`, `traceroute`, `nc`, `curl`, `nmap`, nginx): `verifica.sh` guarda lo stato dopo |
 
 **Laboratorio**: `./lab.sh 10` dalla radice della KB avvia una piccola rete (host, host2, router, web) in cui provare
 `ip`, `traceroute`, `tcpdump`, `nmap`, i namespace, nginx e apache2. Dettagli in [lab/](lab/).
