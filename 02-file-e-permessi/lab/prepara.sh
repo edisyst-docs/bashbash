@@ -156,6 +156,45 @@ cd "$DEST"
 find . -type d -exec chmod 755 {} +
 find . -type f ! -perm -u+x ! -name privato.txt -exec chmod 644 {} +
 
+# ---------------------------------------------------------------- 10-esercizi
+sezione 10-esercizi
+mkdir -p palestra risposte
+(
+    cd palestra
+    # log, di cui uno nella sottocartella
+    mkdir -p server/old cache vuota src/vuota vendor node_modules progetto sito/img sito/css condivisa release-1 release-2 dati
+    echo "avvio" > app.log; echo "errore: disco" > errori.log; echo "GET /" > server/access.log; echo "vecchio" > server/old/vecchio.log
+    # php: due nostri, uno in src, e quelli di terzi
+    echo '<?php echo 1;' > index.php; echo '<?php echo 2;' > lib.php; echo '<?php echo 3;' > src/a.php
+    echo '<?php echo 4;' > vendor/x.php; echo '<?php echo 5;' > node_modules/y.php
+    # .tmp: due vecchi (2020) e due recenti
+    touch cache/a.tmp cache/b.tmp nuovo1.tmp nuovo2.tmp
+    touch -d 2020-01-01 cache/a.tmp cache/b.tmp
+    # un file grande e uno piccolo
+    head -c 2097152 /dev/zero > grande.bin; echo piccolo > piccolo.bin
+    # script e permessi
+    printf '#!/bin/sh\necho deploy\n' > deploy.sh; printf '#!/bin/sh\necho backup\n' > backup.sh; printf '#!/bin/sh\necho test\n' > script.sh
+    chmod 755 deploy.sh backup.sh; chmod 644 script.sh
+    echo "una nota" > nota.txt; echo "chiave=segreta" > segreto.txt; chmod 644 nota.txt segreto.txt
+    # progetto: permessi larghi da stringere
+    echo a > progetto/a.txt; echo b > progetto/b.txt; mkdir progetto/sub; echo c > progetto/sub/c.txt
+    chmod 666 progetto/a.txt; chmod 664 progetto/b.txt progetto/sub/c.txt; chmod 777 progetto/sub; chmod 775 progetto
+    # sito: tutto a 700/600, da portare a 755/644
+    echo '<html>' > sito/index.html; echo 'body{}' > sito/css/stile.css; echo png > sito/img/logo.png; echo txt > sito/robots.txt
+    chmod 600 sito/index.html sito/css/stile.css sito/img/logo.png sito/robots.txt; chmod 700 sito sito/css sito/img
+    chmod 755 condivisa
+    # link e hard link
+    echo "dati" > dati.txt; echo uno > dati/a.csv; echo due > dati/b.csv; echo t1 > dati/c.tmp; echo t2 > dati/d.tmp
+    # archivio da cui estrarre un file
+    mkdir -p /tmp/rel-$$/release; echo "porta=8080" > /tmp/rel-$$/release/config.ini; echo "print(1)" > /tmp/rel-$$/release/app.py
+    tar czf release.tar.gz -C /tmp/rel-$$ release; rm -rf /tmp/rel-$$
+    # rsync / confronto
+    printf 'mela\npera\nbanana\narancia\n' > lista1.txt; printf 'pera\nkiwi\nbanana\n' > lista2.txt
+    mkdir -p origine/.git origine/css; echo "x" > origine/.git/HEAD; echo "<html>" > origine/index.html; echo "b{}" > origine/css/s.css; echo "nota" > origine/LEGGIMI
+)
+cp "$LAB_SRC/verifica.sh" .
+chmod +x verifica.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 02 pronto in $DEST: una cartella per ogni .md"
     ls "$DEST" | sed 's/^/  /'

@@ -38,6 +38,7 @@ cancella e ricrea solo una cartella che ha creato lui (contiene il file `.lab-ba
 | `07-diff-e-rsync/` | `simile1.sh` e `simile2.sh`, `file1` e `file2` (diversi per maiuscole, spazi e una riga), `file1.bin` e `file2.bin` (diversi al byte 101), `lista1.txt` e `lista2.txt`, `config`, `sorgente/` e `destinazione/`, `cartella1/` e `cartella2/`, `src/` e `dst/`, `escludi.txt`, `.rsyncignore` | `diff`, `cmp`, `comm`, `patch`, `rsync` in locale |
 | `08-permessi/` | `file`, `eseguibile`, `.env`, cartelle `cart/`, `protetta/`, `cartella/`, `progetto/` | `chmod` ottale e simbolico, bit speciali, `umask`, `stat`, ACL |
 | `09-proprietari/` | `file.txt` | `chown`, `chgrp`. Gli utenti e le cartelle in `/` li crea il `.md`: serve root |
+| `10-esercizi/` | `palestra/` (log, sorgenti, `.tmp` vecchi e nuovi, permessi sbagliati da correggere, `release.tar.gz`, `origine/`...), `risposte/`, `verifica.sh` | le risposte si scrivono in `risposte/NN.sh`; `./verifica.sh [N]` le prova in una **copia nuova** della palestra e confronta output e stato con [soluzioni.sh](soluzioni.sh) (letto da `/kb`) |
 
 Gli esempi che parlano di server remoti (`rsync ... user@server:`, `ssh`) e di dischi (`dd` su
 `/dev/sda`, `mount`) restano da provare su una macchina vera.
