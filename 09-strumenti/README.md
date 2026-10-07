@@ -18,6 +18,7 @@ Docker, Kubernetes, Jenkins, Ansible e Terraform hanno un'area tutta loro: [../1
 | 11 | [rabbitmq](11-rabbitmq.md) | Code, exchange e binding, ack e consumer, TTL e dead letter, vhost e utenti, API HTTP, `rabbitmqctl` |
 | 12 | [kafka](12-kafka.md) | Topic e partizioni, offset, consumer group e lag, `kcat`, `kafka-topics.sh`, compattazione |
 | 13 | [mongodb](13-mongodb.md) | `mongosh`, `find`, `aggregate`, indici e `explain`, utenti e ruoli, `mongodump`, `mongoimport` |
+| 14 | [scenari guidati](14-scenari.md) | 8 problemi veri da diagnosticare: `curl` e `jq`, permessi e indici di MySQL, `git reflog` e conflitti, binding di RabbitMQ, offset di Kafka; `scenari.sh controlla` guarda se è risolto |
 
 **Laboratorio**: `./lab.sh 09` dalla radice della KB avvia un MySQL 9.7 con un database già popolato,
 un'API finta su `http://api` e un repository git con una storia da indagare; per `make`, `bats` e gli strumenti di ricerca ci sono un progetto di esempio e una cartella con file grandi; e tre servizi di messaggi e dati, RabbitMQ, Kafka (un solo broker) e MongoDB. Dettagli in [lab/](lab/).

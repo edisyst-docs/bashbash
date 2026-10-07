@@ -81,8 +81,8 @@ jobs:
           # lo stesso comando di chi studia: costruisce le immagini, avvia i servizi, lancia prepara.sh,
           # esegue un comando nel laboratorio ed esce (e spegne tutto)
           ./lab.sh "$AREA" -- 'echo "laboratorio pronto in $PWD"; ls; echo "$(find . -type f | wc -l) file"'
-      - name: Autotest degli esercizi (aree 02, 03, 04, 05, 06, 08 e 10)
-        if: contains(fromJSON('["02","03","04","05","06","08","10"]'), matrix.area)
+      - name: Autotest degli esercizi e degli scenari (aree 02, 03, 04, 05, 06, 08, 09 e 10)
+        if: contains(fromJSON('["02","03","04","05","06","08","09","10"]'), matrix.area)
         env:
           AREA: ${{ matrix.area }}
         run: |
@@ -97,6 +97,8 @@ jobs:
               06) ./lab.sh 06 -- 'cd 13-esercizi && bash /kb/06-sistema/lab/autotest.sh'; exit ;;
               # in 08 gli esercizi usano i tre server veri (ssh con agente, tunnel, ufw) e il GPG/WireGuard del client; poi si rompe e si ripara ogni scenario guidato
               08) ./lab.sh 08 -- 'cd 06-esercizi && bash /kb/08-remoto-e-sicurezza/lab/autotest.sh && bash /kb/08-remoto-e-sicurezza/lab/scenari-autotest.sh'; exit ;;
+              # in 09 non ci sono esercizi, ma scenari guidati: si rompe e si ripara ogni guasto (curl, MySQL, git, RabbitMQ, Kafka)
+              09) ./lab.sh 09 -- 'bash /kb/09-strumenti/lab/scenari-autotest.sh'; exit ;;
               # in 10 gli esercizi cambiano la rete del container host (indirizzi, rotte, namespace, nginx); poi si rompe e si ripara ogni scenario guidato
               10) ./lab.sh 10 -- 'cd 10-esercizi && bash /kb/10-rete-e-web/lab/autotest.sh && bash /kb/10-rete-e-web/lab/scenari-autotest.sh'; exit ;;
               # in 05 la risposta è uno script che riceve argomenti e stdin: ci pensa autotest.sh

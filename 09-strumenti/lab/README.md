@@ -98,4 +98,10 @@ Da sapere:
   `docker compose -f 09-strumenti/lab/compose.yaml exec rabbitmq rabbitmqctl ...` e `... exec kafka /opt/kafka/bin/kafka-topics.sh ...`
 - le interfacce web (gestione di RabbitMQ sulla 15672) e le sessioni interattive non sono state provate: per aprirle dall'host bisogna aggiungere `ports:` al servizio
 
+## 14-scenari
+`14-scenari/` ha `scenari.sh`, che lancia [scenari.sh](scenari.sh) (qui in `lab/`, con i guasti dentro): `./scenari.sh guasta N` azzera tutto e prepara lo scenario N (8 in tutto) nella cartella `lavoro/`, stampando il sintomo; `controlla` dice se è risolto; `ripristina` toglie ogni guasto (utente `report`, indici su `logs`, exchange e coda di RabbitMQ, file e repository di `lavoro/`).
+I guasti: uno script che scarica un reindirizzamento, uno che legge una sola pagina, un utente MySQL senza il permesso su `orders`, nessun indice su `logs.created_at`, un `reset --hard` che nasconde un commit, un merge in conflitto, una routing key sbagliata, un consumer Kafka che parte dalla fine. Il topic dell'ultimo (`eventi-NNN`) ha un nome diverso a ogni `guasta`, perché Kafka non si svuota. I repository hanno un'identità git propria (`Studente`), per poter fare commit.
+Le riparazioni di riferimento e i tentativi che non bastano (`GRANT ALL`, `ANALYZE TABLE`, `git merge --abort`, `-o -1`...) sono in [scenari-soluzioni.sh](scenari-soluzioni.sh); [scenari-autotest.sh](scenari-autotest.sh) rompe, prova le scorciatoie e ripara ogni scenario, e deve dire che tutti i controlli sono ok (lo lancia la CI).
+Da sapere, trovato provando: in MySQL 9 `EXPLAIN` stampa per default un **albero**; la tabella con `type`, `key` e `rows` richiede `EXPLAIN FORMAT=TRADITIONAL`. Le statistiche delle code di RabbitMQ si aggiornano ogni 5 secondi circa: subito dopo aver creato una coda l'API dà `messages: null`.
+
 Torna all'[indice dell'area](../README.md)
