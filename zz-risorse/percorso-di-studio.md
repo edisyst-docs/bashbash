@@ -121,7 +121,7 @@ Per queste aree la prova è **far passare tutti gli esercizi**: `giusti N, sbagl
 | [08](../08-remoto-e-sicurezza/06-esercizi.md) | 16 | `./lab.sh 08` | `cd 06-esercizi` |
 | [10](../10-rete-e-web/10-esercizi.md) | 16 | `./lab.sh 10` | `cd 10-esercizi` |
 
-Nelle aree 08 e 10, dopo gli esercizi, ci sono anche gli scenari guidati ([08](../08-remoto-e-sicurezza/07-scenari.md) e [10](../10-rete-e-web/11-scenari.md)); li hanno anche la 07 e la 09, che non hanno esercizi: otto guasti ciascuna, da diagnosticare partendo dal solo sintomo.
+Nelle aree 08 e 10, dopo gli esercizi, ci sono anche gli scenari guidati ([08](../08-remoto-e-sicurezza/07-scenari.md) e [10](../10-rete-e-web/11-scenari.md)); li hanno anche la 07, la 09 e la 12, che non hanno esercizi: otto guasti ciascuna, da diagnosticare partendo dal solo sintomo.
 
 In ogni cartella: scrivi la risposta in `risposte/NN.sh` e lancia `./verifica.sh NN`; senza argomenti li controlla tutti. Le soluzioni sono nascoste in fondo a ogni esercizio: guardale **dopo** aver provato, e confronta anche quando il tuo è giusto (spesso ce n'è uno più corto).
 
@@ -205,6 +205,7 @@ curl -s http://loki:3100/loki/api/v1/labels | jq -c .data                       
 amtool --alertmanager.url=http://alertmanager:9093 silence query                       # 4. ci sono silenzi attivi?
 #   ID  Matchers  Ends At  Created By  Comment       <- solo l'intestazione: nessuno
 ```
+Poi gli [scenari guidati](../12-osservabilita/09-scenari.md): otto guasti del monitoraggio (un target giù, un alert che non scatta, un reload fallito...) da diagnosticare partendo dal sintomo.
 Se non riesce: [02-prometheus](../12-osservabilita/02-prometheus.md) (1 e 2), [07-loki](../12-osservabilita/07-loki.md) (3), [05-alerting](../12-osservabilita/05-alerting.md) (4). Le prove a occhio (una dashboard, un alert che arriva a Mailpit, una traccia in Jaeger) passano dal browser e non si controllano da riga di comando.
 
 ## Non provato

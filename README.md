@@ -163,6 +163,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 6. [grafana](12-osservabilita/06-grafana.md) — dashboard, variabili, provisioning da codice, API
 7. [loki](12-osservabilita/07-loki.md) — log centralizzati con Loki e Grafana Alloy, LogQL, logcli, alert sui log
 8. [tracing](12-osservabilita/08-tracing.md) — OpenTelemetry, Alloy come collector, Tempo e TraceQL, Jaeger, strumentare in Python, campionamento
+9. [scenari guidati](12-osservabilita/09-scenari.md) — 8 guasti del monitoraggio (target giù, alert che non scatta, rotte e reload di Alertmanager, log che si fermano, data source, textfile) da diagnosticare
 
 ## Supporto (fuori dal percorso)
 

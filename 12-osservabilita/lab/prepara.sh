@@ -345,6 +345,15 @@ prov_ordini.shutdown()                              # svuota il lotto in sospeso
 prov_magazzino.shutdown()
 EOF2
 
+# ---------------------------------------------------------------- 09-scenari
+sezione 09-scenari
+cat > scenari.sh << EOF
+#!/usr/bin/env bash
+# i guasti stanno in $LAB_SRC/scenari.sh: non aprirlo prima di aver provato
+exec bash $LAB_SRC/scenari.sh "\$@"
+EOF
+chmod +x scenari.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 12 pronto in $DEST: una cartella per ogni .md"
     echo "Questo è il server monitorato (node_exporter :9100, nginx :80). Dal PC: Prometheus http://localhost:9090,"
