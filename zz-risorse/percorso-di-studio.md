@@ -121,7 +121,7 @@ Per queste aree la prova è **far passare tutti gli esercizi**: `giusti N, sbagl
 | [08](../08-remoto-e-sicurezza/06-esercizi.md) | 16 | `./lab.sh 08` | `cd 06-esercizi` |
 | [10](../10-rete-e-web/10-esercizi.md) | 16 | `./lab.sh 10` | `cd 10-esercizi` |
 
-Nelle aree 08 e 10, dopo gli esercizi, ci sono anche gli scenari guidati ([08](../08-remoto-e-sicurezza/07-scenari.md) e [10](../10-rete-e-web/11-scenari.md)): otto guasti ciascuna, da diagnosticare partendo dal solo sintomo.
+Nelle aree 08 e 10, dopo gli esercizi, ci sono anche gli scenari guidati ([08](../08-remoto-e-sicurezza/07-scenari.md) e [10](../10-rete-e-web/11-scenari.md)); li hanno anche la 07 e la 09, che non hanno esercizi: otto guasti ciascuna, da diagnosticare partendo dal solo sintomo.
 
 In ogni cartella: scrivi la risposta in `risposte/NN.sh` e lancia `./verifica.sh NN`; senza argomenti li controlla tutti. Le soluzioni sono nascoste in fondo a ogni esercizio: guardale **dopo** aver provato, e confronta anche quando il tuo è giusto (spesso ce n'è uno più corto).
 
@@ -150,6 +150,7 @@ samba-tool user list -H ldap://dc1.lab.test -U 'administrator%Passw0rd!2026' | g
 #   krbtgt
 #   mrossi
 ```
+Poi gli [scenari guidati](../07-windows/10-scenari.md): otto guasti del dominio da diagnosticare partendo dal sintomo.
 Se non riesce: [02-powershell](../07-windows/02-powershell.md) e [04-powershell-scripting](../07-windows/04-powershell-scripting.md) (1-3), [09-active-directory](../07-windows/09-active-directory.md) (4-5).
 I file `.bat` (`01-batch`, `03-esempi/`) e i comandi di `schtasks` non hanno una prova automatica: si provano su un PC Windows.
 

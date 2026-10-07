@@ -97,6 +97,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 7. [task scheduler](07-windows/07-task-scheduler.md) — `schtasks` e ScheduledTasks: azioni, trigger, codici di uscita
 8. [scoop e chocolatey](07-windows/08-scoop-e-chocolatey.md) — altri gestori di pacchetti, a confronto con `winget`
 9. [active directory](07-windows/09-active-directory.md) — dominio, utenti e gruppi, LDAP e Kerberos, join, GPO; con un controller di dominio Samba 4
+10. [scenari guidati](07-windows/10-scenari.md) — 8 guasti veri del dominio (DNS, account bloccato o disabilitato, realm, policy, zona inversa, account computer) da diagnosticare
 
 ### [08-remoto-e-sicurezza/](08-remoto-e-sicurezza/) — server remoti
 1. [ssh](08-remoto-e-sicurezza/01-ssh.md) — chiavi, `~/.ssh/config`, `scp`, `sftp`, tunnel, multiplexing, WinSCP
