@@ -7,6 +7,7 @@
 # in questo laboratorio c'è solo Active Directory, con un controller di dominio vero (Samba 4) su dc1.
 set -euo pipefail
 
+LAB_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"   # questa cartella (lab/)
 SILENZIOSO=0
 [[ ${1:-} == -q ]] && { SILENZIOSO=1; shift; }
 DEST="${1:-$HOME/lab}"
@@ -67,6 +68,15 @@ Import-Csv .\utenti.csv | ForEach-Object {
     Add-ADGroupMember -Identity $_.gruppo -Members $_.utente
 }
 PS1
+
+# ---------------------------------------------------------------- 10-scenari
+sezione 10-scenari
+cat > scenari.sh << EOF
+#!/usr/bin/env bash
+# i guasti stanno in $LAB_SRC/scenari.sh: non aprirlo prima di aver provato
+exec bash $LAB_SRC/scenari.sh "\$@"
+EOF
+chmod +x scenari.sh
 
 [[ $SILENZIOSO == 1 ]] && exit 0
 echo "Laboratorio dell'area 07 pronto in $DEST (dominio lab.test, controller dc1)."

@@ -15,5 +15,6 @@ Scripting e amministrazione sul lato Windows: batch, PowerShell, pianificazione,
 | 07 | [task scheduler](07-task-scheduler.md) | `schtasks` e il modulo ScheduledTasks: azioni, trigger, impostazioni, codici di uscita, cosa serve da amministratore |
 | 08 | [scoop e chocolatey](08-scoop-e-chocolatey.md) | Altri gestori di pacchetti a confronto con `winget`: Scoop (bucket, shim, versioni) e Chocolatey |
 | 09 | [active directory](09-active-directory.md) | Dominio, OU, utenti e gruppi, LDAP e Kerberos, join, GPO, DNS, con un controller di dominio Samba 4 |
+| 10 | [scenari guidati](10-scenari.md) | 8 guasti veri del dominio da diagnosticare: DNS, account bloccato o disabilitato, realm, policy, zona inversa, record DNS, account computer; `scenari.sh controlla` guarda se il sintomo è sparito |
 
 Area precedente: [../06-sistema/](../06-sistema/) · Prossima: [../08-remoto-e-sicurezza/](../08-remoto-e-sicurezza/) · Torna all'[indice](../README.md)
