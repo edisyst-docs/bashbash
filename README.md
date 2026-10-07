@@ -105,6 +105,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 4. [vpn wireguard](08-remoto-e-sicurezza/04-vpn-wireguard.md) — tunnel cifrato fra macchine, `wg-quick`, `AllowedIPs`, NAT, `ufw route`
 5. [sicurezza del sistema](08-remoto-e-sicurezza/05-sicurezza-sistema.md) — AppArmor, SELinux, `auditd`, `lynis`, ClamAV
 6. [esercizi](08-remoto-e-sicurezza/06-esercizi.md) — 16 esercizi su tre server veri, con verifica automatica del risultato
+7. [scenari guidati](08-remoto-e-sicurezza/07-scenari.md) — 8 guasti veri (chiave, `config`, chiave del server, permessi, `ProxyJump`, firewall, ban, GPG) da diagnosticare e riparare
 
 ### [09-strumenti/](09-strumenti/) — CLI di uso quotidiano
 1. [jq e curl](09-strumenti/01-jq-e-curl.md) — API e JSON da terminale, download con `wget`

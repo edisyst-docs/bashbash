@@ -138,6 +138,15 @@ printf 'contratto di prova\n' > palestra/documento.txt
 cp "$LAB_SRC/verifica.sh" .
 chmod +x verifica.sh
 
+# ---------------------------------------------------------------- 07-scenari
+sezione 07-scenari
+cat > scenari.sh << EOF
+#!/usr/bin/env bash
+# i guasti stanno in $LAB_SRC/scenari.sh: non aprirlo prima di aver provato
+exec bash $LAB_SRC/scenari.sh "\$@"
+EOF
+chmod +x scenari.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 08 pronto in $DEST: una cartella per ogni .md"
     echo "Server: produzione, staging (dal client), db-interno (solo via produzione)"

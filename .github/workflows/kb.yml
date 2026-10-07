@@ -95,8 +95,8 @@ jobs:
               04) ./lab.sh 04 -- 'cd 06-esercizi && bash /kb/04-processi/lab/autotest.sh'; exit ;;
               # in 06 gli esercizi cambiano il sistema vero del container (systemd): utenti, unit, mount, crontab
               06) ./lab.sh 06 -- 'cd 13-esercizi && bash /kb/06-sistema/lab/autotest.sh'; exit ;;
-              # in 08 gli esercizi usano i tre server veri (ssh con agente, tunnel, ufw) e il GPG/WireGuard del client
-              08) ./lab.sh 08 -- 'cd 06-esercizi && bash /kb/08-remoto-e-sicurezza/lab/autotest.sh'; exit ;;
+              # in 08 gli esercizi usano i tre server veri (ssh con agente, tunnel, ufw) e il GPG/WireGuard del client; poi si rompe e si ripara ogni scenario guidato
+              08) ./lab.sh 08 -- 'cd 06-esercizi && bash /kb/08-remoto-e-sicurezza/lab/autotest.sh && bash /kb/08-remoto-e-sicurezza/lab/scenari-autotest.sh'; exit ;;
               # in 10 gli esercizi cambiano la rete del container host (indirizzi, rotte, namespace, nginx); poi si rompe e si ripara ogni scenario guidato
               10) ./lab.sh 10 -- 'cd 10-esercizi && bash /kb/10-rete-e-web/lab/autotest.sh && bash /kb/10-rete-e-web/lab/scenari-autotest.sh'; exit ;;
               # in 05 la risposta è uno script che riceve argomenti e stdin: ci pensa autotest.sh
