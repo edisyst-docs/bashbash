@@ -16,7 +16,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # l'immagine ubuntu è "minimizzata": dpkg scarta le pagine di manuale (e /usr/share/doc). Qui servono: man, apropos e
 # whatis degli esempi di 01-basi/03 non funzionerebbero. Tolta l'esclusione, i pacchetti che segue installa le portano
-RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes
+#
+# Stessa RUN: la rete dei runner di GitHub verso i mirror di Ubuntu a volte va in timeout (una build è caduta su un solo
+# .deb dopo dieci minuti). Con questa configurazione apt riprova ogni file fino a 5 volte e non aspetta più di 20 secondi
+# per tentativo; vale anche per gli stadi successivi, che partono da questo
+RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes \
+    && printf 'Acquire::Retries "5";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' > /etc/apt/apt.conf.d/80-rete
 
 # ambiente di studio: servono anche i pacchetti raccomandati (man-db, bash-completion, ca-certificates...),
 # quindi niente --no-install-recommends (DL3015)
