@@ -17,11 +17,20 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # l'immagine ubuntu è "minimizzata": dpkg scarta le pagine di manuale (e /usr/share/doc). Qui servono: man, apropos e
 # whatis degli esempi di 01-basi/03 non funzionerebbero. Tolta l'esclusione, i pacchetti che segue installa le portano
 #
-# Stessa RUN: la rete dei runner di GitHub verso i mirror di Ubuntu a volte va in timeout (una build è caduta su un solo
-# .deb dopo dieci minuti). Con questa configurazione apt riprova ogni file fino a 5 volte e non aspetta più di 20 secondi
-# per tentativo; vale anche per gli stadi successivi, che partono da questo
+# Stessa RUN, per la rete dei runner di GitHub: a volte archive.ubuntu.com (o security.ubuntu.com) non risponde per ore e
+# apt resta a timeout su ogni file (visto: 220 pacchetti da 41 secondi l'uno, il job ucciso dopo 30 minuti). Due difese:
+#  - apt riprova ogni file fino a 5 volte e non aspetta più di 20 secondi per tentativo (guasti brevi);
+#  - se uno dei due mirror non accetta nemmeno la connessione, si passa al mirror di Azure, lo stesso che usano le immagini
+#    dei runner (guasto lungo). Sulle reti dove i mirror rispondono non cambia niente; su arm64 (ports.ubuntu.com) neppure.
+# Vale anche per gli stadi successivi e per ciò che i laboratori installano a runtime, perché partono da questo.
 RUN rm -f /etc/dpkg/dpkg.cfg.d/excludes \
-    && printf 'Acquire::Retries "5";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' > /etc/apt/apt.conf.d/80-rete
+    && printf 'Acquire::Retries "5";\nAcquire::http::Timeout "20";\nAcquire::https::Timeout "20";\n' > /etc/apt/apt.conf.d/80-rete \
+    && for h in archive.ubuntu.com security.ubuntu.com; do \
+         timeout 8 bash -c "exec 3<>/dev/tcp/$h/80" 2>/dev/null || { \
+           echo "$h non raggiungibile: uso azure.archive.ubuntu.com"; \
+           sed -Ei 's#http://(archive|security)\.ubuntu\.com/#http://azure.archive.ubuntu.com/#' /etc/apt/sources.list.d/ubuntu.sources; \
+           break; }; \
+       done
 
 # ambiente di studio: servono anche i pacchetti raccomandati (man-db, bash-completion, ca-certificates...),
 # quindi niente --no-install-recommends (DL3015)
