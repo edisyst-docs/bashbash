@@ -170,7 +170,7 @@ git show -s --format=%s refs/bisect/bad   #    il commit trovato da bisect
 #   carrello: arrotondamento a 2 decimali
 git bisect reset > /dev/null 2>&1
 ```
-Se non riesce: [01-jq-e-curl](../09-strumenti/01-jq-e-curl.md) (1), [03-mysql](../09-strumenti/03-mysql.md) (2), [02-git](../09-strumenti/02-git.md) (3). Per gli altri strumenti (`make`, `bats`, Redis, PostgreSQL, RabbitMQ, Kafka, MongoDB) la prova è usarli su un caso tuo: ognuno ha nel `.md` un esempio completo.
+Se non riesce: [01-jq-e-curl](../09-strumenti/01-jq-e-curl.md) (1), [03-mysql](../09-strumenti/03-mysql.md) (2), [02-git](../09-strumenti/02-git.md) (3). Poi gli [scenari guidati](../09-strumenti/14-scenari.md): otto problemi (`curl`/`jq`, MySQL, git, RabbitMQ, Kafka) da diagnosticare partendo dal sintomo. Per gli altri strumenti (`make`, `bats`, Redis, PostgreSQL, MongoDB) la prova è usarli su un caso tuo: ognuno ha nel `.md` un esempio completo.
 
 ### 10 e 11
 La 10 è nella tabella degli esercizi. Per la **11** non c'è `lab.sh`: ogni argomento ha il suo laboratorio nella sua cartella, e la prova è sul PC (serve Docker):

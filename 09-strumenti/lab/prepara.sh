@@ -316,6 +316,15 @@ sezione 13-mongodb
 printf '{"_id":10,"nome":"Gina","citta":"Bari","eta":33}\n{"_id":11,"nome":"Hugo","citta":"Bari","eta":47}\n' > nuovi.json
 printf 'nome,citta,eta\nIvo,Pisa,29\nLara,Pisa,36\n' > clienti.csv
 
+# ---------------------------------------------------------------- 14-scenari
+sezione 14-scenari
+cat > scenari.sh << EOF
+#!/usr/bin/env bash
+# i guasti stanno in $LAB_SRC/scenari.sh: non aprirlo prima di aver provato
+exec bash $LAB_SRC/scenari.sh "\$@"
+EOF
+chmod +x scenari.sh
+
 if (( ! SILENZIOSO )); then
     echo "Laboratorio dell'area 09 pronto in $DEST: una cartella per ogni .md"
     ls "$DEST" | sed 's/^/  /'
