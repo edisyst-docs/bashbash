@@ -121,6 +121,8 @@ Per queste aree la prova è **far passare tutti gli esercizi**: `giusti N, sbagl
 | [08](../08-remoto-e-sicurezza/06-esercizi.md) | 16 | `./lab.sh 08` | `cd 06-esercizi` |
 | [10](../10-rete-e-web/10-esercizi.md) | 16 | `./lab.sh 10` | `cd 10-esercizi` |
 
+Nell'area 10, dopo gli esercizi, ci sono anche gli [scenari guidati](../10-rete-e-web/11-scenari.md): otto guasti da diagnosticare partendo dal solo sintomo.
+
 In ogni cartella: scrivi la risposta in `risposte/NN.sh` e lancia `./verifica.sh NN`; senza argomenti li controlla tutti. Le soluzioni sono nascoste in fondo a ogni esercizio: guardale **dopo** aver provato, e confronta anche quando il tuo è giusto (spesso ce n'è uno più corto).
 
 Un esercizio sbagliato indica il file da rileggere: ogni `.md` degli esercizi dice a quali argomenti si riferisce (nell'intestazione).
