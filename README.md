@@ -263,7 +263,7 @@ in [11-container-e-automazione/13-github-actions/](11-container-e-automazione/13
 | `shellcheck` | tutti gli script `.sh` dei laboratori e dell'area 11; restano fuori `05-scripting/*.sh` e gli script di `zz-esempi/esercizi/` e `zz-esempi/rubrica/`, che sono esempi da studiare (alcuni sbagliati apposta); `zz-esempi/lab/` invece è controllato, e il job del laboratorio `zz-esempi` lancia anche `verifica.sh` |
 | `hadolint` | tutti i file chiamati `Dockerfile`; blocca da `warning` in su e manda il report completo a *Security > Code scanning* |
 | `link` | i link relativi nei `.md` ([.github/scripts/controlla-link.py](.github/scripts/controlla-link.py)): ogni file o cartella indicata deve esistere |
-| `laboratorio` | per le aree 02, 03, 04, 05, 06, 08, 09, 10 e 12 lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio |
+| `laboratorio` | per le aree 01-10, 12 e `zz-esempi` lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio; per 02-10 e 12 lancia anche l'**autotest** (gli esercizi con la loro soluzione di riferimento, o gli scenari guidati rotti e riparati) e per `zz-esempi` il suo `verifica.sh` |
 
 Il resto di `.github/` sono gli esempi della guida: i nove workflow `esempio-*.yml`, l'Action composita
 [python-app](.github/actions/python-app/) e il problem matcher di shellcheck. [.hadolint.yaml](.hadolint.yaml) è la
