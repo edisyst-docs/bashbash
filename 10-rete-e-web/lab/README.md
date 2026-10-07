@@ -47,6 +47,9 @@ Ogni macchina nasce pulita a ogni `./lab.sh 10`.
 ## 10-esercizi
 `10-esercizi/` ha `risposte/` e `verifica.sh`; le risposte sono script in `risposte/NN.sh`. Per ogni esercizio `./verifica.sh [N]` riporta la rete di `host` allo stato di partenza, esegue la risposta, legge lo stato (indirizzi di `eth0`, MTU, rotte, namespace, `/etc/hosts`, risposta di nginx) e rimette tutto a posto; poi lo stesso con la soluzione di [soluzioni.sh](soluzioni.sh). **Agisce sul container `host`: solo qui.** `web` e `router` servono da bersaglio (`traceroute`, `nc`, `curl`, il reverse proxy).
 
+## 11-scenari
+`11-scenari/` ha `scenari.sh`, che lancia [scenari.sh](scenari.sh) (qui in `lab/`, con i guasti dentro): `./scenari.sh guasta N` rompe `host` come lo scenario N (8 in tutto) e stampa il sintomo; `./scenari.sh controlla` dice se è sparito; `./scenari.sh ripristina` riporta tutto in salute. Ogni guasto parte da una base sana (sito nginx sulla 8090 con `benvenuti in azienda`, reverse proxy sulla 8091 verso `web`, apache2 sulla 8080, rotta verso la `dmz`, `web` in `/etc/hosts`, nessuna regola `iptables`). Le riparazioni di riferimento e i tentativi che non bastano sono in [scenari-soluzioni.sh](scenari-soluzioni.sh); [scenari-autotest.sh](scenari-autotest.sh) rompe, prova le scorciatoie sbagliate e ripara ogni scenario, e deve dire che tutti i controlli sono ok (lo lancia la CI).
+
 Non provato qui: il DHCP di `dnsmasq`, la cifratura (TLS, SPF, DKIM) di Postfix, i client Windows di Samba.
 
 Da sapere:

@@ -132,6 +132,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 8. [condivisioni](10-rete-e-web/08-condivisioni-nfs-samba.md) — NFS e Samba, `exports`, `root_squash`, `mount.cifs`
 9. [alta disponibilità](10-rete-e-web/09-alta-disponibilita-keepalived.md) — `keepalived`, IP virtuale e failover
 10. [esercizi](10-rete-e-web/10-esercizi.md) — 16 esercizi su una rete vera, con verifica automatica dello stato
+11. [scenari guidati](10-rete-e-web/11-scenari.md) — 8 guasti veri (nginx, porta, rotta, nome, `502`, firewall, `403`) da diagnosticare e riparare
 
 ### [11-container-e-automazione/](11-container-e-automazione/) — container, orchestrazione, CI/CD e infrastruttura come codice
 1. [docker](11-container-e-automazione/01-docker.md) — CLI: `run`, `exec`, `logs`, immagini, pulizia, porte, policy riavvio
