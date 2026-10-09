@@ -38,6 +38,98 @@ sudo ufw disable                                            # disattiva (le rego
 > una porta pubblicata con `-p 3306:3306` è raggiungibile da internet anche se ufw la blocca.
 > Pubblicare le porte solo su localhost (`-p 127.0.0.1:3306:3306`) quando non servono dall'esterno.
 
+### ufw per chi parte da zero
+Come ragiona ufw, in tre punti:
+1. **Policy di default**: cosa succede ai pacchetti che nessuna regola nomina. Tre direzioni: `incoming` (verso il server), `outgoing` (dal server), `routed` (inoltrati). Per un server: `deny incoming`, `allow outgoing`.
+2. **Regole**: eccezioni alla policy (`allow 80/tcp` apre la porta 80). Si valutano **dall'alto in basso e vince la prima che corrisponde**: una `deny` messa sotto una `allow` più larga non serve a niente.
+3. **Attivo o no**: finché non fai `ufw enable` le regole sono solo scritte, non applicate. `ufw status` dice `inactive` se è spento.
+
+`allow` accetta, `deny` scarta in silenzio (chi si connette aspetta il timeout), `reject` risponde subito "rifiutato" (utile in rete interna, dove vuoi un errore veloce). In uscita: `ufw deny out 25/tcp`.
+
+### Commenti sulle regole
+```bash
+sudo ufw allow OpenSSH comment 'ssh admin'                                       # un commento per ricordare PERCHÉ la regola esiste
+sudo ufw allow 80/tcp comment 'sito web'
+sudo ufw allow from 10.20.1.5 to any port 3306 proto tcp comment 'mysql dal client'
+sudo ufw status numbered
+#      To                         Action      From
+#      --                         ------      ----
+# [ 1] OpenSSH                    ALLOW IN    Anywhere                   # ssh admin
+# [ 2] 80/tcp                     ALLOW IN    Anywhere                   # sito web
+# [ 3] 3306/tcp                   ALLOW IN    10.20.1.5                  # mysql dal client
+# [ 4] OpenSSH (v6)               ALLOW IN    Anywhere (v6)              # ssh admin
+# [ 5] 80/tcp (v6)                ALLOW IN    Anywhere (v6)              # sito web
+```
+Ogni regola compare due volte, `(v6)` è la copia per IPv6 (ufw la crea da sola se in `/etc/default/ufw` c'è `IPV6=yes`, il predefinito di Ubuntu).
+Il commento è solo un'etichetta per te: non cambia come il firewall decide. In `status verbose` e `show added` si vede; si può mettere solo quando si **crea** la regola, per cambiarlo si cancella e si rifà.
+
+### Vedere cosa hai configurato: `show added`, `show listening`
+```bash
+sudo ufw show added                    # le regole come le hai DIGITATE (anche se il firewall è spento): comode da copiare su un altro server
+# Added user rules (see 'ufw status' for running firewall):
+# ufw allow OpenSSH comment 'ssh admin'
+# ufw allow 80/tcp comment 'sito web'
+# ufw allow from 10.20.1.5 to any port 3306 proto tcp comment 'mysql dal client'
+sudo ufw show listening                # cosa è in ascolto e QUALE regola lo copre: trova a colpo d'occhio i servizi senza regola
+# tcp:
+#   22 * (sshd)
+#    [ 1] allow OpenSSH
+#
+#   80 * (nginx)
+#    [ 2] allow 80/tcp comment 'sito web'
+#
+#   8080 * (apache2)                    <- in ascolto, nessuna regola: con deny incoming è chiusa dall'esterno
+sudo ufw app info OpenSSH              # cosa apre un profilo (qui 22/tcp) prima di usarlo
+sudo ufw --dry-run allow 8080/tcp      # mostra le regole iptables che ne uscirebbero SENZA applicare niente
+```
+Regole **in mezzo** e cancellazione:
+```bash
+sudo ufw insert 1 deny from 198.51.100.7 comment 'noto scanner' # in posizione 1: prima di tutte le altre (con "allow" in coda non basterebbe, vince la prima)
+sudo ufw delete allow 80/tcp                                    # ripetendo la regola (senza commento) si tolgono insieme la versione v4 e la v6: meglio del numero
+sudo ufw --force delete 2                                       # per numero, senza conferma (negli script). Toglie UNA riga sola: la copia (v6) resta e va tolta a parte; i numeri cambiano a ogni cancellazione, rifai "status numbered"
+sudo ufw reload                                                 # rilegge le regole da /etc/ufw/*.rules senza spegnere il firewall
+```
+
+### Log del firewall: `ufw logging`
+```bash
+sudo ufw logging medium                # off | low | medium | high | full (predefinito: low)
+sudo ufw status verbose | grep Logging # Logging: on (medium)
+sudo tail -f /var/log/ufw.log          # su un server vero: una riga per ogni pacchetto bloccato
+# ... [UFW BLOCK] IN=eth0 OUT= SRC=198.51.100.7 DST=203.0.113.10 ... PROTO=TCP SPT=51234 DPT=8080 ...
+sudo journalctl -k | grep 'UFW BLOCK'  # lo stesso dal journal del kernel, se /var/log/ufw.log non esiste
+```
+| Livello | Cosa scrive |
+|---|---|
+| `low` | i pacchetti **bloccati** che non corrispondono a nessuna regola, più quelli che escono dalle regole `limit` |
+| `medium` | in più i pacchetti **permessi** che non rientrano nella policy di default (es. accettati da una regola), le nuove connessioni e i pacchetti non validi |
+| `high` | tutti i pacchetti, con limite di frequenza (può riempire il disco) |
+| `full` | come `high`, **senza** limite |
+
+Come leggere una riga: `SRC` chi manda, `DST` il tuo IP, `DPT` la porta che cercava, `PROTO` il protocollo. Tante righe con `DPT=22` e `SRC` sempre diversi: scansione o tentativi di accesso a SSH (qui aiuta [fail2ban](#fail2ban-bloccare-i-tentativi-di-accesso-ripetuti)).
+`low` va bene sempre; `medium` o più solo per capire perché qualcosa non passa, poi si torna a `low`, e `ufw logging off` spegne tutto.
+> **NOTA**: nel laboratorio (container) `ufw logging` si imposta e `status verbose` lo mostra, ma **non** compare nessuna riga `[UFW BLOCK]`: un container non vede il log del kernel. Il formato delle righe sopra viene dalla documentazione di ufw e non l'ho riprodotto qui. Su un server o una VM vera funziona.
+
+### Ricominciare da zero: `ufw reset`
+```bash
+sudo ufw --force reset                 # cancella TUTTE le regole e SPEGNE il firewall (--force: senza chiedere conferma)
+# Backing up 'user.rules' to '/etc/ufw/user.rules.20261009_163757'     <- prima salva una copia di ogni file di regole
+# ...
+sudo ufw status                        # Status: inactive
+```
+> **ATTENZIONE**: dopo `reset` il firewall è **spento**, quindi il server è aperto a tutto finché non rifai `default`, `allow OpenSSH` e `enable` (in questo ordine: se fai `enable` con `deny incoming` e senza `allow OpenSSH`, ti chiudi fuori via SSH). Prima di resettare salva le regole con `sudo ufw show added > regole-ufw.txt`; per ripristinarle, rilancia quelle righe (`ufw allow ...`) con `sudo`.
+
+Ricetta di un server nuovo, da incollare (con SSH sulla 22: se la porta è diversa cambia `allow`):
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow OpenSSH comment 'ssh'
+sudo ufw allow 80/tcp comment 'http'
+sudo ufw allow 443/tcp comment 'https'
+sudo ufw --force enable
+sudo ufw status verbose                # controlla: Status: active, Default: deny (incoming)
+sudo ufw show listening                # nessun servizio in ascolto senza una regola che lo giustifichi
+```
+
 ## Hardening di SSH
 Le modifiche vanno in un file dentro `/etc/ssh/sshd_config.d/`, così non si toccano i file del pacchetto.
 File `/etc/ssh/sshd_config.d/10-hardening.conf`:
