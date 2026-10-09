@@ -20,6 +20,11 @@ if [[ ${2:-} == controllo ]]; then
         17) cat release/config.ini; ls release ;;
         18) [[ -s out.txt ]] && echo "out.txt non vuoto"; cat err.txt ;;
         20) find destinazione | sort ;;
+        21) find copia | sort ;;
+        22) find mirror | sort ;;
+        23) find posta -type f | wc -l; find arrivo -type f | sort ;;
+        24) find copia2 | sort ;;
+        25) find cestino -type f | sort; cat backup/index.html ;;
     esac
     exit 0
 fi
@@ -44,5 +49,11 @@ case $n in
     18) ls . nonesiste > out.txt 2> err.txt ;;
     19) sort lista1.txt | comm -23 - <(sort lista2.txt) ;;
     20) rsync -a --exclude .git origine/ destinazione/ ;;
-    *)  echo "esercizi da 1 a 20" >&2; exit 2 ;;
+    21) rsync -am --include='*/' --include='*.jpg' --exclude='*' web/ copia/ ;;
+    22) rsync -ain --delete web/ mirror/ | grep deleting | sort ;;
+    23) rsync -a --remove-source-files posta/ arrivo/ ;;
+    24) rsync -a --max-size=1M --exclude .git --exclude logs web/ copia2/ ;;
+    25) rsync -a --delete --backup --backup-dir="$PWD/cestino" web/ backup/ ;;
+    26) rsync -a nonesiste/ x/ 2> /dev/null; echo $? ;;
+    *)  echo "esercizi da 1 a 26" >&2; exit 2 ;;
 esac

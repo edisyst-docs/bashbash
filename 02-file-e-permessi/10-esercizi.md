@@ -2,7 +2,7 @@
 
 > **Laboratorio**: `./lab.sh 02`, poi `cd 10-esercizi`. Il materiale è in `palestra/`; le risposte vanno in `risposte/` e `verifica.sh` le controlla (vedi [lab/](lab/)).
 
-Venti esercizi sui comandi di quest'area ([find](02-find.md), [archivi](03-archivi-compressione.md), [link](04-link.md), [redirezioni](05-redirezioni.md), [diff e rsync](07-diff-e-rsync.md), [permessi](08-permessi.md)).
+Ventisei esercizi sui comandi di quest'area ([find](02-find.md), [archivi](03-archivi-compressione.md), [link](04-link.md), [redirezioni](05-redirezioni.md), [diff e rsync](07-diff-e-rsync.md), [permessi](08-permessi.md)).
 Alcuni **stampano** un risultato (quali file, quanti), altri **cambiano i file** (`chmod`, `ln`, `tar`): in tutti e due i casi `verifica.sh` sa controllare. Le soluzioni sono nascoste in fondo a ogni esercizio.
 
 ## Come si lavora
@@ -38,6 +38,7 @@ palestra/
   progetto/ (a.txt 666, b.txt 664, sub/ 777...)   sito/ (tutto a 700/600)   condivisa/ (755)   release-1/ release-2/
   dati.txt  dati/ (a.csv b.csv c.tmp d.tmp)  release.tar.gz (con release/config.ini e release/app.py)
   lista1.txt lista2.txt  origine/ (con .git/, css/, index.html, LEGGIMI)   vuota/ src/vuota/ (cartelle vuote)
+  web/ (index.html, css/, img/foto.jpg logo.png, logs/, .git/, dump.sql 2 MB)  mirror/ (vecchio.txt, obsoleto/x.txt)  posta/ (a.txt b.txt sub/c.txt) arrivo/  backup/ (index.html vecchio, extra.txt) cestino/
 ```
 
 ## find
@@ -288,6 +289,90 @@ find destinazione | sort
 Lo slash finale su `origine/` copia il **contenuto**; senza, si creerebbe `destinazione/origine/`.
 </details>
 
+## rsync in pratica ([07-diff-e-rsync.md](07-diff-e-rsync.md))
+Si lavora su `web/` (un sito con `.git/`, `logs/`, `css/`, `img/` e un `dump.sql` da 2 MB), più `mirror/`, `posta/`, `arrivo/`, `backup/` e `cestino/` (vedi la palestra qui sopra).
+
+**21.** Copia in `copia/` **solo i file `.jpg`** di `web/`, **senza** le cartelle rimaste vuote. *(Cambia i file: si controlla l'elenco di `copia/`.)*
+<details><summary>soluzione</summary>
+
+```bash
+rsync -am --include='*/' --include='*.jpg' --exclude='*' web/ copia/
+find copia | sort
+# copia
+# copia/img
+# copia/img/foto.jpg
+```
+Le regole si valutano **in ordine, vince la prima che corrisponde**: `--include='*/'` lascia passare le cartelle (senza, rsync non scenderebbe in `img/` e non troverebbe il `.jpg`), poi i `.jpg`, poi `--exclude='*'` scarta tutto il resto. `-m` toglie le cartelle vuote (`css/`, `logs/`, `.git/`).
+</details>
+
+**22.** **Senza copiare né cancellare niente**, stampa (in ordine alfabetico) le righe `*deleting` che rsync mostrerebbe sincronizzando `web/` su `mirror/` **con `--delete`**: sono i file di `mirror/` che andrebbero persi. *(Output e stato: `mirror/` deve restare com'era.)*
+<details><summary>soluzione</summary>
+
+```bash
+rsync -ain --delete web/ mirror/ | grep deleting | sort
+# *deleting   obsoleto/
+# *deleting   obsoleto/x.txt
+# *deleting   vecchio.txt
+```
+`-n` è la simulazione, `-i` stampa una riga per ogni azione (`*deleting` = verrebbe cancellato). **Prima** di un `--delete` su dati veri si fa sempre così. Dimenticare `-n` cancella davvero: il controllo se ne accorge perché `mirror/` cambia.
+</details>
+
+**23.** **Sposta** (non copiare) tutti i file di `posta/`, sottocartelle comprese, in `arrivo/`: in `posta/` non devono restare file. *(Cambia i file: si controlla quanti file restano in `posta/` e cosa c'è in `arrivo/`.)*
+<details><summary>soluzione</summary>
+
+```bash
+rsync -a --remove-source-files posta/ arrivo/
+find posta -type f | wc -l
+# 0
+find arrivo -type f | sort
+# arrivo/a.txt
+# arrivo/b.txt
+# arrivo/sub/c.txt
+```
+`--remove-source-files` cancella dalla sorgente ogni file **dopo** averlo trasferito. Le **cartelle** (`posta/sub/`) restano, vuote: `find posta -type d -empty -delete` le toglie.
+</details>
+
+**24.** Copia `web/` in `copia2/` **escludendo** la cartella `.git`, la cartella `logs` e i file **più grandi di 1 MB**. *(Cambia i file: si controlla l'elenco di `copia2/`.)*
+<details><summary>soluzione</summary>
+
+```bash
+rsync -a --max-size=1M --exclude .git --exclude logs web/ copia2/
+find copia2 | sort
+# copia2
+# copia2/css
+# copia2/css/stile.css
+# copia2/img
+# copia2/img/foto.jpg
+# copia2/img/logo.png
+# copia2/index.html
+```
+`--max-size=1M` salta `dump.sql` (2 MB); esiste anche `--min-size`. Più `--exclude` si sommano.
+</details>
+
+**25.** Sincronizza `web/` su `backup/` **con `--delete`**, ma i file che rsync **sovrascrive o cancella** in `backup/` devono finire in `cestino/` (che esiste già, accanto a `backup/`). *(Cambia i file: si controlla l'elenco di `cestino/` e il contenuto di `backup/index.html`.)*
+<details><summary>soluzione</summary>
+
+```bash
+rsync -a --delete --backup --backup-dir="$PWD/cestino" web/ backup/
+find cestino -type f | sort
+# cestino/extra.txt
+# cestino/index.html
+cat backup/index.html
+# <h1>ciao</h1>
+```
+`cestino/index.html` è la versione **vecchia** (sovrascritta) e `cestino/extra.txt` il file cancellato da `--delete`. Il percorso di `--backup-dir` deve essere **assoluto**: un percorso relativo (`--backup-dir=cestino`) è inteso **rispetto alla destinazione**, e i file finirebbero in `backup/cestino/`, dentro il backup stesso (provato).
+</details>
+
+**26.** Lancia `rsync -a nonesiste/ x/` (la sorgente non esiste) **nascondendo i messaggi di errore** e stampa il **codice di uscita**. (un numero)
+<details><summary>soluzione</summary>
+
+```bash
+rsync -a nonesiste/ x/ 2> /dev/null; echo $?
+# 23
+```
+`0` è l'unico «tutto ok»; `23` significa trasferimento parziale (qui: la sorgente non c'è), `24` file spariti durante la copia, `30` timeout. Negli script di backup si controlla sempre `$?`. Il `2> /dev/null` butta solo lo **stderr**, il codice di uscita resta.
+</details>
+
 ## Se non sai da dove cominciare
 | Devi... | Strumento |
 |---|---|
@@ -299,6 +384,10 @@ Lo slash finale su `origine/` copia il **contenuto**; senza, si creerebbe `desti
 | vedere i permessi in numeri | `stat -c '%a %n' file` |
 | un secondo nome per lo stesso file / un collegamento | `ln` / `ln -s` ([04-link.md](04-link.md)) |
 | archivi | `tar czf` (crea), `tar tzf` (elenca), `tar xzf` (estrae) |
+| copiare solo certi file, o escluderne | `rsync -a --include ... --exclude ...` (vince la prima regola), `--max-size`, `-m` ([07-diff-e-rsync.md](07-diff-e-rsync.md)) |
+| provare una sincronizzazione senza farla | `rsync -ain --delete ...` (`-n` simula, `-i` elenca le azioni) |
+| non perdere i file sovrascritti o cancellati | `rsync --backup --backup-dir=PERCORSO-ASSOLUTO` |
+| spostare invece di copiare | `rsync --remove-source-files` |
 | separare output ed errori | `>` e `2>` |
 
 Torna all'[indice dell'area](README.md)

@@ -35,7 +35,7 @@ Creare, cercare, trasferire file e decidere chi può farlo.
 7. [diff e rsync](02-file-e-permessi/07-diff-e-rsync.md) — `diff`, `patch`, `rsync`
 8. [permessi](02-file-e-permessi/08-permessi.md) — notazione ottale, `chmod`, bit speciali, `umask`
 9. [proprietari](02-file-e-permessi/09-proprietari.md) — `chown`, `chgrp`, gruppi condivisi
-10. [esercizi](02-file-e-permessi/10-esercizi.md) — 20 esercizi con verifica automatica su una palestra di file
+10. [esercizi](02-file-e-permessi/10-esercizi.md) — 26 esercizi con verifica automatica su una palestra di file
 
 ### [03-testo-e-regex/](03-testo-e-regex/) — cercare e trasformare testo
 Gli strumenti che userai dentro ogni script.
@@ -105,7 +105,7 @@ Ogni argomento ha il suo `.md` e, dove esiste, lo script di prova con lo stesso 
 3. [gpg](08-remoto-e-sicurezza/03-gpg.md) — cifrare e firmare file, chiavi pubbliche e private
 4. [vpn wireguard](08-remoto-e-sicurezza/04-vpn-wireguard.md) — tunnel cifrato fra macchine, `wg-quick`, `AllowedIPs`, NAT, `ufw route`
 5. [sicurezza del sistema](08-remoto-e-sicurezza/05-sicurezza-sistema.md) — AppArmor, SELinux, `auditd`, `lynis`, ClamAV
-6. [esercizi](08-remoto-e-sicurezza/06-esercizi.md) — 16 esercizi su tre server veri, con verifica automatica del risultato
+6. [esercizi](08-remoto-e-sicurezza/06-esercizi.md) — 22 esercizi su tre server veri, con verifica automatica del risultato
 7. [scenari guidati](08-remoto-e-sicurezza/07-scenari.md) — 8 guasti veri (chiave, `config`, chiave del server, permessi, `ProxyJump`, firewall, ban, GPG) da diagnosticare e riparare
 
 ### [09-strumenti/](09-strumenti/) — CLI di uso quotidiano

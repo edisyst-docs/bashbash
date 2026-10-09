@@ -2,7 +2,7 @@
 
 > **Laboratorio**: `./lab.sh 08`, poi `cd 06-esercizi`. Si lavora dal `client`, che vede tre server veri (`produzione`, `staging`, `db-interno`, con sshd, ufw e fail2ban) (vedi [lab/](lab/)).
 
-Sedici esercizi su [ssh](01-ssh.md), [firewall](02-firewall-e-hardening.md), [GPG](03-gpg.md) e [WireGuard](04-vpn-wireguard.md). Qui si **parla con altre macchine**: si apre una connessione, si costruisce un tunnel, si cambia una regola del firewall di un server,
+Ventidue esercizi su [ssh](01-ssh.md), [firewall e ufw](02-firewall-e-hardening.md), [GPG](03-gpg.md) e [WireGuard](04-vpn-wireguard.md). Qui si **parla con altre macchine**: si apre una connessione, si costruisce un tunnel, si cambia una regola del firewall di un server,
 e `verifica.sh` guarda **il risultato**. Le soluzioni sono nascoste in fondo a ogni esercizio.
 
 ## Come si lavora
@@ -240,6 +240,78 @@ wg show wg0 listen-port; ip -4 -o addr show wg0 | awk '{print $4}'
 `wg genkey > priv` stampa `Warning: writing to world accessible file. Consider setting the umask to 077`: la chiave privata andrebbe creata con `umask 077` (o `chmod 600`). Il client ha `CAP_NET_ADMIN`, perciò può creare `wg0`; senza peer l'interfaccia è accesa ma non scambia traffico. Si toglie con `ip link del wg0`.
 </details>
 
+## ufw in pratica ([02-firewall-e-hardening.md](02-firewall-e-hardening.md))
+Tutti su **`staging`**, come `edoardo` (`sudo` con password `edoardo`, come nell'esercizio 10). Il firewall del laboratorio è **inattivo**: le regole si aggiungono e si leggono con `ufw show added`, ma non bloccano niente.
+Ogni prova riparte da `staging` senza regole.
+
+**17.** Consenti l'accesso alla porta **3306/tcp** (MySQL) **solo dal `client`** (`10.20.1.5`), con il commento `mysql dal client`. *(Cambia il sistema: `ufw show added`; la regola deve essere scritta nella forma `from ... to any port ... proto tcp`.)*
+<details><summary>soluzione</summary>
+
+```bash
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw allow from 10.20.1.5 to any port 3306 proto tcp comment 'mysql dal client'"
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw show added"
+# ufw allow from 10.20.1.5 to any port 3306 proto tcp comment 'mysql dal client'
+```
+`ufw allow 3306/tcp` aprirebbe la porta a **tutti**: con `from IP` si limita a chi serve. Il commento si può dare solo **creando** la regola. Gli apici interni (`'mysql dal client'`) devono arrivare fino al server: per questo stanno dentro le virgolette doppie del comando remoto.
+</details>
+
+**18.** Blocca l'IP **`198.51.100.7`** con il commento `scanner`. *(Cambia il sistema: `ufw show added`.)*
+<details><summary>soluzione</summary>
+
+```bash
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw deny from 198.51.100.7 comment scanner"
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw show added"
+# ufw deny from 198.51.100.7 comment 'scanner'
+```
+`deny` scarta i pacchetti in silenzio (chi si connette aspetta il timeout); `reject` risponderebbe subito «rifiutato». Un comando senza commento è un errore comune: il controllo guarda anche quello.
+</details>
+
+**19.** Su `staging` c'è già la regola `allow 80/tcp`. Aggiungi `deny from 198.51.100.7` **come prima regola** (prima di quella sulla 80). *(Cambia il sistema: `ufw show added` elenca le regole nell'ordine in cui vengono valutate.)*
+<details><summary>soluzione</summary>
+
+```bash
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw insert 1 deny from 198.51.100.7"
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw show added"
+# ufw deny from 198.51.100.7
+# ufw allow 80/tcp
+```
+Le regole si valutano dall'alto e **vince la prima che corrisponde**. Un normale `ufw deny from ...` si **accoda** in fondo: con una `allow` più larga sopra (per esempio «tutti sulla 80») l'IP da bloccare passerebbe lo stesso. `insert 1` la mette in cima. Con un `deny` accodato il controllo vede l'ordine sbagliato.
+</details>
+
+**20.** Su `staging` ci sono le regole `allow 8080/tcp` e `allow 9090/tcp`. **Togli solo la 8080**. *(Cambia il sistema: `ufw show added`.)*
+<details><summary>soluzione</summary>
+
+```bash
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw delete allow 8080/tcp"
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw show added"
+# ufw allow 9090/tcp
+```
+`ufw delete` vuole la **stessa regola** che l'ha creata, con `delete` davanti: toglie insieme la versione IPv4 e quella IPv6 `(v6)`. Con il firewall attivo si può anche cancellare **per numero** (`ufw status numbered`, poi `ufw --force delete N`): ma toglie una riga sola e i numeri cambiano a ogni cancellazione.
+</details>
+
+**21.** Su `staging` ci sono alcune regole. **Salva** nel file `regole-ufw.txt` (cartella corrente, sul `client`) i comandi `ufw ...` che le ricreerebbero, uno per riga (la lista da cui ripartire dopo un `ufw reset`). *(Cambia i file: si legge `regole-ufw.txt`.)*
+<details><summary>soluzione</summary>
+
+```bash
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw show added" | grep '^ufw' > regole-ufw.txt
+cat regole-ufw.txt
+# ufw allow OpenSSH comment 'ssh'
+# ufw allow 80/tcp
+# ufw allow 443/tcp
+```
+`ufw show added` scrive già le regole come **comandi**, con il commento: si possono rilanciare così come sono (con `sudo`). Il `grep '^ufw'` toglie la riga di intestazione `Added user rules (...)`.
+</details>
+
+**22.** **Senza applicare niente**, stampa la regola `iptables` **IPv4** che nascerebbe da `ufw allow 8443/tcp`. *(Output di una riga; poi si controlla anche che la 8443 **non** sia stata aggiunta.)*
+<details><summary>soluzione</summary>
+
+```bash
+ssh edoardo@staging "echo edoardo | sudo -S -p '' ufw --dry-run allow 8443/tcp" | grep 'ufw-user-input.*8443'
+# -A ufw-user-input -p tcp --dport 8443 -j ACCEPT
+```
+`--dry-run` stampa **tutte** le regole `iptables` che ne uscirebbero, più la copia IPv6 (`ufw6-user-input`): il `grep` tiene la riga IPv4. Senza `--dry-run` la regola verrebbe aggiunta davvero e il controllo se ne accorge (`ufw show added | grep -c 8443` deve dare `0`).
+</details>
+
 ## Se non sai da dove cominciare
 | Devi... | Comando |
 |---|---|
@@ -249,7 +321,7 @@ wg show wg0 listen-port; ip -4 -o addr show wg0 | awk '{print $4}'
 | passare da un server | `ssh -J utente@salto utente@destinazione`, o `ProxyJump` nel config |
 | portare una porta | `ssh -fNL PORTA-LOCALE:HOST:PORTA utente@server` (locale), `-R` (inversa), `-D PORTA` (SOCKS) |
 | un file avanti e indietro | `scp utente@host:percorso .` |
-| regole del firewall | `ufw allow PORTA/tcp`, `ufw show added`, `ufw status` |
+| regole del firewall | `ufw allow PORTA/tcp`, `ufw allow from IP to any port N proto tcp`, `ufw insert 1 ...`, `ufw delete allow ...`, `ufw show added`, `ufw --dry-run ...` |
 | bannati | `fail2ban-client status JAIL` |
 | GPG senza tastiera | `--batch --pinentry-mode loopback --passphrase ...`, `-c` (simmetrica), `-b` (firma staccata), `--verify` |
 | WireGuard | `wg genkey`, `wg pubkey`, `ip link add wg0 type wireguard`, `wg set`, `wg show` |

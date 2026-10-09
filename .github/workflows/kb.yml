@@ -89,7 +89,7 @@ jobs:
           # come risposta si dà a ogni esercizio la sua stessa soluzione di riferimento: verifica.sh deve dire OK a tutti,
           # altrimenti è rotto il verificatore (o la palestra), non lo studente
           case $AREA in
-              02) dir=10-esercizi n=20 risposta='bash /kb/02-file-e-permessi/lab/soluzioni.sh %d' ;;
+              02) dir=10-esercizi n=26 risposta='bash /kb/02-file-e-permessi/lab/soluzioni.sh %d' ;;
               03) dir=06-esercizi n=18 risposta='bash /kb/03-testo-e-regex/lab/soluzioni.sh %d' ;;
               # in 04 gli esercizi agiscono su processi vivi (lo scenario di scenario.sh) e uno è uno script che si avvia da solo
               04) ./lab.sh 04 -- 'cd 06-esercizi && bash /kb/04-processi/lab/autotest.sh'; exit ;;
