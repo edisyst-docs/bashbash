@@ -62,6 +62,85 @@ patch -p0 < modifiche.patch                                        # la applico:
 patch -R -p0 < modifiche.patch                                     # la annullo (reverse)
 ```
 
+
+### Leggere cosa fa rsync: `-i`, `--stats`, `--progress`
+Prova su una cartella di esempio (si crea con questi comandi, in qualsiasi cartella vuota):
+```bash
+mkdir -p sito/css sito/img sito/logs sito/.git
+echo '<h1>ciao</h1>' > sito/index.html;  echo 'body{}' > sito/css/stile.css
+head -c 20000 /dev/urandom > sito/img/foto.jpg;  head -c 3000000 /dev/zero > sito/dump.sql
+echo log > sito/logs/app.log;  echo x > sito/.git/HEAD
+```
+```bash
+rsync -ai sito/ copia/                # -i (--itemize-changes): una riga per ogni cosa che rsync fa
+# cd+++++++++ ./                      <- cartella creata
+# >f+++++++++ index.html              <- file copiato (+++ = nuovo)
+rsync -ai sito/ copia/                # seconda volta: NESSUN output, è già tutto uguale
+```
+Dopo aver modificato `index.html`, aggiunto `nuovo.txt` e cancellato `logs/app.log` nella sorgente:
+```bash
+rsync -ain --delete sito/ copia/      # -n: solo simulazione
+# >f.s....... index.html              <- la lettera dopo "f" dice COSA è cambiato: s = dimensione, t = data
+# >f+++++++++ nuovo.txt
+# *deleting   logs/app.log            <- verrebbe cancellato dalla destinazione per via di --delete
+rsync -a --stats -h sito/ copia/      # riepilogo finale: file creati/cancellati/trasferiti, byte inviati
+# Number of regular files transferred: 2
+# Total file size: 3.02M bytes        <- quanto pesa tutto
+# Total transferred file size: 17 bytes  <- quanto è stato DAVVERO trasferito: solo le differenze
+rsync -a --info=progress2 sito/ copia/ # UNA sola barra di avanzamento per tutto il trasferimento (invece di una per file)
+```
+
+### Includere solo certi file
+Le regole `--include`/`--exclude` si valutano **in ordine, vince la prima che corrisponde**: per tenere solo i `.jpg` bisogna lasciar passare le cartelle, poi i `.jpg`, poi escludere tutto il resto.
+```bash
+rsync -a --include='*/' --include='*.jpg' --exclude='*' sito/ soloimg/    # copia anche le cartelle vuote (css/, logs/, .git/)
+rsync -am --include='*/' --include='*.jpg' --exclude='*' sito/ soloimg/   # -m (--prune-empty-dirs): niente cartelle vuote, resta solo img/foto.jpg
+printf 'index.html\ncss/stile.css\n' > elenco.txt
+rsync -av --files-from=elenco.txt sito/ da-elenco/                        # copia SOLO i percorsi (relativi a sito/) scritti in elenco.txt
+rsync -avn --max-size=1M sito/ grandi/                                  # salta i file più grandi di 1 MB (dump.sql): nell'elenco resta foto.jpg; esiste anche --min-size
+```
+
+### Non perdere nulla: `--backup` e `--remove-source-files`
+`--delete` e la sovrascrittura sono definitivi. Con `--backup-dir` rsync sposta lì i file che altrimenti perderebbe:
+```bash
+mkdir -p /backup/cestino                                                  # la cartella PADRE deve esistere (rsync crea solo l'ultimo livello)
+rsync -a --delete --backup --backup-dir=/backup/cestino/$(date +%F) sito/ copia/
+find /backup/cestino -type f
+# /backup/cestino/2026-10-09/index.html    <- la versione che è stata sovrascritta
+# /backup/cestino/2026-10-09/css/stile.css <- il file cancellato dalla sorgente
+```
+> **ATTENZIONE**: senza `mkdir -p` del padre rsync si ferma con `rsync error: error in file IO (code 11)`.
+
+```bash
+rsync -a --remove-source-files posta/ arrivo/     # SPOSTA invece di copiare: cancella dalla sorgente ogni file trasferito
+find posta -type f | wc -l                        # 0: i file non ci sono più... ma le cartelle vuote restano (togli con: find posta -type d -empty -delete)
+rsync -ai --ignore-existing posta/ arrivo/        # non tocca i file che esistono già in destinazione (anche se sono diversi)
+rsync -au posta/ arrivo/                          # -u (--update): salta i file che in destinazione sono PIÙ RECENTI
+```
+
+### Il / finale, ancora una volta
+```bash
+rsync -ai sito  prog/    # senza / finale: crea prog/sito/ con tutto dentro
+rsync -ai sito/ prog/    # con /: il CONTENUTO di sito finisce direttamente in prog/
+```
+Nella **destinazione** il `/` finale non cambia nulla: conta solo sulla sorgente.
+
+### Remoto: provato con sshd su una porta diversa
+Provati contro un `sshd` sulla porta 2222 in un container (`localhost`, qui con utente `root`; `--rsync-path="sudo rsync"` è il solo non provato):
+```bash
+rsync -az -e "ssh -p 2222" --exclude='.git/' --exclude='logs/' sito/ deploy@localhost:/srv/sito/  # porta diversa + esclusioni
+rsync -az -e "ssh -p 2222 -o BatchMode=yes" sito/ deploy@localhost:/srv/sito/ # BatchMode: se serve una password FALLISCE subito invece di chiederla (indispensabile in cron)
+rsync -az -e "ssh -p 2222" --rsync-path="sudo rsync" sito/ deploy@localhost:/etc/sito/ # sul server rsync parte con sudo: per scrivere dove l'utente non può (serve sudo senza password per rsync)
+rsync -az -e "ssh -p 2222" --rsync-path="nice -n 10 rsync" sito/ deploy@localhost:/srv/sito/ # sul server a priorità bassa: non rallenta i servizi
+```
+
+### Codici di uscita (per gli script)
+```bash
+rsync -a nonesiste/ x/ ; echo "exit=$?"
+# rsync: [sender] change_dir "/w/nonesiste" failed: No such file or directory (2)
+# exit=23                                  <- 23 = trasferimento parziale, 24 = file spariti durante la copia, 12 = errore di protocollo, 30 = timeout
+```
+Negli script di backup controlla sempre `$?`: `0` è l'unico "tutto ok". `23` e `24` spesso si possono tollerare (file che cambiano mentre li copi, per esempio i log); gli altri no.
 ### Deploy con rsync
 ```bash
 rsync -azn --delete --exclude-from=.rsyncignore ./ deploy@server:/var/www/app/ # PRIMA simulo (-n): vedo cosa verrebbe copiato ed eliminato
