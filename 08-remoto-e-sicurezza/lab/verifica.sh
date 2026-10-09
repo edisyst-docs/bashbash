@@ -11,9 +11,9 @@ set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 LAB=${LAB:-/kb/08-remoto-e-sicurezza/lab}
 SOL=$LAB/soluzioni.sh
-SOLO_STATO="1 2 3 7 8 9 10 12 13 14 15 16"     # esercizi che producono file, tunnel o regole: si controlla lo stato, non l'output
+SOLO_STATO="1 2 3 7 8 9 10 12 13 14 15 16 17 18 19 20 21"     # esercizi che producono file, tunnel o regole: si controlla lo stato, non l'output
 ESERCIZI=("$@")
-(( ${#ESERCIZI[@]} )) || mapfile -t ESERCIZI < <(seq 1 16)
+(( ${#ESERCIZI[@]} )) || mapfile -t ESERCIZI < <(seq 1 22)
 [[ $(id -u) -eq 0 ]] || { echo "serve root (laboratorio 08: ./lab.sh 08)" >&2; exit 2; }
 getent hosts produzione > /dev/null || { echo "serve il client del laboratorio 08 (non risolve 'produzione')" >&2; exit 2; }
 

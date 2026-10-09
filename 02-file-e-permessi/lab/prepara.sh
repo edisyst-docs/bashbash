@@ -191,6 +191,13 @@ mkdir -p palestra risposte
     # rsync / confronto
     printf 'mela\npera\nbanana\narancia\n' > lista1.txt; printf 'pera\nkiwi\nbanana\n' > lista2.txt
     mkdir -p origine/.git origine/css; echo "x" > origine/.git/HEAD; echo "<html>" > origine/index.html; echo "b{}" > origine/css/s.css; echo "nota" > origine/LEGGIMI
+    # rsync: un sito, una destinazione con roba vecchia, una posta da spostare, un backup con il suo cestino
+    mkdir -p web/css web/img web/logs web/.git mirror/obsoleto posta/sub arrivo backup cestino
+    echo "<h1>ciao</h1>" > web/index.html; echo "body{}" > web/css/stile.css; echo x > web/.git/HEAD; echo log > web/logs/app.log
+    head -c 20000 /dev/urandom > web/img/foto.jpg; head -c 2000 /dev/urandom > web/img/logo.png; head -c 2097152 /dev/zero > web/dump.sql
+    echo vecchio > mirror/vecchio.txt; echo x > mirror/obsoleto/x.txt
+    echo a > posta/a.txt; echo b > posta/b.txt; echo c > posta/sub/c.txt
+    echo "<h1>versione vecchia</h1>" > backup/index.html; echo "solo nel backup" > backup/extra.txt
 )
 cp "$LAB_SRC/verifica.sh" .
 chmod +x verifica.sh

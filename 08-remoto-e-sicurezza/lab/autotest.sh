@@ -4,7 +4,7 @@
 set -euo pipefail
 LAB=${LAB:-/kb/08-remoto-e-sicurezza/lab}
 [[ -d risposte ]] || { echo "lancialo da ~/lab/06-esercizi" >&2; exit 2; }
-for i in $(seq 1 16); do
+for i in $(seq 1 22); do
     nn=$(printf "%02d" "$i")
     echo "bash $LAB/soluzioni.sh risolvi $i" > "risposte/$nn.sh"
 done

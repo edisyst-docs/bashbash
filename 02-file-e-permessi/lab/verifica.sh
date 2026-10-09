@@ -9,7 +9,7 @@ set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 SOL=${SOLUZIONI:-/kb/02-file-e-permessi/lab/soluzioni.sh}
 ESERCIZI=("$@")
-(( ${#ESERCIZI[@]} )) || mapfile -t ESERCIZI < <(seq 1 20)
+(( ${#ESERCIZI[@]} )) || mapfile -t ESERCIZI < <(seq 1 26)
 ok=0 sbagliati=0 mancanti=0
 
 # copia nuova della palestra, esegue "$@" dentro e poi il controllo di N; stampa tutto
