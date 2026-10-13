@@ -38,7 +38,10 @@ du -sh compresso.tar.gz file1 directory1   # confronto quanto occupano tutti que
 
 ## Esempi pratici
 ```bash
-tar -czf progetto_$(date +%F).tar.gz --exclude='vendor' --exclude='node_modules' --exclude='.git' progetto/ # backup datato di un progetto senza le cartelle rigenerabili
+# backup datato di un progetto senza le cartelle rigenerabili
+# $(date +%F) diventa la data ISO (es. 2026-10-13) e dà un nome diverso a ogni backup;
+# --exclude va ripetuto per ogni pattern e saltare vendor, node_modules e .git riduce di molto la dimensione
+tar -czf progetto_$(date +%F).tar.gz --exclude='vendor' --exclude='node_modules' --exclude='.git' progetto/ 
 
 tar -tzf backup.tar.gz | grep '\.env$'                  # cerco un file dentro l'archivio senza estrarlo
 tar -xzf backup.tar.gz progetto/.env                    # estraggo SOLO quel file (percorso esatto come mostrato da -t)
@@ -51,14 +54,26 @@ gzip -t backup.tar.gz && echo "archivio integro"        # verifica l'integrità 
 ### Archivi in streaming (senza file temporanei)
 Con `-f -` tar scrive su stdout o legge da stdin, quindi si può mettere in pipe.
 ```bash
-tar -czf - /var/www/app | ssh user@backup 'cat > /backup/app_$(date +%F).tar.gz' # comprime in locale e scrive direttamente sul server remoto
-ssh user@server 'tar -czf - -C /var/www app' | tar -xzf - -C ./restore           # il contrario: scarica e scompatta al volo
+# comprime in locale e scrive direttamente sul server remoto
+# '-f -' = stdout, che ssh passa a cat; le virgolette singole fanno espandere $(date) sul server, non in locale
+tar -czf - /var/www/app | ssh user@backup 'cat > /backup/app_$(date +%F).tar.gz'
 
-tar -czf - dati/ | split -b 100M - dati.tar.gz.part_  # archivio spezzato in pezzi da 100 MB (es. limiti di upload)
-cat dati.tar.gz.part_* | tar -xzf -                   # ricompone ed estrae
+# il contrario: scarica e scompatta al volo
+# -C /var/www fa entrare tar in quella cartella: nell'archivio il percorso è app/..., non var/www/app/...
+ssh user@server 'tar -czf - -C /var/www app' | tar -xzf - -C ./restore
 
-find /var/log/app -name '*.log' -mtime +7 -print0 | tar -czf log_vecchi.tar.gz --null -T - --remove-files # archivia i log più vecchi di 7 giorni e li rimuove
-                                                                                                         # -T - legge l'elenco dei file da stdin, --null perché separati da NUL
+# archivio spezzato in pezzi da 100 MB (es. limiti di upload)
+# -b 100M = dimensione di ogni pezzo, il '-' dopo è stdin, part_ è il prefisso (part_aa, part_ab, ...)
+tar -czf - dati/ | split -b 100M - dati.tar.gz.part_
+
+# ricompone ed estrae
+# il glob part_* è ordinato alfabeticamente, quindi i pezzi tornano nell'ordine giusto
+cat dati.tar.gz.part_* | tar -xzf -
+
+# archivia i log più vecchi di 7 giorni e li rimuove
+# -T - legge l'elenco dei file da stdin, --null perché separati da NUL
+# --remove-files cancella gli originali SOLO dopo averli archiviati: occhio, è irreversibile
+find /var/log/app -name '*.log' -mtime +7 -print0 | tar -czf log_vecchi.tar.gz --null -T - --remove-files
 ```
 
 ### zip (per chi deve aprirli su Windows)
