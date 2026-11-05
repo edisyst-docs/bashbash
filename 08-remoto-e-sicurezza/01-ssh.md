@@ -45,6 +45,33 @@ ssh-keygen -R server                            # rimuove il server da known_hos
 
 Con una chiave protetta da passphrase, al collegamento ssh chiede la passphrase della **chiave**, non la password dell'utente sul server.
 
+## known_hosts: di quali server mi fido
+Le chiavi (sopra) dicono al server chi sono io. `known_hosts` fa il contrario: ricorda **chi è il server**, così ssh si accorge se dall'altra parte c'è qualcun altro.
+
+Alla prima connessione ssh non conosce il server e chiede conferma:
+```
+The authenticity of host 'nome_server (203.0.113.10)' can't be established.
+ED25519 key fingerprint is SHA256:Xk3...9fQ.
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+Rispondendo `yes`, la chiave del server finisce in `~/.ssh/known_hosts` e dalle volte dopo il controllo è silenzioso. Se un giorno la chiave è diversa, ssh si rifiuta con `REMOTE HOST IDENTIFICATION HAS CHANGED`: o il server è stato reinstallato, o qualcuno si sta mettendo in mezzo (man-in-the-middle).
+```bash
+ssh-keygen -lf ~/.ssh/known_hosts -F nome_server     # cerca il server in known_hosts e ne mostra l'impronta
+ssh-keyscan -t ed25519 nome_server                   # chiede al server la sua chiave pubblica, senza fare login
+ssh-keyscan -t ed25519 nome_server | ssh-keygen -lf - # UGUALE, ma mostra l'impronta da confrontare con quella memorizzata
+ssh-keygen -R nome_server                            # toglie la voce vecchia (salva una copia in known_hosts.old)
+ssh-keygen -H -f ~/.ssh/known_hosts             # sostituisce i nomi con un hash, così il file non rivela i server visitati
+ssh-keyscan -t ed25519 nome_server >> ~/.ssh/known_hosts # aggiunge un server senza il prompt (es. negli script e nella CI)
+
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub # SUL SERVER: l'impronta vera, da confrontare con quella mostrata dal client
+ssh -o StrictHostKeyChecking=accept-new nome_server  # accetta in automatico i server nuovi, ma rifiuta quelli con la chiave cambiata
+```
+> **ATTENZIONE**: davanti a `REMOTE HOST IDENTIFICATION HAS CHANGED` non lanciare `ssh-keygen -R` per riflesso. Prima capire perché è cambiata (reinstallazione, nuovo server dietro lo stesso IP), meglio confrontando l'impronta con quella del server.
+> Evitare `-o StrictHostKeyChecking=no` e `UserKnownHostsFile=/dev/null`: tolgono proprio il controllo per cui `known_hosts` esiste.
+> `ssh-keyscan` si fida di ciò che risponde in quel momento: in uno script va bene solo se poi si verifica l'impronta o se la rete è fidata.
+
+Su Ubuntu/Debian i nomi in `known_hosts` sono già hashati (`HashKnownHosts yes`): le righe appaiono come `|1|...` e per cercare un server serve `ssh-keygen -F`, non `grep`. Per i server di tutti gli utenti c'è anche `/etc/ssh/ssh_known_hosts`.
+
 ## ssh-agent: inserire la passphrase una volta sola
 ```bash
 eval "$(ssh-agent -s)"            # avvia l'agent ed esporta le variabili che servono a ssh per trovarlo
