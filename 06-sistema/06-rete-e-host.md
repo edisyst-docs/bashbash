@@ -37,6 +37,7 @@ ss -s                         # riepilogo statistico
 ```
 
 ## DNS
+Le guide complete: [dig](../10-rete-e-web/12-dig.md) e [nslookup](../10-rete-e-web/13-nslookup.md).
 ```bash
 dig +short example.com        # solo l'IP
 dig example.com MX +short     # record MX (mail)

@@ -17,6 +17,8 @@ I comandi di rete di base (`ip -br a`, `ss`, `dig +short`, `curl -I`) sono in [.
 | 09 | [alta disponibilità](09-alta-disponibilita-keepalived.md) | `keepalived` e VRRP: IP virtuale, controllo del servizio, failover e preempt |
 | 10 | [esercizi](10-esercizi.md) | 16 esercizi su una rete vera (`ipcalc`, `ip addr/route/link`, namespace con `veth`, `traceroute`, `nc`, `curl`, `nmap`, nginx): `verifica.sh` guarda lo stato dopo |
 | 11 | [scenari guidati](11-scenari.md) | 8 guasti veri da diagnosticare e riparare (nginx che non parte, porta occupata, rotta, nome, `502`, firewall, `403`): `scenari.sh controlla` guarda se il sintomo è sparito |
+| 12 | [dig](12-dig.md) | Leggere la risposta (`status`, flag, sezioni, TTL), `+short`/`+noall +answer`, tipi di record, `-x`, `@server`, `+tcp`/`AXFR`, `+norecurse`, `+trace`, DNSSEC (`+dnssec`, `+cd`), `-f`, `~/.digrc`, classe `CH`, exit code |
+| 13 | [nslookup](13-nslookup.md) | Sintassi e `-type`, reverse, errori ed exit code, `-debug`, modalità interattiva (`server`, `set`), differenze su Windows, quando preferire `dig` |
 
 **Laboratorio**: `./lab.sh 10` dalla radice della KB avvia una piccola rete (host, host2, router, web) in cui provare
 `ip`, `traceroute`, `tcpdump`, `nmap`, i namespace, nginx e apache2. Dettagli in [lab/](lab/).

@@ -33,6 +33,7 @@ pathping google.it          :: tracert + statistiche di perdita per ogni hop (co
 nslookup www.google.com     :: interroga il DNS: stessa sintassi di Linux
 nslookup www.google.com 8.8.8.8 :: usando un DNS specifico
 ```
+Tipi di record, modalità interattiva, exit code (su Windows sempre 0) e differenze di output: [../10-rete-e-web/13-nslookup.md](../10-rete-e-web/13-nslookup.md).
 
 ## Porte e connessioni
 ```bat

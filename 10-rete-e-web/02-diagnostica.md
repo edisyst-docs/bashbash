@@ -23,6 +23,7 @@ mtr -rw -c 100 google.com > mtr_report.txt # report di 100 cicli salvato su file
 
 ## DNS in profondità
 Le query base (`dig +short`, `dig @server`, `dig -x`) sono in [../06-sistema/06-rete-e-host.md](../06-sistema/06-rete-e-host.md).
+Qui un colpo d'occhio; le guide complete sono [12-dig.md](12-dig.md) e [13-nslookup.md](13-nslookup.md).
 ```bash
 dig www.google.com                 # risposta completa: sezione ANSWER, TTL, server che ha risposto, tempo della query
 dig www.google.com +noall +answer  # solo la sezione ANSWER, con il TTL
