@@ -87,7 +87,7 @@ services:
       retries: 30
 
   mongo:
-    image: mongo:8.0
+    image: mongo:7.0                    # non 8.x: con i kernel Linux 6.19+ (runner di GitHub) mongod 8 non parte, SERVER-121912
     environment:
       MONGO_INITDB_ROOT_USERNAME: lab
       MONGO_INITDB_ROOT_PASSWORD: lab

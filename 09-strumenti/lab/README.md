@@ -86,7 +86,7 @@ Tre servizi in più, sulla stessa rete, senza porte pubblicate sull'host:
 |---|---|---|
 | `rabbitmq` | RabbitMQ 4.3 con la gestione e le metriche Prometheus; utente `lab` / `lab` | AMQP `amqp://lab:lab@rabbitmq`, API `http://rabbitmq:15672/api`, metriche `http://rabbitmq:15692/metrics` |
 | `kafka` | Kafka 4.3.1 in modalità KRaft, **un solo broker**, topic creati al volo con 3 partizioni | `kcat` (l'indirizzo è in `~/.config/kcat.conf`), `kafka:9092` |
-| `mongo` | MongoDB 8.0 con il database `app` ([mongo-init/](mongo-init/01-app.js): `utenti`, `ordini`, un indice, l'utente `app`) e l'amministratore `lab` | `mongosh "mongodb://app:app@mongo/app?authSource=app"` |
+| `mongo` | MongoDB 7.0 con il database `app` ([mongo-init/](mongo-init/01-app.js): `utenti`, `ordini`, un indice, l'utente `app`) e l'amministratore `lab` | `mongosh "mongodb://app:app@mongo/app?authSource=app"` |
 
 - `11-rabbitmq/`: `lavori.txt` (cinque lavori da mettere in coda) e `worker.sh`, il consumer da dare a `amqp-consume` (esce con 1 sulle fatture, e il messaggio resta in coda)
 - `12-kafka/`: `ordini.txt`, righe `chiave:valore` per `kcat -K:`
