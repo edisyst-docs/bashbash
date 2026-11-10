@@ -1,0 +1,36 @@
+# Laboratorio dell'area 13: lo avvia ./lab.sh 13 dalla radice della KB.
+#
+#   plesk (Plesk Obsidian 18.0 su Ubuntu 24.04, immagine ufficiale plesk/plesk)   <- lab.sh entra qui
+#     nginx :80/:443 -> apache :7080 -> PHP-FPM, BIND :53, Postfix :25/:465, Dovecot :143/:993, MariaDB :3306,
+#     pannello :8443 (HTTPS) e :8880 (HTTP)
+#
+# - Il pannello si apre dal PC su https://localhost:8443 (certificato autofirmato): il link di accesso si genera con
+#   "plesk login" e va corretto con la porta, vedi lab/README.md
+# - systemd come PID 1 con cgroup privato: lo script avvia-systemd (montato da qui) rimonta il cgroup in scrittura.
+#   Niente --privileged. Stessa tecnica dei laboratori 06, 08, 10 e 12.
+# - L'immagine pesa 3 GB e la prima partenza richiede un minuto: è normale. La licenza inclusa nell'immagine
+#   ammette UN solo dominio e UN solo cliente (oltre ad admin): un secondo dà "no available resources".
+name: lab-13
+x-lab-entra: plesk
+
+services:
+  plesk:
+    image: plesk/plesk:18.0
+    pull_policy: missing
+    hostname: plesk
+    cgroup: private
+    cap_add: [SYS_ADMIN]
+    security_opt: ["apparmor:unconfined"]        # AppArmor vieterebbe il remount del cgroup
+    tmpfs: [/run, /run/lock]
+    command: ["sh", "/usr/local/sbin/avvia-systemd"]
+    ports:
+      - "8443:8443"
+    volumes:
+      - ../..:/kb:ro
+      - ./avvia-systemd:/usr/local/sbin/avvia-systemd:ro
+    healthcheck:
+      # pronto quando risponde il pannello e il web server di Plesk è attivo
+      test: ["CMD-SHELL", "curl -skf -o /dev/null https://localhost:8443/ && plesk bin service --status web | grep -q 'is running'"]
+      interval: 3s
+      timeout: 10s
+      retries: 80

@@ -167,6 +167,14 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 8. [tracing](12-osservabilita/08-tracing.md) — OpenTelemetry, Alloy come collector, Tempo e TraceQL, Jaeger, strumentare in Python, campionamento
 9. [scenari guidati](12-osservabilita/09-scenari.md) — 8 guasti del monitoraggio (target giù, alert che non scatta, rotte e reload di Alertmanager, log che si fermano, data source, textfile) da diagnosticare
 
+### [13-plesk/](13-plesk/) — il pannello di hosting
+Il pannello che mette insieme web, DNS, posta e database: da terminale (sysadmin) e dal browser (cliente).
+
+1. [introduzione](13-plesk/01-introduzione.md) — cos'è, cliente / subscription / piano, i servizi dentro, dove stanno i file
+2. [da terminale](13-plesk/02-cli-hosting.md) — `plesk bin`: clienti, siti, DNS, posta, database, PHP, certificati, cron
+3. [manutenzione](13-plesk/03-manutenzione.md) — `plesk repair`, backup e ripristino, log, fail2ban, API REST
+4. [pannello del cliente](13-plesk/04-pannello-cliente.md) — File Manager, posta, database, DNS, PHP, certificato e backup dal browser
+
 ## Supporto (fuori dal percorso)
 
 - **[zz-esempi/](zz-esempi/)** — script completi e funzionanti: la [rubrica](zz-esempi/rubrica/) interattiva e gli [esercizi](zz-esempi/esercizi/) di scripting
@@ -187,7 +195,7 @@ Sapere come stanno server e servizi prima che se ne accorgano gli utenti.
 
 ---
 
-Le aree 01, 02, 03, 04, 05, 06, 07, 08, 09, 10 e 12, e la cartella `zz-esempi`, hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
+Le aree 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 12 e 13, e la cartella `zz-esempi`, hanno una cartella `lab/` con uno script `prepara.sh` che genera tutti i
 file che servono ai comandi dei `.md`: una sottocartella per ogni `.md`, con i nomi di file usati negli esempi.
 `lab.sh` lo lancia dentro un container Ubuntu 24.04 usa-e-getta (serve Docker). Se l'area ha bisogno di
 servizi c'è anche un `lab/compose.yaml`:
@@ -201,6 +209,7 @@ servizi c'è anche un `lab/compose.yaml`:
 | 09 | MySQL 9.7 con un database popolato, un'API finta su `http://api`, RabbitMQ, Kafka (un broker) e MongoDB, e un progetto di esempio per `make`, `bats` e gli strumenti di ricerca |
 | 10 | una rete con un router in mezzo (host, host2, router, web) per `traceroute`, `tcpdump`, `nmap`, namespace, web server, DNS, posta, NFS/Samba e keepalived |
 | 12 | Prometheus, Alertmanager, Grafana, Loki, Tempo, Jaeger, Alloy (anche come Collector OpenTelemetry), gli exporter e un server con systemd da monitorare; email degli alert in Mailpit |
+| 13 | un Plesk Obsidian vero (immagine ufficiale `plesk/plesk`, 3 GB) con systemd: pannello su `https://localhost:8443`, licenza con un dominio e un cliente; **non è nella CI** |
 
 I container con systemd non sono `--privileged` e non vedono i dischi della macchina: hanno solo le capability
 che servono (`SYS_ADMIN` per systemd, `NET_ADMIN` per rete e firewall) e AppArmor disattivato, perché systemd deve
@@ -251,7 +260,7 @@ docker run --rm -v "$(pwd):/kb" bashbash bash -c "ls -la /kb"
 ```
 
 > **Limitazioni:** in questa shell semplice `systemctl`, `ufw`, `fail2ban` e `ip netns` non funzionano: servono systemd
-> e alcune capability. Li hanno i laboratori delle aree 06, 08, 10 e 12 (`./lab.sh 06`). Restano fuori da tutti i
+> e alcune capability. Li hanno i laboratori delle aree 06, 08, 10, 12 e 13 (`./lab.sh 06`). Restano fuori da tutti i
 > laboratori il `mount` di partizioni vere e lo swap, che richiederebbero `--privileged`: con quello il container
 > vedrebbe i dischi della macchina.
 
@@ -265,7 +274,7 @@ in [11-container-e-automazione/13-github-actions/](11-container-e-automazione/13
 | `shellcheck` | tutti gli script `.sh` dei laboratori e dell'area 11; restano fuori `05-scripting/*.sh` e gli script di `zz-esempi/esercizi/` e `zz-esempi/rubrica/`, che sono esempi da studiare (alcuni sbagliati apposta); `zz-esempi/lab/` invece è controllato, e il job del laboratorio `zz-esempi` lancia anche `verifica.sh` |
 | `hadolint` | tutti i file chiamati `Dockerfile`; blocca da `warning` in su e manda il report completo a *Security > Code scanning* |
 | `link` | i link relativi nei `.md` ([.github/scripts/controlla-link.py](.github/scripts/controlla-link.py)): ogni file o cartella indicata deve esistere |
-| `laboratorio` | per le aree 01-10, 12 e `zz-esempi` lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio; per 02-10 e 12 lancia anche l'**autotest** (gli esercizi con la loro soluzione di riferimento, o gli scenari guidati rotti e riparati) e per `zz-esempi` il suo `verifica.sh` |
+| `laboratorio` | per le aree 01-10, 12 e `zz-esempi` (non la 13, che pesa 3 GB: si prova a mano con `lab/autotest.sh`) lancia `./lab.sh <area>` su Ubuntu 24.04 ed esegue un comando nel laboratorio; per 02-10 e 12 lancia anche l'**autotest** (gli esercizi con la loro soluzione di riferimento, o gli scenari guidati rotti e riparati) e per `zz-esempi` il suo `verifica.sh` |
 
 Il resto di `.github/` sono gli esempi della guida: i nove workflow `esempio-*.yml`, l'Action composita
 [python-app](.github/actions/python-app/) e il problem matcher di shellcheck. [.hadolint.yaml](.hadolint.yaml) è la
