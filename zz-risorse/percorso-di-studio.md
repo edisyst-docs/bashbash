@@ -23,7 +23,8 @@ L'[indice](../README.md) elenca tutto in ordine di cartella. Questa pagina serve
 | [10 rete e web](../10-rete-e-web/) | 15 200 | 3,8 h | 16 (2,1 h) | **6 h** |
 | [11 container e automazione](../11-container-e-automazione/) | 58 300 | 14,6 h | | **15 h** |
 | [12 osservabilità](../12-osservabilita/) | 13 200 | 3,3 h | | **3,5 h** |
-| | | | | **circa 61 h** |
+| [13 plesk](../13-plesk/) | 10 400 | 2,6 h | | **2,5 h** |
+| | | | | **circa 64 h** |
 
 **Come sono calcolati.** Le parole sono quelle dei `.md` di ogni area (senza la cartella `lab/`). La lettura è `parole / 200` minuti **moltiplicata per 3**, per le prove nel laboratorio; per gli esercizi si contano 8 minuti ciascuno. Sono **stime a tavolino, non misurate** su chi studia: contale come un ordine di grandezza. La 11 da sola è un terzo delle parole della KB.
 
@@ -45,17 +46,20 @@ flowchart LR
     A06 --> A11
     A04 --> A12[12 osservabilità]
     A10 --> A12
+    A10 --> A13[13 plesk]
+    A09 --> A13
     A06 --> A07[07 windows]
 ```
 Dipendenze vere, non solo di numerazione:
 - la **05** usa `grep`, `sed`, `awk` e le redirezioni: fatela dopo 02 e 03;
 - la **06** (servizi, utenti, cron) richiede di saper scrivere un piccolo script, quindi la 05;
 - la **08**, la **10** e la **12** danno per noto `systemctl`, `journalctl` e gli utenti della 06; la 12 anche `ps`, `top` e `/proc` della 04;
+- la **13** (Plesk) mette insieme web, DNS e posta della 10 e il database della 09: si fa dopo;
 - la **11** chiede la rete della 10 (porte, DNS, NAT) e i servizi della 06;
 - la **07** si può studiare quando si vuole: è sul lato Windows (la parte Active Directory richiede Docker, come tutti i laboratori).
 
 ## Percorsi
-Non servono tutte le 61 ore. Quattro scelte, ognuna comprende la precedente:
+Non servono tutte le 64 ore. Quattro scelte, ognuna comprende la precedente:
 
 | Percorso | Aree | Ore | Per chi |
 |---|---|---|---|
@@ -208,9 +212,26 @@ amtool --alertmanager.url=http://alertmanager:9093 silence query                
 Poi gli [scenari guidati](../12-osservabilita/09-scenari.md): otto guasti del monitoraggio (un target giù, un alert che non scatta, un reload fallito...) da diagnosticare partendo dal sintomo.
 Se non riesce: [02-prometheus](../12-osservabilita/02-prometheus.md) (1 e 2), [07-loki](../12-osservabilita/07-loki.md) (3), [05-alerting](../12-osservabilita/05-alerting.md) (4). Le prove a occhio (una dashboard, un alert che arriva a Mailpit, una traccia in Jaeger) passano dal browser e non si controllano da riga di comando.
 
+### 13 · plesk
+`./lab.sh 13`, poi `cd 02-cli-hosting && ./crea-esempio.sh` (mezzo minuto per l'avvio, l'immagine è di 3 GB):
+```bash
+doveadm auth test ufficio@esempio.test 'Pl3sk-Lab!2026x'      # 1. crea prima la casella ufficio@esempio.test da riga di comando: la password è accettata?
+#   passdb: ufficio@esempio.test auth succeeded
+IP=$(plesk bin ipmanage --ip_list | awk 'NR==2 {split($3, a, /[:\/]/); print a[2]}')
+curl -sk --resolve esempio.test:443:$IP https://esempio.test/info.php | head -1                  # 2. porta il sito su PHP 8.3 e dimostralo con una pagina PHP
+#   PHP 8.3.36 (fpm-fcgi)
+rm /etc/nginx/plesk.conf.d/vhosts/esempio.test.conf; plesk repair web -y | tail -3                 # 3. un file generato è sparito: Plesk lo ricrea?
+#   Error messages: 1; Warnings: 0; Errors resolved: 1
+plesk bin pleskbackup --domains-name esempio.test | tail -1                                         # 4. fai un backup e ripristina solo httpdocs/index.html
+#   The backup finished successfully
+```
+5. dal pannello (`plesk login mario`, `https://localhost:8443/...`): aggiungi un record `A` `test` e controlla con `dig @127.0.0.1 test.esempio.test +short` che BIND lo serva (ricorda `Update`).
+Se non riesce: [02-cli-hosting](../13-plesk/02-cli-hosting.md) (1 e 2), [03-manutenzione](../13-plesk/03-manutenzione.md) (3 e 4), [04-pannello-cliente](../13-plesk/04-pannello-cliente.md) (5).
+
 ## Non provato
 - I **tempi** sono stime a tavolino (formula sopra), non misurate su una persona.
 - Le prove di 01, 07 (PowerShell e AD), 09, 11 e 12 sono state eseguite una per una e gli output sono quelli veri, ma su un solo PC (Windows 11 con Docker Desktop); la 12 con la porta di Mailpit spostata perché 8025 era occupata.
+- Della 13: gli esempi di 02 e 03 sono riseguiti da `13-plesk/lab/autotest.sh` (nella CI no: l'immagine pesa 3 GB e la licenza ha una scadenza); il pannello di 04 è stato pilotato con Chrome e i risultati controllati dal server. Non provati: Let's Encrypt (serve un dominio vero), WP Toolkit e WordPress, il Firewall, reseller e account utente, `plesk installer update`, `plesk repair fs` (lento), Plesk su Windows.
 - La PowerShell è la 5.1 di Windows: non è stata provata la 7 (`pwsh`).
 - In 12, `count(up==1)` dà 8 con i target di questa versione del laboratorio: se se ne aggiungono, il numero cambia.
 - Il commit trovato da `git bisect` dipende dal progetto di esempio generato da `prepara.sh`: se cambia il progetto, cambia la risposta.

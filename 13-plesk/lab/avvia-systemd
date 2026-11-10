@@ -1,0 +1,8 @@
+#!/bin/sh
+# avvia-systemd: rende scrivibile il cgroup privato del container, poi systemd diventa il PID 1
+# (la stessa idea del Dockerfile della KB: l'immagine di Plesk non la contiene, quindi sta qui e si monta)
+if ! mount -o remount,rw /sys/fs/cgroup; then
+    echo "avvia-systemd: cgroup in sola lettura (servono CAP_SYS_ADMIN e AppArmor unconfined)" >&2
+    exit 1
+fi
+exec /sbin/init
