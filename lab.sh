@@ -75,8 +75,17 @@ if [[ -f $COMPOSE ]]; then
     command -v cygpath > /dev/null && COMPOSE=$(cygpath -w "$COMPOSE")
     compose() { docker compose --progress quiet -f "$COMPOSE" "$@"; }
     # in CI, se qualcosa va storto, prima di spegnere si stampano i log dei servizi (altrimenti si perdono con down -v)
-    trap 'rc=$?; if [[ -n ${CI:-} ]] && (( rc )); then echo "--- log dei servizi (exit $rc) ---" >&2; compose ps -a >&2; compose logs --no-color --tail 60 >&2; fi
-          echo "Spengo i servizi del laboratorio..." >&2; compose down -v --remove-orphans > /dev/null 2>&1' EXIT
+    spegni() {
+        local rc=$?
+        if [[ -n ${CI:-} ]] && (( rc )); then
+            echo "--- log dei servizi (exit $rc) ---" >&2
+            compose ps -a >&2
+            compose logs --no-color --tail 60 >&2
+        fi
+        echo "Spengo i servizi del laboratorio..." >&2
+        compose down -v --remove-orphans > /dev/null 2>&1
+    }
+    trap spegni EXIT
     [[ ${TTY[0]} == -it ]] && TTY_COMPOSE=() || TTY_COMPOSE=(-T)
     BUILD_COMPOSE=()
     (( BUILD )) && BUILD_COMPOSE=(--build)
