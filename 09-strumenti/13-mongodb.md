@@ -5,7 +5,7 @@
 
 **MongoDB** è un database a **documenti**: invece di righe in tabelle con colonne fisse, contiene documenti JSON (in realtà BSON, un JSON con più tipi) raggruppati in **collezioni**. Ogni documento può avere campi diversi,
 contenere array e altri documenti, e ha un `_id` unico. Dove un database relazionale ([03-mysql.md](03-mysql.md), [06-postgresql.md](06-postgresql.md)) usa `JOIN` fra tabelle, qui si tende a **incorporare** i dati collegati nello stesso documento
-(le righe di un ordine dentro l'ordine). Gli esempi sono stati eseguiti con MongoDB 8.0.32, `mongosh` 2.13.0 e gli strumenti `mongodump`, `mongorestore`, `mongoexport`, `mongoimport` 100.13.0 nel laboratorio.
+(le righe di un ordine dentro l'ordine). Gli esempi sono stati eseguiti con MongoDB 7.0.45, `mongosh` 2.13.0 e gli strumenti `mongodump`, `mongorestore`, `mongoexport`, `mongoimport` 100.13.0 nel laboratorio. Il laboratorio usa la **7.0** e non la 8.x: con i kernel Linux 6.19 e successivi le versioni 8 di MongoDB si fermano all'avvio (`Linux kernel versions 6.19 and newer has a known incompatibility`, [SERVER-121912](https://jira.mongodb.org/browse/SERVER-121912)); i comandi sono gli stessi.
 
 | SQL | MongoDB |
 |---|---|
@@ -24,7 +24,7 @@ indirizzo, ed è la stessa JavaScript; non è stata provata qui).
 M='mongodb://app:app@mongo/app?authSource=app'          # mongodb://UTENTE:PASSWORD@HOST/DATABASE?authSource=DB-DELL-UTENTE
 R='mongodb://lab:lab@mongo/?authSource=admin'
 mongosh "$R" --quiet --eval 'db.version()'
-# 8.0.32
+# 7.0.45
 mongosh "$R" --quiet --eval 'db.adminCommand({listDatabases:1}).databases.map(d => d.name)'
 # [ 'admin', 'app', 'config', 'local' ]
 mongosh "$M" --quiet --eval 'db.getCollectionNames()'
@@ -166,7 +166,7 @@ mongosh "$R" --quiet --eval 'db.getSiblingDB("app").dropUser("lettore")'
 # { ok: 1 }
 ```
 I ruoli di base: `read` e `readWrite` (su un database), `dbAdmin` (indici e statistiche, non i dati), `userAdmin` (gestire gli utenti), `root` (tutto: è quello di `lab`). L'applicazione deve usare un utente
-`readWrite` sul **suo** database, mai `root`. Il server del laboratorio ha l'autenticazione attiva perché è partito con `MONGO_INITDB_ROOT_USERNAME`; un `mongod` avviato senza (provato con un container `mongo:8.0` a parte) **non chiede nessuna password**.
+`readWrite` sul **suo** database, mai `root`. Il server del laboratorio ha l'autenticazione attiva perché è partito con `MONGO_INITDB_ROOT_USERNAME`; un `mongod` avviato senza (provato con un container `mongo:7.0` a parte) **non chiede nessuna password**.
 
 ## Backup e ripristino
 Gli strumenti del pacchetto *MongoDB Database Tools*:
@@ -242,7 +242,7 @@ Un errore del database o un'eccezione dà codice d'uscita **1**: negli script si
 ## Stato del server
 ```bash
 mongosh "$R" --quiet --eval 'var s=db.serverStatus(); ({version:s.version, connections:s.connections.current, engine:s.storageEngine.name})'
-# { version: '8.0.32', connections: 4, engine: 'wiredTiger' }
+# { version: '7.0.45', connections: 4, engine: 'wiredTiger' }
 ```
 `db.serverStatus()` ha centinaia di contatori (connessioni, operazioni, memoria, cache di WiredTiger); `db.currentOp()` mostra le operazioni in corso, `db.getSiblingDB("app").utenti.stats()` le dimensioni di una collezione.
 Il server del laboratorio occupa circa 200 MB di memoria.
