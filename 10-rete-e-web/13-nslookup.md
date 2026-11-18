@@ -68,6 +68,64 @@ nslookup -type=MX lab.test | grep -i 'mail exchanger'
 ```
 > **NOTA**: i record `MX` sono stampati nell'ordine in cui arrivano, non per priorità: il numero più **basso** vince.
 
+## `NS`: chi serve un dominio
+Cosa sono i `NS`, la differenza fra delega e zona e come si controllano i server è in [12-dig.md](12-dig.md#ns-chi-serve-un-dominio). Qui come si leggono con `nslookup`, su un dominio vero (`genovaparcheggi.com`): gli indirizzi cambiano, conta la forma.
+```bash
+nslookup -type=NS genovaparcheggi.com
+# Server:		10.255.255.254
+# Address:	10.255.255.254#53
+#
+# Non-authoritative answer:
+# genovaparcheggi.com	nameserver = ns3.liguriadigitale.it.
+# genovaparcheggi.com	nameserver = ns1.liguriadigitale.it.
+# genovaparcheggi.com	nameserver = ns2.liguriadigitale.it.
+#
+# Authoritative answers can be found from:
+# ns3.liguriadigitale.it	internet address = 81.23.81.105
+# ns2.liguriadigitale.it	internet address = 81.23.92.104
+```
+Ogni riga `nameserver = ...` è un record `NS`: il **nome** di un server autoritativo per la zona, non il suo indirizzo. Il TTL non si vede (serve `-debug`). Tre cose rispetto a `dig`:
+- `Non-authoritative answer:` c'è perché la risposta viene dalla **cache** del resolver (`10.255.255.254` qui): normale, non un errore.
+- Il blocco `Authoritative answers can be found from:` **non** è la risposta: è la sezione `ADDITIONAL`, con l'indirizzo di (alcuni) `NS`. Il titolo inganna perché qui i nomi sono gli stessi della risposta. Può mancare o essere parziale (qui `ns1` non c'è): per l'IP di un nameserver si chiede a parte, `nslookup ns1.liguriadigitale.it`.
+- L'exit code è **0**, come per ogni risposta riuscita (anche quando non c'è nessun record).
+
+Interrogando **direttamente** uno dei `NS` (ultimo argomento) la risposta è autoritativa: non compare l'avviso `Non-authoritative`, né il blocco finale. `-debug` aggiunge il TTL deciso dal proprietario della zona:
+```bash
+nslookup -debug -type=NS genovaparcheggi.com ns1.liguriadigitale.it
+# Server:		ns1.liguriadigitale.it
+# Address:	81.23.92.103#53
+#
+# ------------
+#     QUESTIONS:
+# 	genovaparcheggi.com, type = NS, class = IN
+#     ANSWERS:
+#     ->  genovaparcheggi.com
+# 	nameserver = ns1.liguriadigitale.it.
+# 	ttl = 600
+#     ...                                              (idem per ns2 e ns3)
+```
+Per vedere la **delega** (cosa dice `.com` sul dominio) si chiede a un server `.com` senza ricorsione. Il risultato sembra un errore ma è la risposta giusta:
+```bash
+nslookup -type=NS -norecurse genovaparcheggi.com a.gtld-servers.net
+# Non-authoritative answer:
+# *** Can't find genovaparcheggi.com: No answer              <- ANSWER vuota: .com non è autoritativo per il dominio
+#
+# Authoritative answers can be found from:
+# genovaparcheggi.com	nameserver = ns1.liguriadigitale.it.     <- i NS della delega (sezione AUTHORITY)
+# genovaparcheggi.com	nameserver = ns2.liguriadigitale.it.
+# genovaparcheggi.com	nameserver = ns3.liguriadigitale.it.
+```
+Qui `Authoritative answers can be found from:` è proprio la sezione `AUTHORITY` della risposta di `dig` (il rinvio ai server a cui chiedere).
+
+Il nome da chiedere è l'**apice della zona**. Per `www.genovaparcheggi.com` (un `CNAME` verso l'apice) la risposta mostra prima `canonical name = genovaparcheggi.com.` e poi i `NS` dell'apice: non sono i `NS` di `www`.
+Per controllare che i server siano allineati si confronta il `serial` del `SOA` su ciascuno:
+```bash
+nslookup -type=SOA genovaparcheggi.com ns2.liguriadigitale.it | grep -E 'Server|serial'
+# Server:		ns2.liguriadigitale.it
+# 	serial = 22
+```
+Il ciclo completo, uno per server, è con `dig` (`dig +short SOA`, vedi [12-dig.md](12-dig.md#controllare-tutti-i-nameserver)): con `nslookup` si ripete a mano il comando per ciascun `NS`. Anche `nslookup -type=NS it` funziona sui livelli sopra il dominio (`it	nameserver = v.dns.it.`).
+
 ## Reverse DNS
 Basta passare l'**indirizzo**: nslookup capisce che è un IP e chiede il `PTR` (senza `-x`, che è di dig):
 ```bash

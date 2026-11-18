@@ -148,7 +148,7 @@ dig @10.10.2.10 lab.test SOA +multiline +noall +answer
 dig @10.10.2.10 web.lab.test A +short               # 10.10.2.10                  indirizzo IPv4
 dig @10.10.2.10 web.lab.test AAAA +short            # fd00:10:2::10               indirizzo IPv6
 dig @10.10.2.10 lab.test MX +short                  # 20 backup.lab.test. / 10 web.lab.test.   (priorità e server: il numero BASSO vince)
-dig @10.10.2.10 lab.test NS +short                  # ns1.lab.test.               i server autoritativi della zona
+dig @10.10.2.10 lab.test NS +short                  # ns1.lab.test.               i server autoritativi della zona (approfondimento: sezione `NS` sotto)
 dig @10.10.2.10 lab.test TXT +short                 # "v=spf1 mx -all"            testo libero: SPF, verifiche di dominio, DKIM
 dig @10.10.2.10 lab.test SOA +short                 # ns1.lab.test. admin.lab.test. 2026110601 3600 900 604800 300
 dig @10.10.2.10 _http._tcp.lab.test SRV +short      # 10 5 80 web.lab.test.       priorità, peso, porta, host
@@ -173,6 +173,78 @@ dig @10.10.2.10 ANY lab.test +noall +answer
 # lab.test.  3600  IN  TXT  "v=spf1 mx -all"
 ```
 Più tipi nella stessa riga non si possono mescolare: `dig +short lab.test MX TXT NS` avvisa (`;; Warning, extra type option`) e usa solo l'ultimo. Per più domande si usa un file o più nomi (vedi sotto).
+
+## `NS`: chi serve un dominio
+Il record `NS` (*name server*) dice **quali server DNS sono autoritativi per una zona**, cioè quelli che hanno l'ultima parola sui suoi record. È la prima domanda quando un dominio "non funziona" o si sposta: prima di guardare `A` e `MX` bisogna sapere **chi** li pubblica. Gli esempi di questa sezione sono su un dominio vero (`genovaparcheggi.com`): i TTL e gli indirizzi cambiano, contano forma e ragionamento.
+```bash
+dig genovaparcheggi.com NS +noall +answer +additional
+# genovaparcheggi.com.	86378	IN	NS	ns1.liguriadigitale.it.
+# genovaparcheggi.com.	86378	IN	NS	ns2.liguriadigitale.it.
+# genovaparcheggi.com.	86378	IN	NS	ns3.liguriadigitale.it.
+# ns1.liguriadigitale.it.	125	IN	A	81.23.92.103
+# ns2.liguriadigitale.it.	600	IN	A	81.23.92.104
+# ns3.liguriadigitale.it.	577	IN	A	81.23.81.105
+```
+Si legge così:
+
+| Campo | Cosa dice |
+|---|---|
+| `genovaparcheggi.com.` | la **zona** di cui si parla (il dominio, non un host) |
+| `86378` | TTL in secondi: per quanto tempo il resolver può tenere la risposta in cache. Qui sono circa 24 ore (`+ttlunits` lo scrive `23h59m38s`) |
+| `IN NS` | classe Internet, tipo nameserver |
+| `ns1.liguriadigitale.it.` | il **nome** di un server autoritativo, **non un indirizzo IP**: per l'IP serve un'altra query `A` |
+
+Tre cose da notare:
+- I `NS` sono **tre**, ciascuno un server diverso: se uno è giù, i resolver provano gli altri. Per un dominio vero ne servono almeno due, meglio se su reti diverse.
+- Sono sotto `liguriadigitale.it`, **un altro dominio**: il DNS di `genovaparcheggi.com` è gestito dal provider (Liguria Digitale), non dal proprietario. Il `NS` dice **chi gestisce il DNS**, non dove sta il sito: per quello si guarda l'`A` (`dig +short genovaparcheggi.com` → `129.152.18.174`, un indirizzo che con i `NS` non c'entra).
+- Nella `ADDITIONAL SECTION` (con `+additional`) il resolver ha aggiunto da solo gli `A` dei tre nomi, per risparmiare una query. Senza, si fa a mano: `dig +short NS genovaparcheggi.com | xargs -n1 dig +short`.
+
+Il nome da chiedere è l'**apice della zona** (`genovaparcheggi.com`), non un host dentro la zona. Chiedere i `NS` di `www.genovaparcheggi.com` non dà i `NS` di `www`: `www` è un `CNAME` verso l'apice, e `dig` ne mostra la catena (prima il `CNAME`, poi i `NS` dell'apice).
+```bash
+dig www.genovaparcheggi.com NS +noall +answer
+# www.genovaparcheggi.com.  595  IN  CNAME  genovaparcheggi.com.
+# genovaparcheggi.com.      595  IN  NS     ns1.liguriadigitale.it.
+# ...
+```
+Su un nome che esiste ma non è l'apice di una zona né un alias (come `web.lab.test` nel laboratorio) la risposta è `NOERROR` con `ANSWER: 0`: il caso *NODATA* di sopra.
+
+I `NS` si chiedono anche per i livelli sopra il dominio: `dig +short NS com` dà i `*.gtld-servers.net`, `dig +short NS it` i server del registro `.it`. Sono i server che, a ogni livello di [`+trace`](#trace-chi-risponde-a-ogni-livello), rimandano a quello sotto.
+
+### Delega e risposta autoritativa: due TTL diversi
+I `NS` di un dominio esistono **in due posti**: nella zona del **genitore** (`.com`, che dice "per `genovaparcheggi.com` chiedi a questi", la *delega*) e nella zona del **dominio stesso** (la risposta dei suoi server). Dovrebbero coincidere, ma sono dati separati, scritti da persone diverse, con TTL diversi. Si vedono entrambi interrogando i server giusti **senza ricorsione**:
+```bash
+# 1. il genitore: i server .com. Non è autoritativo per il dominio: lo rimanda ai suoi NS (sezione AUTHORITY, ANSWER vuota, niente flag "aa")
+dig @a.gtld-servers.net genovaparcheggi.com NS +norecurse +noall +comments +authority
+# ;; flags: qr; QUERY: 1, ANSWER: 0, AUTHORITY: 3, ADDITIONAL: 1
+# genovaparcheggi.com.	172800	IN	NS	ns1.liguriadigitale.it.
+# genovaparcheggi.com.	172800	IN	NS	ns2.liguriadigitale.it.
+# genovaparcheggi.com.	172800	IN	NS	ns3.liguriadigitale.it.
+
+# 2. il figlio: uno dei NS stessi. Qui "aa" c'è e la risposta sta in ANSWER, con il TTL scelto dal proprietario della zona
+dig @ns1.liguriadigitale.it genovaparcheggi.com NS +norecurse +noall +comments +answer
+# ;; flags: qr aa; QUERY: 1, ANSWER: 3, AUTHORITY: 0, ADDITIONAL: 1
+# genovaparcheggi.com.	600	IN	NS	ns1.liguriadigitale.it.
+# genovaparcheggi.com.	600	IN	NS	ns3.liguriadigitale.it.
+# genovaparcheggi.com.	600	IN	NS	ns2.liguriadigitale.it.
+```
+Il TTL **172800** (48 ore) è quello della delega, deciso dal registro `.com`; il **600** (10 minuti) è quello della zona. Per questo il `86378` della prima query non è il TTL che ha scelto il provider: è con ogni probabilità la delega finita in cache dal resolver locale, a cui restano circa 24 ore dei 48 iniziali. Lo stesso nome, interrogato in momenti e resolver diversi, mostra `86378`, `599` o `600`.
+
+Ne vengono due conseguenze pratiche:
+- **Cambiare i nameserver** (da un provider a un altro, dal pannello del registrar) modifica la delega nel genitore, e i resolver possono tenere la vecchia fino a 48 ore: la "propagazione" lenta dei `NS` viene da lì. Modificare un record `A` nella zona invece segue il TTL della zona (qui 10 minuti).
+- Se delega e zona **non coincidono** (la zona elenca un `ns4` che il registrar non ha, o viceversa) alcuni resolver vanno da un server, altri da un altro: i sintomi sono intermittenti. Il confronto dei due blocchi sopra è il controllo.
+
+### Controllare tutti i nameserver
+Ogni `NS` deve rispondere, ed essere **autoritativo** e **allineato**: stesso `serial` nel `SOA`. Un ciclo sui nomi che `dig` stesso trova:
+```bash
+D=genovaparcheggi.com
+for s in $(dig +short $D NS | sort); do printf '%-24s ' $s; dig @$s +short $D SOA; done
+# ns1.liguriadigitale.it.  ns1.liguriadigitale.it. hostmaster.liguriadigitale.it. 22 10800 3600 2419200 900
+# ns2.liguriadigitale.it.  ns1.liguriadigitale.it. hostmaster.liguriadigitale.it. 22 10800 3600 2419200 900
+# ns3.liguriadigitale.it.  ns1.liguriadigitale.it. hostmaster.liguriadigitale.it. 22 10800 3600 2419200 900
+```
+Il terzo campo (`22`) è il serial: uguale su tutti = i secondari hanno scaricato l'ultima versione dal primario (`ns1`, il primo nome del `SOA`). Se un server mostra un serial più basso è **indietro**; se non stampa niente è giù, non raggiungibile (`timed out`) o non serve la zona (`REFUSED`, o risposta senza il flag `aa`: la *lame delegation*, quando il genitore rimanda a un server che per quella zona non è autoritativo).
+
+> **NOTA**: `dig NS` fa una domanda **sulla zona**, non sul server: `dig @ns1.liguriadigitale.it genovaparcheggi.com NS` chiede a `ns1` i NS di `genovaparcheggi.com`. Non è "dammi le informazioni di `ns1`". Per quelle: `dig ns1.liguriadigitale.it A` (l'indirizzo) e `dig -x 81.23.92.103 +short` (il reverse: qui `ns1.liguriadigitale.it.`).
 
 ## Reverse DNS: `-x`
 `-x` fa il lavoro di scrivere l'indirizzo a rovescio sotto `in-addr.arpa` (o `ip6.arpa`) e chiede il `PTR`:
